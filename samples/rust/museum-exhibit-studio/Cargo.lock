@@ -771,6 +771,9 @@ version = "1.0.0"
 dependencies = [
  "async-trait",
  "github-copilot-sdk",
+ "indexmap",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 

@@ -296,10 +296,12 @@ func readFacts(input *bufio.Reader) []string {
 	for {
 		fact, err := input.ReadString('\n')
 		fact = strings.TrimSpace(fact)
+		if fact != "" {
+			facts = append(facts, fact)
+		}
 		if fact == "" || err != nil {
 			return facts
 		}
-		facts = append(facts, fact)
 	}
 }
 

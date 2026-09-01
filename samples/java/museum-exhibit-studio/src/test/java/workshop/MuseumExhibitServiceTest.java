@@ -22,6 +22,7 @@ class MuseumExhibitServiceTest {
         assertEquals("test-model", configuration.getModel());
         assertTrue(configuration.getAvailableTools().isEmpty());
         assertFalse(configuration.isStreaming());
+        assertNotNull(configuration.getOnPermissionRequest());
         assertEquals(SystemMessageMode.REPLACE, configuration.getSystemMessage().getMode());
         assertEquals(CuratorPrompts.SYSTEM_MESSAGE, configuration.getSystemMessage().getContent());
         assertEquals(120, MuseumExhibitService.GENERATION_TIMEOUT.toSeconds());

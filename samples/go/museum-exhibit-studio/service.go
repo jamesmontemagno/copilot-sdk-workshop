@@ -8,6 +8,7 @@ import (
 	"time"
 
 	copilot "github.com/github/copilot-sdk/go"
+	"github.com/github/copilot-sdk/go/rpc"
 )
 
 const generationTimeout = 120 * time.Second
@@ -43,6 +44,72 @@ func createSessionConfiguration(model string) *copilot.SessionConfig {
 			Content: curatorSystemMessage,
 		},
 	}
+}
+
+func createResearchSessionConfiguration(model string) *copilot.SessionConfig {
+	return &copilot.SessionConfig{
+		ClientName: "museum-exhibit-studio-research",
+		Model:      strings.TrimSpace(model),
+		Streaming:  copilot.Bool(false),
+		SystemMessage: &copilot.SystemMessageConfig{
+			Mode:    "replace",
+			Content: researchSystemMessage,
+		},
+		AvailableTools:      []string{"wikipedia-search", "wikipedia-readArticle"},
+		OnPermissionRequest: newWikipediaPermissionHandler(),
+		MCPServers: map[string]copilot.MCPServerConfig{
+			"wikipedia": copilot.MCPStdioServerConfig{
+				Command:          "npx",
+				Args:             []string{"-y", "wikipedia-mcp@1.0.3"},
+				WorkingDirectory: ".",
+				Tools:            []string{"search", "readArticle"},
+			},
+		},
+	}
+}
+
+func newWikipediaPermissionHandler() copilot.PermissionHandlerFunc {
+	var searchCalls int
+	var articleCalls int
+	return func(
+		request copilot.PermissionRequest,
+		_ copilot.PermissionInvocation,
+	) (rpc.PermissionDecision, error) {
+		var mcpRequest copilot.PermissionRequestMCP
+		switch value := request.(type) {
+		case copilot.PermissionRequestMCP:
+			mcpRequest = value
+		case *copilot.PermissionRequestMCP:
+			mcpRequest = *value
+		default:
+			return rejectWikipediaPermission(), nil
+		}
+		if mcpRequest.ServerName != "wikipedia" ||
+			(mcpRequest.ManagedApprovalRequired != nil && *mcpRequest.ManagedApprovalRequired) {
+			return rejectWikipediaPermission(), nil
+		}
+
+		switch mcpRequest.ToolName {
+		case "search", "wikipedia-search":
+			if searchCalls >= 1 {
+				return rejectWikipediaPermission(), nil
+			}
+			searchCalls++
+		case "readArticle", "wikipedia-readArticle":
+			if searchCalls == 0 || articleCalls >= 1 {
+				return rejectWikipediaPermission(), nil
+			}
+			articleCalls++
+		default:
+			return rejectWikipediaPermission(), nil
+		}
+		return &rpc.PermissionDecisionApproveOnce{}, nil
+	}
+}
+
+func rejectWikipediaPermission() rpc.PermissionDecision {
+	feedback := "This workshop permits only read-only Wikipedia search and article retrieval."
+	return &rpc.PermissionDecisionReject{Feedback: &feedback}
 }
 
 func (service museumExhibitService) Generate(ctx context.Context, approvedFacts []string, model string) (result generatedExhibit, err error) {

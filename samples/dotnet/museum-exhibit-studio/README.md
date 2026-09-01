@@ -2,7 +2,8 @@
 
 This completed .NET sample uses the GitHub Copilot SDK as a focused, non-software-engineering
 agent harness. A museum educator can accept the Apollo 11 fixture or enter another approved fact
-set, then generate visitor-facing exhibit copy and inspect deterministic structural checks.
+set, optionally review Wikipedia research and explicitly approve sourced additions, then generate
+visitor-facing exhibit copy and inspect deterministic structural checks.
 
 ## Run the sample
 
@@ -30,8 +31,12 @@ therefore owns the curator role, writing style, grounding guidance, and output c
 Prompt guidance is not an authorization boundary. The sample separately applies hard controls:
 
 - `AvailableTools = []` exposes no tools to the session.
+- A separate research session exposes only Wikipedia `search` and `readArticle`.
+- A deny-by-default permission handler rejects every other external request.
 - Fact count and length are bounded before a request is sent.
 - Generation has a two-minute timeout.
+- Research has a 45-second timeout, a 32,000-character response limit, and at most three accepted
+  proposed additions.
 - The session is disposed and the client is stopped on success or failure.
 - Application code checks the title, sections, narrative length, questions, and prohibited terms.
 
@@ -44,17 +49,9 @@ or a separate evaluator.
 2. Confirm the response contains one title, a 100-140-word narrative, and three questions.
 3. Confirm the validation summary is displayed.
 4. Review the prose for claims not present in the approved facts.
-5. Confirm no tool events or permission requests appear.
+5. Opt into Wikipedia research and confirm each original fact has a visible status.
+6. Reject one proposed addition and approve another.
+7. Confirm only the approved addition can enter the tool-free generation prompt.
+8. Confirm consulted source titles and URLs appear after, not inside, the exhibit.
 
-## Optional Wikipedia grounding exercise
-
-Keep the tool-free sample intact and add Wikipedia only as a separate follow-up. Choose either the
-Python `wikipedia-mcp` package over stdio or the Node.js package invoked with
-`npx -y wikipedia-mcp`; do not configure both. Discover the effective tool names, then allow only
-read-only search and article retrieval.
-
-Use a visible two-stage flow: research each supplied fact, label it `supported`, `contradicted`,
-`not found`, or `not checked`, and present sourced additions for explicit approval. Preserve source
-titles and URLs, treat article text as untrusted, bound retrieved content, apply timeouts, and fall
-back to the original facts without claiming validation succeeded. Automated tests should use a mock
-MCP server rather than live Wikipedia.
+Automated tests use a deterministic mock MCP process and do not contact Wikipedia or a model.

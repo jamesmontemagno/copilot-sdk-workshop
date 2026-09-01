@@ -1,6 +1,11 @@
 import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { apollo11Facts } from "./prompts.js";
+import {
+  selectApprovedFacts,
+  type ProposedAddition,
+  type ResearchResult,
+} from "./research.js";
 import { createCopilotCuratorClient, MuseumExhibitService } from "./service.js";
 import type { ExhibitValidation } from "./validator.js";
 
@@ -13,11 +18,39 @@ try {
 
   const answer = (await terminal.question("\nUse these facts? [Y/n]: ")).trim();
   const facts = answer.toLocaleLowerCase() === "n" ? await readFacts() : apollo11Facts;
-  const studio = new MuseumExhibitService(createCopilotCuratorClient());
-  const result = await studio.generate(facts, process.env.COPILOT_MODEL);
+  const researchAnswer = (await terminal.question("\nRun Wikipedia research? [y/N]: ")).trim();
+  let research: ResearchResult | undefined;
+  let approvedFacts = [...facts];
+  if (researchAnswer.toLocaleLowerCase() === "y") {
+    research = await new MuseumExhibitService(createCopilotCuratorClient())
+      .research(facts, process.env.COPILOT_MODEL);
+    printResearch(research);
+    if (research.completed) {
+      for (const addition of research.additions) {
+        const approval = (await terminal.question(
+          `Approve addition "${addition.fact}"? [y/N]: `,
+        )).trim();
+        addition.approved = approval.toLocaleLowerCase() === "y";
+      }
+      approvedFacts = selectApprovedFacts([...facts], research.additions);
+    } else {
+      console.log(
+        "Wikipedia research was not completed. Generating from the original approved facts only.",
+      );
+      if (research.failureMessage) console.log(`Research error: ${research.failureMessage}`);
+    }
+  }
+
+  const result = await new MuseumExhibitService(createCopilotCuratorClient())
+    .generate(approvedFacts, process.env.COPILOT_MODEL);
 
   console.log(`\n${result.content}\n`);
   printValidation(result.validation);
+  if (research?.completed && research.consultedSources.length > 0) {
+    console.log("\nConsulted Wikipedia sources:");
+    research.consultedSources.forEach((source) =>
+      console.log(`- ${source.title}: ${source.url}`));
+  }
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
   console.error(message.toLocaleLowerCase().includes("timeout")
@@ -26,6 +59,26 @@ try {
   process.exitCode = 1;
 } finally {
   terminal.close();
+}
+
+function printResearch(research: ResearchResult): void {
+  console.log("\nWikipedia fact review:");
+  research.reviews.forEach((review) => {
+    console.log(`- [${review.status}] ${review.fact}`);
+    console.log(`  ${review.explanation}`);
+    if (review.evidenceTitle && review.evidenceUrl) {
+      console.log(`  Source: ${review.evidenceTitle}: ${review.evidenceUrl}`);
+    }
+  });
+  if (research.additions.length > 0) {
+    console.log("\nProposed additions:");
+    research.additions.forEach(printAddition);
+  }
+}
+
+function printAddition(addition: ProposedAddition): void {
+  console.log(`- ${addition.fact}`);
+  console.log(`  Source: ${addition.sourceTitle}: ${addition.sourceUrl}`);
 }
 
 async function readFacts(): Promise<string[]> {

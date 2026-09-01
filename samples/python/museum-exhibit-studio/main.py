@@ -6,9 +6,9 @@ import sys
 
 from copilot import CopilotClient
 
-from curator_prompts import APOLLO_11_FACTS
+from curator_prompts import APOLLO_11_FACTS, MAXIMUM_FACT_COUNT
 from exhibit_validator import ExhibitValidation
-from museum_exhibit_service import MuseumExhibitService
+from museum_exhibit_service import MuseumExhibitService, ResearchResult, Source
 
 GROUNDING_DISCLAIMER = (
     "Structural checks do not prove factual grounding. "
@@ -50,6 +50,37 @@ def print_validation(validation: ExhibitValidation) -> None:
     print(f"\n{GROUNDING_DISCLAIMER}")
 
 
+def review_research(
+    result: ResearchResult, remaining_fact_slots: int = MAXIMUM_FACT_COUNT
+) -> list[str]:
+    print("\nWikipedia fact review:")
+    for review in result.reviews:
+        print(f"- [{review.status}] {review.fact}")
+        print(f"  {review.explanation}")
+        if review.evidence_title and review.evidence_url:
+            print(f"  Source: {review.evidence_title} — {review.evidence_url}")
+
+    approved: list[str] = []
+    for addition in result.additions:
+        print(f"\nProposed addition: {addition.fact}")
+        print(f"Source: {addition.source_title} — {addition.source_url}")
+        if len(approved) >= remaining_fact_slots:
+            print("Cannot approve this addition because the 20-fact limit is reached.")
+            continue
+        answer = input("Approve this addition? [y/N]: ").strip()
+        if answer.casefold() == "y":
+            approved.append(addition.fact)
+    return approved
+
+
+def print_sources(sources: tuple[Source, ...]) -> None:
+    if not sources:
+        return
+    print("\nConsulted Wikipedia sources:")
+    for source in sources:
+        print(f"- {source.title}: {source.url}")
+
+
 async def main() -> int:
     print("=== Museum Exhibit Studio ===")
     print("Approved Apollo 11 facts:")
@@ -58,11 +89,33 @@ async def main() -> int:
 
     use_defaults = input("\nUse these facts? [Y/n]: ").strip()
     facts = read_facts() if use_defaults.casefold() == "n" else list(APOLLO_11_FACTS)
-    studio = MuseumExhibitService(CopilotClient())
+    consulted_sources: tuple[Source, ...] = ()
+
     try:
+        run_research = input("Run Wikipedia research? [y/N]: ").strip()
+        if run_research.casefold() == "y":
+            research = await MuseumExhibitService(CopilotClient()).research(
+                facts, os.getenv("COPILOT_MODEL")
+            )
+            if research.completed:
+                facts.extend(
+                    review_research(
+                        research,
+                        remaining_fact_slots=MAXIMUM_FACT_COUNT - len(facts),
+                    )
+                )
+                consulted_sources = research.consulted_sources
+            else:
+                print(
+                    "Wikipedia research was not completed. "
+                    "Generating from the original approved facts only."
+                )
+
+        studio = MuseumExhibitService(CopilotClient())
         result = await studio.generate(facts, os.getenv("COPILOT_MODEL"))
         print(f"\n{result.content}\n")
         print_validation(result.validation)
+        print_sources(consulted_sources)
         return 0
     except TimeoutError:
         print("The curator did not respond within two minutes. Try again.", file=sys.stderr)

@@ -33,6 +33,23 @@ public sealed class MuseumExhibitServiceTests
         Assert.True(session.Disposed);
         Assert.NotNull(client.Configuration);
         Assert.All(CuratorPrompts.Apollo11Facts, fact => Assert.Contains(fact, session.Prompt));
+        Assert.Equal(MuseumExhibitService.GenerationTimeout, session.Timeout);
+    }
+
+    [Fact]
+    public async Task GenerateRejectsInvalidFactsBeforeStartingClient()
+    {
+        var session = new FakeSession();
+        await using var client = new FakeClient(session);
+        var service = new MuseumExhibitService(client);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => service.GenerateAsync([]));
+
+        Assert.False(client.Started);
+        Assert.False(client.Stopped);
+        Assert.Null(client.Configuration);
+        Assert.False(session.Disposed);
     }
 
     [Fact]
@@ -111,6 +128,7 @@ public sealed class MuseumExhibitServiceTests
         public string? Content { get; init; }
         public Exception? Failure { get; init; }
         public string Prompt { get; private set; } = string.Empty;
+        public TimeSpan Timeout { get; private set; }
         public bool Disposed { get; private set; }
 
         public Task<string?> SendAndWaitAsync(
@@ -119,6 +137,7 @@ public sealed class MuseumExhibitServiceTests
             CancellationToken cancellationToken = default)
         {
             Prompt = prompt;
+            Timeout = timeout;
             return Failure is null
                 ? Task.FromResult(Content)
                 : Task.FromException<string?>(Failure);

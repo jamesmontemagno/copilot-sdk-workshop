@@ -1229,6 +1229,56 @@ def validate_documentation() -> None:
             f"Lesson viewer navigation is missing {step_id}",
         )
 
+    wikipedia_lesson = read(WORKSHOP / "museum-07-wikipedia-grounding.md")
+    for required_step in (
+        "# Wikipedia MCP",
+        "## 1. Choose one Wikipedia MCP server",
+        "## 2. Add a separate research contract",
+        "## 3. Create the research session",
+        "## 4. Implement bounded research",
+        "## 5. Add the approval gate",
+        "## 6. Test with a mock MCP server",
+        '"wikipedia-search"',
+        '"wikipedia-readArticle"',
+        "The original generation configuration still has an empty tool allowlist.",
+    ):
+        require(
+            required_step in wikipedia_lesson,
+            f"Wikipedia MCP lesson is missing required implementation guidance: {required_step}",
+        )
+    require(
+        "# Optional: Wikipedia MCP" not in wikipedia_lesson,
+        "Wikipedia MCP must be a required museum workshop step",
+    )
+    require(
+        "id: 'museum-07-wikipedia-grounding'" in lesson_viewer
+        and "title: 'Wikipedia MCP',\n                navTitle: 'Wikipedia MCP'" in lesson_viewer
+        and "kind: 'core',\n                number: 7,\n                time: '30 min'" in lesson_viewer,
+        "Wikipedia MCP must be registered as required 30-minute museum step 7",
+    )
+    landing_page = read(DOCS / "index.html")
+    require(
+        "Non-SDLC tool · 105 minutes" in landing_page
+        and "105 minutes for Museum Exhibit Studio" in read(ROOT / "README.md"),
+        "Museum workshop duration must include all 105 timed minutes",
+    )
+
+    museum_preflight = read(WORKSHOP / "museum-00-preflight.md")
+    for clean_clone_step in (
+        "git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git",
+        'test "$(git rev-parse --show-toplevel)" = "$PWD"',
+        'test -z "$(git status --short)"',
+        "test ! -e museum-workshop-app",
+    ):
+        require(
+            clean_clone_step in museum_preflight,
+            f"Museum preflight is missing clean-clone guidance: {clean_clone_step}",
+        )
+    require(
+        "rm -rf museum-workshop-app" not in museum_preflight,
+        "Museum preflight must fail safely instead of deleting an existing learner project",
+    )
+
 
 def validate_workflows() -> None:
     required_setup = (

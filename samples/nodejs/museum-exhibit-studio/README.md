@@ -3,7 +3,8 @@
 This completed Node.js/TypeScript sample uses the GitHub Copilot SDK as a focused,
 non-software-engineering agent harness. A museum educator can accept the Apollo 11
 fixture or enter another approved fact set, then generate visitor-facing exhibit
-copy and inspect deterministic structural checks.
+copy, optionally research it through a separately bounded Wikipedia session, explicitly
+approve sourced additions, and inspect deterministic structural checks.
 
 ## Run the sample
 
@@ -36,6 +37,11 @@ Prompt guidance is not an authorization boundary. The sample separately applies
 hard controls:
 
 - `availableTools: []` exposes no tools to the session.
+- A separate research session exposes only Wikipedia `search` and `readArticle`.
+- Its deny-by-default permission handler allows at most five searches followed by
+  one article read.
+- Research has a 45-second timeout and accepts at most 64 KiB of strict JSON.
+- Proposed additions remain separate until the educator explicitly approves them.
 - Fact count and length are bounded before a request is sent.
 - Generation has a two-minute timeout.
 - The session is disconnected and the client is stopped on success or failure.
@@ -52,18 +58,7 @@ require human review or a separate evaluator.
    questions.
 3. Confirm the validation summary is displayed.
 4. Review the prose for claims not present in the approved facts.
-5. Confirm no tool events or permission requests appear.
-
-## Optional Wikipedia grounding exercise
-
-Keep the tool-free sample intact and add Wikipedia only as a separate follow-up.
-Choose either the Python `wikipedia-mcp` package over stdio or the Node.js package
-invoked with `npx -y wikipedia-mcp`; do not configure both. Discover the effective
-tool names, then allow only read-only search and article retrieval.
-
-Use a visible two-stage flow: research each supplied fact, label it `supported`,
-`contradicted`, `not found`, or `not checked`, and present sourced additions for
-explicit approval. Preserve source titles and URLs, treat article text as untrusted,
-bound retrieved content, apply timeouts, and fall back to the original facts without
-claiming validation succeeded. Automated tests should use a mock MCP server rather
-than live Wikipedia.
+5. Decline Wikipedia research and confirm no tool events or permission requests appear.
+6. Opt into research, reject one proposed addition, approve another, and confirm only
+   the approved fact reaches exhibit generation.
+7. Confirm consulted source titles and URLs appear after the exhibit rather than in it.

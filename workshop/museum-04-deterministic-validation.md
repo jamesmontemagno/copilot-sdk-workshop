@@ -1395,6 +1395,7 @@ class ExhibitValidatorTest {
         ExhibitValidation missing = ExhibitValidator.validate("# Title\n" + "word ".repeat(110));
         assertFalse(missing.narrative().present());
         assertFalse(missing.visitorQuestions().present());
+        assertFalse(missing.valid());
     }
 
     private static String createExhibit(int wordCount, int questionCount) {

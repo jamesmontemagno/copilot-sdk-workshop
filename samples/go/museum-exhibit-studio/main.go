@@ -30,9 +30,29 @@ func runCLI(input *bufio.Reader) error {
 		facts = readFacts(input)
 	}
 
+	approvedFacts := append([]string(nil), facts...)
+	var consultedSources []Source
+	fmt.Print("\nRun Wikipedia research? [y/N]: ")
+	researchAnswer, _ := input.ReadString('\n')
+	if strings.EqualFold(strings.TrimSpace(researchAnswer), "y") {
+		research := (museumExhibitService{client: newCopilotCuratorClient()}).Research(
+			context.Background(),
+			facts,
+			os.Getenv("COPILOT_MODEL"),
+		)
+		printResearch(research)
+		if research.Completed {
+			approveAdditions(input, research.Additions)
+			approvedFacts = approvedResearchFacts(facts, research.Additions)
+			consultedSources = research.ConsultedSources
+		} else {
+			fmt.Println("Wikipedia research was not completed. Generating from the original approved facts only.")
+		}
+	}
+
 	result, err := (museumExhibitService{client: newCopilotCuratorClient()}).Generate(
 		context.Background(),
-		facts,
+		approvedFacts,
 		os.Getenv("COPILOT_MODEL"),
 	)
 	if err != nil {
@@ -43,6 +63,7 @@ func runCLI(input *bufio.Reader) error {
 	}
 	fmt.Printf("\n%s\n\n", result.Content)
 	printValidation(result.Validation)
+	printSources(consultedSources)
 	return nil
 }
 
@@ -56,10 +77,51 @@ func readFacts(input *bufio.Reader) []string {
 	for {
 		fact, err := input.ReadString('\n')
 		fact = strings.TrimSpace(fact)
+		if fact != "" {
+			facts = append(facts, fact)
+		}
 		if fact == "" || err != nil {
 			return facts
 		}
-		facts = append(facts, fact)
+	}
+}
+
+func printResearch(research ResearchResult) {
+	fmt.Println("\nWikipedia fact review:")
+	for _, review := range research.Reviews {
+		fmt.Printf("- [%s] %s\n", review.Status, review.Fact)
+		fmt.Printf("  %s\n", review.Explanation)
+		if review.EvidenceTitle != nil && review.EvidenceURL != nil {
+			fmt.Printf("  Source: %s - %s\n", *review.EvidenceTitle, *review.EvidenceURL)
+		}
+	}
+	if len(research.Additions) > 0 {
+		fmt.Println("\nProposed additions:")
+		for index, addition := range research.Additions {
+			fmt.Printf("%d. %s\n   Source: %s - %s\n",
+				index+1, addition.Fact, addition.SourceTitle, addition.SourceURL)
+		}
+	}
+	if research.FailureMessage != nil {
+		fmt.Println("Research detail:", *research.FailureMessage)
+	}
+}
+
+func approveAdditions(input *bufio.Reader, additions []ProposedAddition) {
+	for index := range additions {
+		fmt.Printf("Approve addition %d? [y/N]: ", index+1)
+		answer, _ := input.ReadString('\n')
+		additions[index].Approved = strings.EqualFold(strings.TrimSpace(answer), "y")
+	}
+}
+
+func printSources(sources []Source) {
+	if len(sources) == 0 {
+		return
+	}
+	fmt.Println("\nConsulted Wikipedia sources:")
+	for _, source := range sources {
+		fmt.Printf("- %s - %s\n", source.Title, source.URL)
 	}
 }
 

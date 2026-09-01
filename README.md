@@ -16,7 +16,7 @@ Across the workshops, you'll:
 4. Enforce capability, input, timeout, validation, and lifecycle boundaries in application code.
 5. Explain what the model can infer and what the application must prove.
 
-Plan on about 90 minutes for Accessibility Reviewer or 75 minutes for Museum Exhibit Studio.
+Plan on about 90 minutes for Accessibility Reviewer or 105 minutes for Museum Exhibit Studio.
 Machine setup happens separately in an untimed preflight for each workshop.
 
 ## Start the workshop
@@ -111,8 +111,8 @@ system message, a task-specific approved fact list, an empty tool allowlist, and
 output checks in a non-software-engineering agent harness.
 
 The learner-facing track begins at
-[`workshop/museum-00-preflight.md`](workshop/museum-00-preflight.md), continues through six required
-steps, and ends with an optional Wikipedia-grounding design lab.
+[`workshop/museum-00-preflight.md`](workshop/museum-00-preflight.md), then continues through seven
+required steps ending with Wikipedia MCP.
 
 Rust checks share one Cargo target directory across all workshop projects, avoiding repeated SDK
 dependency compilation.

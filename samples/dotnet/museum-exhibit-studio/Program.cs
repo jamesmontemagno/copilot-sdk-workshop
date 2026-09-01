@@ -16,12 +16,47 @@ var facts = useDefaults?.Equals("n", StringComparison.OrdinalIgnoreCase) == true
 
 await using var client = new CopilotCuratorClient();
 var studio = new MuseumExhibitService(client);
+ResearchResult? research = null;
+
+Console.Write("Run Wikipedia research? [y/N]: ");
+if (Console.ReadLine()?.Trim().Equals("y", StringComparison.OrdinalIgnoreCase) == true)
+{
+    research = await studio.ResearchAsync(facts, Environment.GetEnvironmentVariable("COPILOT_MODEL"));
+    PrintResearch(research);
+
+    if (research.Completed)
+    {
+        var additions = research.Additions.ToArray();
+        for (var index = 0; index < additions.Length; index++)
+        {
+            var addition = additions[index];
+            Console.Write($"Approve addition {index + 1}? [y/N]: ");
+            if (Console.ReadLine()?.Trim().Equals("y", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                additions[index] = addition with { Approved = true };
+            }
+        }
+        research = research with { Additions = additions };
+    }
+    else
+    {
+        Console.WriteLine(
+            "Wikipedia research was not completed. " +
+            "Generating from the original approved facts only.");
+    }
+}
 
 try
 {
-    var result = await studio.GenerateAsync(facts, Environment.GetEnvironmentVariable("COPILOT_MODEL"));
+    var approvedFacts = ResearchApproval.BuildApprovedFacts(
+        facts,
+        research?.Additions ?? []);
+    var result = await studio.GenerateAsync(
+        approvedFacts,
+        Environment.GetEnvironmentVariable("COPILOT_MODEL"));
     Console.WriteLine($"\n{result.Content}\n");
     PrintValidation(result.Validation);
+    PrintSources(research);
     return 0;
 }
 catch (TimeoutException)
@@ -49,6 +84,59 @@ static IReadOnlyList<string> ReadFacts()
         }
 
         facts.Add(fact.Trim());
+    }
+}
+
+static void PrintResearch(ResearchResult research)
+{
+    Console.WriteLine("\nWikipedia fact review:");
+    foreach (var review in research.Reviews)
+    {
+        Console.WriteLine($"- [{FormatStatus(review.Status)}] {review.Fact}");
+        Console.WriteLine($"  {review.Explanation}");
+        if (review.EvidenceTitle is not null && review.EvidenceUrl is not null)
+        {
+            Console.WriteLine($"  Evidence: {review.EvidenceTitle} - {review.EvidenceUrl}");
+        }
+    }
+
+    if (research.Additions.Count > 0)
+    {
+        Console.WriteLine("\nProposed additions:");
+        for (var index = 0; index < research.Additions.Count; index++)
+        {
+            var addition = research.Additions[index];
+            Console.WriteLine($"{index + 1}. {addition.Fact}");
+            Console.WriteLine($"   Source: {addition.SourceTitle} - {addition.SourceUrl}");
+        }
+    }
+
+    if (!research.Completed && !string.IsNullOrWhiteSpace(research.FailureMessage))
+    {
+        Console.WriteLine($"Research detail: {research.FailureMessage}");
+    }
+}
+
+static string FormatStatus(FactReviewStatus status) => status switch
+{
+    FactReviewStatus.Supported => "supported",
+    FactReviewStatus.Contradicted => "contradicted",
+    FactReviewStatus.NotFound => "not found",
+    FactReviewStatus.NotChecked => "not checked",
+    _ => throw new ArgumentOutOfRangeException(nameof(status))
+};
+
+static void PrintSources(ResearchResult? research)
+{
+    if (research is not { Completed: true, ConsultedSources.Count: > 0 })
+    {
+        return;
+    }
+
+    Console.WriteLine("\nConsulted Wikipedia sources:");
+    foreach (var source in research.ConsultedSources)
+    {
+        Console.WriteLine($"- {source.Title}: {source.Url}");
     }
 }
 

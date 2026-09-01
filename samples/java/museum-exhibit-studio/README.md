@@ -2,7 +2,9 @@
 
 This Maven CLI sample uses the GitHub Copilot SDK as a focused, non-software-engineering agent
 harness. A museum educator can accept the Apollo 11 fixture or enter another approved fact set,
-generate visitor-facing exhibit copy, and inspect deterministic structural checks.
+optionally research those facts through a tightly allowlisted Wikipedia MCP session, approve
+sourced additions one by one, generate visitor-facing exhibit copy, and inspect deterministic
+structural checks.
 
 ## Run
 
@@ -21,6 +23,8 @@ Run the fake-based tests without contacting a model:
 mvn test
 ```
 
+The tests start only the deterministic local mock MCP fixture. They do not contact Wikipedia.
+
 ## What it demonstrates
 
 `CuratorPrompts.SYSTEM_MESSAGE` completely replaces the default system message and contains the
@@ -28,7 +32,12 @@ durable curator policy. Approved facts are separate task data in the user prompt
 
 Prompt guidance is not an authorization boundary, so the application also:
 
-- exposes an empty available-tools list;
+- keeps generation tool-free with an empty available-tools list and a reject-all permission handler;
+- limits research to `wikipedia-search` and `wikipedia-readArticle` with an exact permission handler;
+- caps research at 45 seconds, retries malformed formatting once for 15 seconds, and limits the
+  accepted response to 50,000 characters;
+- validates every review status, source title, and canonical Wikipedia URL before presenting it;
+- requires an explicit, default-no decision before a proposed addition reaches generation;
 - bounds input to 20 facts of at most 500 characters each;
 - uses the SDK's 120-second response timeout;
 - rejects an empty response;

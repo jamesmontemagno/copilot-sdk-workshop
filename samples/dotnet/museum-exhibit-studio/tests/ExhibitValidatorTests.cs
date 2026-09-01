@@ -24,6 +24,16 @@ public sealed class ExhibitValidatorTests
         Assert.False(validation.Valid);
     }
 
+    [Fact]
+    public void ValidateRejectsMissingNarrative()
+    {
+        var validation = ExhibitValidator.Validate(
+            CreateExhibit(110, 3).Replace("## Narrative\n", string.Empty));
+
+        Assert.False(validation.Narrative.Present);
+        Assert.False(validation.Valid);
+    }
+
     [Theory]
     [InlineData(99)]
     [InlineData(141)]

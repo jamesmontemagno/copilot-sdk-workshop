@@ -1002,11 +1002,12 @@ Replace `museum-workshop-app/src/main/java/workshop/MuseumExhibitService.java`:
 package workshop;
 
 import com.github.copilot.SystemMessageMode;
+import com.github.copilot.rpc.PermissionRequestResult;
 import com.github.copilot.rpc.SessionConfig;
 import com.github.copilot.rpc.SystemMessageConfig;
-
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public final class MuseumExhibitService {
     public static final Duration GENERATION_TIMEOUT = Duration.ofSeconds(120);
@@ -1044,6 +1045,10 @@ public final class MuseumExhibitService {
                 .setClientName("museum-exhibit-studio")
                 .setAvailableTools(List.of())
                 .setStreaming(false)
+                .setOnPermissionRequest((request, invocation) ->
+                        CompletableFuture.completedFuture(
+                                PermissionRequestResult.reject(
+                                        "This session does not permit tools.")))
                 .setSystemMessage(new SystemMessageConfig()
                         .setMode(SystemMessageMode.REPLACE)
                         .setContent(CuratorPrompts.SYSTEM_MESSAGE));

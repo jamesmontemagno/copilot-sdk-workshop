@@ -1,7 +1,9 @@
 use std::io::{self, Write};
 
 use museum_exhibit_studio::{
-    APOLLO_11_FACTS, CopilotCuratorClient, ExhibitValidation, generate_exhibit,
+    APOLLO_11_FACTS, CopilotCuratorClient, ExhibitValidation, ResearchResult, RuntimeError,
+    approved_facts_with_additions, build_exhibit_prompt, generate_exhibit, is_timeout_error,
+    research_wikipedia,
 };
 
 fn read_facts() -> io::Result<Vec<String>> {
@@ -55,8 +57,67 @@ fn print_validation(validation: &ExhibitValidation) {
     );
 }
 
+fn read_default_no(prompt: &str) -> io::Result<bool> {
+    print!("{prompt} [y/N]: ");
+    io::stdout().flush()?;
+    let mut answer = String::new();
+    io::stdin().read_line(&mut answer)?;
+    Ok(answer.trim().eq_ignore_ascii_case("y"))
+}
+
+fn review_research(research: &mut ResearchResult, original_fact_count: usize) -> io::Result<()> {
+    println!("\nWikipedia fact review:");
+    for review in &research.reviews {
+        println!("- {}: {}", review.status, review.fact);
+        if let (Some(title), Some(url)) = (&review.evidence_title, &review.evidence_url) {
+            println!("  Evidence: {title} ({url})");
+        }
+        println!("  {}", review.explanation);
+    }
+
+    let mut remaining_slots =
+        museum_exhibit_studio::MAXIMUM_FACT_COUNT.saturating_sub(original_fact_count);
+    for addition in &mut research.additions {
+        println!("\nProposed addition: {}", addition.fact);
+        println!(
+            "Source: {} ({})",
+            addition.source_title, addition.source_url
+        );
+        if remaining_slots == 0 {
+            println!("Not eligible for approval: the 20-fact generation limit is already reached.");
+            continue;
+        }
+        addition.approved = read_default_no("Approve this addition?")?;
+        if addition.approved {
+            remaining_slots -= 1;
+        }
+    }
+    Ok(())
+}
+
+fn print_sources(research: &ResearchResult) {
+    if research.consulted_sources.is_empty() {
+        return;
+    }
+    println!("\nConsulted Wikipedia sources:");
+    for source in &research.consulted_sources {
+        println!("- {}: {}", source.title, source.url);
+    }
+}
+
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn main() {
+    if let Err(error) = run().await {
+        if is_timeout_error(error.as_ref()) {
+            eprintln!("The curator did not respond within two minutes. Try again.");
+        } else {
+            eprintln!("Could not generate the exhibit: {error}");
+        }
+        std::process::exit(1);
+    }
+}
+
+async fn run() -> Result<(), RuntimeError> {
     println!("=== Museum Exhibit Studio ===");
     println!("Approved Apollo 11 facts:");
     for (index, fact) in APOLLO_11_FACTS.iter().enumerate() {
@@ -72,18 +133,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     } else {
         APOLLO_11_FACTS.map(str::to_owned).to_vec()
     };
+    build_exhibit_prompt(&facts)?;
 
     let model = std::env::var("COPILOT_MODEL").ok();
-    let mut client = CopilotCuratorClient::new();
-    match generate_exhibit(&mut client, &facts, model.as_deref()).await {
-        Ok(result) => {
-            println!("\n{}\n", result.content);
-            print_validation(&result.validation);
-            Ok(())
+    let mut research = None;
+    if read_default_no("\nRun Wikipedia research?")? {
+        let mut research_client = CopilotCuratorClient::new();
+        let mut result = research_wikipedia(&mut research_client, &facts, model.as_deref()).await;
+        if result.completed {
+            review_research(&mut result, facts.len())?;
+        } else {
+            println!(
+                "\nWikipedia research was not completed. Generating from the original approved facts only."
+            );
+            if let Some(message) = &result.failure_message {
+                eprintln!("{message}");
+            }
         }
-        Err(error) => {
-            eprintln!("Could not generate the exhibit: {error}");
-            Err(error)
-        }
+        research = Some(result);
     }
+
+    let approved_facts = match &research {
+        Some(result) => approved_facts_with_additions(&facts, &result.additions)?,
+        None => facts.clone(),
+    };
+    let mut generation_client = CopilotCuratorClient::new();
+    let result =
+        generate_exhibit(&mut generation_client, &approved_facts, model.as_deref()).await?;
+    println!("\n{}\n", result.content);
+    print_validation(&result.validation);
+    if let Some(research) = &research {
+        print_sources(research);
+    }
+    Ok(())
 }
