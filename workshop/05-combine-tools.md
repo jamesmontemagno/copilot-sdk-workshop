@@ -497,10 +497,9 @@ source-of-truth criterion and remediation.
 
 :::language dotnet
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/dotnet/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```csharp
 using GitHub.Copilot;
@@ -581,10 +580,9 @@ await ResponseStreamer.SendAndPrintAsync(
 
 :::language nodejs
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/nodejs/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -618,10 +616,9 @@ try {
 
 :::language python
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/python/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```python
 import asyncio
@@ -685,10 +682,9 @@ if __name__ == "__main__":
 
 :::language go
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/go/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```go
 package main
@@ -879,10 +875,9 @@ func main() {
 
 :::language rust
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/rust/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```rust
 use std::collections::HashSet;
@@ -1308,10 +1303,9 @@ bounded source of truth.
 ### 2. Combine browser evidence with catalog guidance
 
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/java/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```java
 package workshop;

@@ -57,27 +57,21 @@ output, and troubleshooting.
 copilot-sdk-workshop/
 |-- docs/                         GitHub Pages site and controlled target page
 |-- workshop/                     Two complete workshop tracks and optional extensions
-|-- start/dotnet/                 .NET learner starter with WCAG data and permission helper
-|-- checkpoints/dotnet/           .NET compiling state after each build step
-|-- samples/dotnet/
+|-- start-accessibility/dotnet/   .NET learner starter with WCAG data and permission helper
+|-- finished/dotnet/
 |   |-- hello-copilot-sdk/        Completed local-tool example in every language
 |   |-- accessibility-report/     Completed .NET local + MCP reporter
 |   `-- museum-exhibit-studio/    Tool-free, grounded museum curator sample
-|-- start/nodejs/                 Node.js/TypeScript learner starter
-|-- checkpoints/nodejs/           Node.js/TypeScript checkpoint projects
-|-- samples/nodejs/               Completed TypeScript examples
-|-- start/python/                 Python 3.11+ learner starter
-|-- checkpoints/python/           Python checkpoint projects
-|-- samples/python/               Completed Python examples
-|-- start/go/                     Go 1.24+ learner starter
-|-- checkpoints/go/               Go checkpoint projects
-|-- samples/go/                   Completed Go examples
-|-- start/rust/                   Rust 1.94+ learner starter
-|-- checkpoints/rust/             Rust checkpoint projects
-|-- samples/rust/                 Completed Rust examples
-|-- start/java/                   Maven Java 17+ learner starter
-|-- checkpoints/java/             Maven Java checkpoint projects
-|-- samples/java/                 Completed Maven Java examples
+|-- start-accessibility/nodejs/   Node.js/TypeScript learner starter
+|-- finished/nodejs/              Completed TypeScript projects
+|-- start-accessibility/python/   Python 3.11+ learner starter
+|-- finished/python/              Completed Python projects
+|-- start-accessibility/go/       Go 1.24+ learner starter
+|-- finished/go/                  Completed Go projects
+|-- start-accessibility/rust/     Rust 1.94+ learner starter
+|-- finished/rust/                Completed Rust projects
+|-- start-accessibility/java/     Maven Java 17+ learner starter
+|-- finished/java/                Completed Maven Java projects
 |-- src/BlazorApp/                Source counterpart of the deployed target
 |-- scripts/                      Deterministic content and build validation
 `-- .github/workflows/            Validation and Pages deployment
@@ -89,9 +83,9 @@ copilot-sdk-workshop/
 bash scripts/validate-workshop.sh
 ```
 
-The command checks lesson structure, internal links, site behavior hooks, and checkpoint coverage.
+The command checks lesson structure, internal links, site behavior hooks, and project coverage.
 It then runs browser-independent language-selection tests and restores, builds, or syntax-checks every
-starter, every checkpoint, both samples, and the Blazor target without authenticating Copilot, launching
+accessibility starter, every finished project, and the Blazor target without authenticating Copilot, launching
 a browser, or sending a prompt.
 
 Pass a language ID to run one smoke-build target:
@@ -106,7 +100,7 @@ jobs, so a failure identifies the affected SDK track.
 ## Museum Exhibit Studio workshop
 
 Museum Exhibit Studio is available in every workshop language under
-`samples/<language>/museum-exhibit-studio`. Each implementation demonstrates a complete custom
+`finished/<language>/museum-exhibit-studio`. Each implementation demonstrates a complete custom
 system message, a task-specific approved fact list, an empty tool allowlist, and deterministic
 output checks in a non-software-engineering agent harness.
 

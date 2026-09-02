@@ -124,10 +124,9 @@ Copilot:
 > the turn without hiding session errors.
 
 <details>
-<summary>Complete Step 2 checkpoint</summary>
+<summary>Complete Step 2 implementation</summary>
 
-The completed Step 2 project is in
-[`checkpoints/dotnet/02-streaming`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/02-streaming).
+Compare your work with this complete Step 2 implementation.
 
 `workshop-app/Helpers/ResponseStreamer.cs`:
 
@@ -290,10 +289,9 @@ Streaming shows partial answers as soon as tokens arrive, so the assistant feels
 > the turn without hiding session errors.
 
 <details>
-<summary>Complete Step 2 checkpoint</summary>
+<summary>Complete Step 2 implementation</summary>
 
-The completed Step 2 project is in
-[`checkpoints/nodejs/02-streaming`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/02-streaming).
+Compare your work with this complete Step 2 implementation.
 
 `workshop-app/src/workshop.ts` (`streamResponse`):
 
@@ -438,10 +436,9 @@ The bullets should start appearing progressively through the event callback:
 > the turn without hiding session errors.
 
 <details>
-<summary>Complete Step 2 checkpoint</summary>
+<summary>Complete Step 2 implementation</summary>
 
-The completed Step 2 project is in
-[`checkpoints/python/02-streaming`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/02-streaming).
+Compare your work with this complete Step 2 implementation.
 
 `workshop-app/main.py`:
 
@@ -583,10 +580,9 @@ The bullets should start appearing progressively through the event callback:
 > the turn without hiding session errors.
 
 <details>
-<summary>Complete Step 2 checkpoint</summary>
+<summary>Complete Step 2 implementation</summary>
 
-The completed Step 2 project is in
-[`checkpoints/go/02-streaming`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/02-streaming).
+Compare your work with this complete Step 2 implementation.
 
 `workshop-app/main.go`:
 
@@ -758,10 +754,9 @@ The bullets should start appearing progressively through the event subscription:
 > the turn without hiding session errors.
 
 <details>
-<summary>Complete Step 2 checkpoint</summary>
+<summary>Complete Step 2 implementation</summary>
 
-The completed Step 2 project is in
-[`checkpoints/rust/02-streaming`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/02-streaming).
+Compare your work with this complete Step 2 implementation.
 
 `workshop-app/src/main.rs`:
 
@@ -842,7 +837,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### 1. Enable streaming on the session
 
-The Java SDK checkpoint uses a streaming-enabled `SessionConfig` and `sendAndWait`, then prints the
+The Java SDK implementation uses a streaming-enabled `SessionConfig` and `sendAndWait`, then prints the
 completed assistant message. Replace `workshop-app/src/main/java/workshop/AccessibilityReport.java`
 with:
 
@@ -876,7 +871,7 @@ public final class AccessibilityReport {
 }
 ```
 
-`setStreaming(true)` keeps this step aligned with the other language tracks. The Java checkpoint
+`setStreaming(true)` keeps this step aligned with the other language tracks. The Java implementation
 waits for the completed response from `sendAndWait` and prints that full message when the turn
 finishes.
 
@@ -909,10 +904,9 @@ The completed response should print before the process exits:
 > the turn without hiding session errors.
 
 <details>
-<summary>Complete Step 2 checkpoint</summary>
+<summary>Complete Step 2 implementation</summary>
 
-The completed Step 2 project is in
-[`checkpoints/java/02-streaming`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/02-streaming).
+Compare your work with this complete Step 2 implementation.
 
 `workshop-app/src/main/java/workshop/AccessibilityReport.java`:
 

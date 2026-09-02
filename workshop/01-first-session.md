@@ -509,11 +509,9 @@ the messages and tool context for one conversation.
 
 :::language dotnet
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/dotnet/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```csharp
 using GitHub.Copilot;
@@ -542,11 +540,9 @@ Console.WriteLine($"\nCopilot: {response.Data.Content}");
 
 :::language nodejs
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/nodejs/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -570,11 +566,9 @@ try {
 
 :::language python
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/python/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```python
 import asyncio
@@ -615,11 +609,9 @@ if __name__ == "__main__":
 
 :::language go
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/go/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```go
 package main
@@ -662,11 +654,9 @@ func main() {
 
 :::language rust
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/rust/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```rust
 use github_copilot_sdk::types::{MessageOptions, SessionConfig};
@@ -698,11 +688,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 :::language java
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/java/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```java
 package workshop;

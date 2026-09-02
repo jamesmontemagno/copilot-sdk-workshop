@@ -215,10 +215,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/dotnet/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 ```csharp
 using GitHub.Copilot;
@@ -470,10 +469,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/nodejs/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 `src/index.ts`:
 
@@ -717,10 +715,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/python/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 `main.py`:
 
@@ -970,10 +967,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/go/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 `main.go` session wiring:
 
@@ -1284,10 +1280,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/rust/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 Session wiring from `src/main.rs`:
 
@@ -1642,10 +1637,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/java/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 Session wiring from `AccessibilityReport.java`:
 

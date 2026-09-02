@@ -227,11 +227,11 @@ Copy the starter and build it:
     <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
   </div>
   <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start/dotnet workshop-app
+    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/dotnet workshop-app
 dotnet build workshop-app</code></pre>
   </div>
   <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start/dotnet workshop-app
+    <pre><code class="language-bash">cp -R start-accessibility/dotnet workshop-app
 dotnet build workshop-app</code></pre>
   </div>
 </div>
@@ -293,12 +293,12 @@ Copy the starter, install dependencies, and type-check:
     <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
   </div>
   <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start/nodejs workshop-app
+    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/nodejs workshop-app
 npm --prefix workshop-app install
 npm --prefix workshop-app run build</code></pre>
   </div>
   <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start/nodejs workshop-app
+    <pre><code class="language-bash">cp -R start-accessibility/nodejs workshop-app
 npm --prefix workshop-app install
 npm --prefix workshop-app run build</code></pre>
   </div>
@@ -358,14 +358,14 @@ Copy the starter, create a virtual environment, install pinned requirements, and
     <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
   </div>
   <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start/python workshop-app
+    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/python workshop-app
 python -m venv workshop-app/.venv
 workshop-app\.venv\Scripts\Activate.ps1
 python -m pip install -r workshop-app/requirements.txt
 python -m py_compile workshop-app/main.py workshop-app/workshop.py workshop-app/report.py workshop-app/accessibility_rule_catalog.py</code></pre>
   </div>
   <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start/python workshop-app
+    <pre><code class="language-bash">cp -R start-accessibility/python workshop-app
 python3 -m venv workshop-app/.venv
 source workshop-app/.venv/bin/activate
 python -m pip install -r workshop-app/requirements.txt
@@ -433,11 +433,11 @@ Copy the starter and build with the lock enforced:
     <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
   </div>
   <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start/go workshop-app
+    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/go workshop-app
 go -C workshop-app build -mod=readonly ./...</code></pre>
   </div>
   <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start/go workshop-app
+    <pre><code class="language-bash">cp -R start-accessibility/go workshop-app
 go -C workshop-app build -mod=readonly ./...</code></pre>
   </div>
 </div>
@@ -470,7 +470,7 @@ Open the controlled target page once to make sure you can reach it:
 > complete, and the target page opens.
 
 Compare with
-[`checkpoints/go/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/01-first-session)
+[`finished/go/hello-copilot-sdk`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/go/hello-copilot-sdk)
 if you want a later reference point after Step 1.
 :::
 
@@ -500,11 +500,11 @@ Copy the starter and check it against the lockfile:
     <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
   </div>
   <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start/rust workshop-app
+    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/rust workshop-app
 cargo check --manifest-path workshop-app/Cargo.toml --locked</code></pre>
   </div>
   <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start/rust workshop-app
+    <pre><code class="language-bash">cp -R start-accessibility/rust workshop-app
 cargo check --manifest-path workshop-app/Cargo.toml --locked</code></pre>
   </div>
 </div>
@@ -537,7 +537,7 @@ Open the controlled target page once to make sure you can reach it:
 > `copilot login` is complete, and the target page opens.
 
 Compare with
-[`checkpoints/rust/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/01-first-session)
+[`finished/rust/hello-copilot-sdk`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/rust/hello-copilot-sdk)
 if you want a later reference point after Step 1.
 :::
 
@@ -559,11 +559,11 @@ Copy the starter and compile with Maven:
     <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
   </div>
   <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start/java workshop-app
+    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/java workshop-app
 mvn -f workshop-app/pom.xml compile</code></pre>
   </div>
   <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start/java workshop-app
+    <pre><code class="language-bash">cp -R start-accessibility/java workshop-app
 mvn -f workshop-app/pom.xml compile</code></pre>
   </div>
 </div>
@@ -603,7 +603,7 @@ Open the controlled target page once to make sure you can reach it:
 > `copilot login` is complete, and the target page opens.
 
 Compare with
-[`checkpoints/java/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/01-first-session)
+[`finished/java/hello-copilot-sdk`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/java/hello-copilot-sdk)
 if you want a later reference point after Step 1.
 :::
 

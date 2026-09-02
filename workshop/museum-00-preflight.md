@@ -13,7 +13,7 @@ approved facts -> bounded prompt -> curator session -> structural validation -> 
 
 You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal at the
 repository root. Start with dependencies and empty source directories, not the finished app.
-The completed project under `samples/<language>/museum-exhibit-studio` is optional reference
+The completed project under `finished/<language>/museum-exhibit-studio` is optional reference
 material only.
 
 ## Clone a clean workshop repository
@@ -44,8 +44,8 @@ SDK 1.0.11 and the test packages:
 
 ```bash
 mkdir -p museum-workshop-app/tests
-cp samples/dotnet/museum-exhibit-studio/museum-exhibit-studio.csproj museum-workshop-app/
-cp samples/dotnet/museum-exhibit-studio/tests/museum-exhibit-studio.Tests.csproj museum-workshop-app/tests/
+cp finished/dotnet/museum-exhibit-studio/museum-exhibit-studio.csproj museum-workshop-app/
+cp finished/dotnet/museum-exhibit-studio/tests/museum-exhibit-studio.Tests.csproj museum-workshop-app/tests/
 printf 'Console.WriteLine("Museum Exhibit Studio starter");\n' > museum-workshop-app/Program.cs
 dotnet restore museum-workshop-app/tests/museum-exhibit-studio.Tests.csproj
 ```
@@ -60,9 +60,9 @@ the compatible `@github/copilot` 1.0.80 platform package:
 
 ```bash
 mkdir -p museum-workshop-app/src museum-workshop-app/tests
-cp samples/nodejs/museum-exhibit-studio/package.json museum-workshop-app/
-cp samples/nodejs/museum-exhibit-studio/package-lock.json museum-workshop-app/
-cp samples/nodejs/museum-exhibit-studio/tsconfig.json museum-workshop-app/
+cp finished/nodejs/museum-exhibit-studio/package.json museum-workshop-app/
+cp finished/nodejs/museum-exhibit-studio/package-lock.json museum-workshop-app/
+cp finished/nodejs/museum-exhibit-studio/tsconfig.json museum-workshop-app/
 npm --prefix museum-workshop-app ci --ignore-scripts --no-audit --fund=false
 ```
 
@@ -75,8 +75,8 @@ Copy only Python dependency metadata, create an isolated virtual environment, an
 
 ```bash
 mkdir -p museum-workshop-app/tests
-cp samples/python/museum-exhibit-studio/pyproject.toml museum-workshop-app/
-cp samples/python/museum-exhibit-studio/requirements.txt museum-workshop-app/
+cp finished/python/museum-exhibit-studio/pyproject.toml museum-workshop-app/
+cp finished/python/museum-exhibit-studio/requirements.txt museum-workshop-app/
 python3 -m venv museum-workshop-app/.venv
 museum-workshop-app/.venv/bin/python -m pip install -r museum-workshop-app/requirements.txt
 ```
@@ -90,8 +90,8 @@ Copy only module metadata and download the locked SDK 1.0.11 dependency:
 
 ```bash
 mkdir -p museum-workshop-app
-cp samples/go/museum-exhibit-studio/go.mod museum-workshop-app/
-cp samples/go/museum-exhibit-studio/go.sum museum-workshop-app/
+cp finished/go/museum-exhibit-studio/go.mod museum-workshop-app/
+cp finished/go/museum-exhibit-studio/go.sum museum-workshop-app/
 go -C museum-workshop-app mod download
 ```
 
@@ -103,8 +103,8 @@ Copy only Cargo metadata, create an empty source directory, and fetch locked dep
 
 ```bash
 mkdir -p museum-workshop-app/src museum-workshop-app/tests
-cp samples/rust/museum-exhibit-studio/Cargo.toml museum-workshop-app/
-cp samples/rust/museum-exhibit-studio/Cargo.lock museum-workshop-app/
+cp finished/rust/museum-exhibit-studio/Cargo.toml museum-workshop-app/
+cp finished/rust/museum-exhibit-studio/Cargo.lock museum-workshop-app/
 touch museum-workshop-app/src/lib.rs
 cargo fetch --manifest-path museum-workshop-app/Cargo.toml --locked
 ```
@@ -118,7 +118,7 @@ Copy only Maven metadata, create empty source trees, and resolve SDK 1.0.11 plus
 
 ```bash
 mkdir -p museum-workshop-app/src/main/java/workshop museum-workshop-app/src/test/java/workshop
-cp samples/java/museum-exhibit-studio/pom.xml museum-workshop-app/
+cp finished/java/museum-exhibit-studio/pom.xml museum-workshop-app/
 mvn -f museum-workshop-app/pom.xml dependency:go-offline
 ```
 

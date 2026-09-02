@@ -119,17 +119,16 @@ WCAG 4.1.2 Name, Role, Value ...
 
 | Symptom | Fix |
 |---|---|
-| No tool event appears | Keep the explicit `Use accessibility_rule_lookup` instruction in this learning checkpoint. |
+| No tool event appears | Keep the explicit `Use accessibility_rule_lookup` instruction in this learning step. |
 | The compiler cannot find `AIFunction` | Add `using Microsoft.Extensions.AI;` to the catalog file. |
 | The result says no exact match | Confirm the prompt contains `accessible name`, a keyword in the starter data. |
 
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/dotnet/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `Program.cs`:
 
@@ -255,10 +254,9 @@ WCAG 4.1.2 Name, Role, Value ...
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/nodejs/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `src/index.ts`:
 
@@ -385,10 +383,9 @@ Associate a visible <label> with the input ...
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/python/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `main.py`:
 
@@ -535,10 +532,9 @@ Associate each input with a visible label.
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/go/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `main.go`:
 
@@ -721,10 +717,9 @@ Associate each input with a visible label.
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/rust/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `src/main.rs`:
 
@@ -895,7 +890,7 @@ System.out.println(response.getData().content());
 `setTools` registers the implementation. `setAvailableTools` is the allowlist the model may call.
 `skipPermission(true)` is intentional because this tool only returns application-owned read-only
 data. Keep the Step 1 permission handler until Step 4 replaces it with the scoped Playwright
-handler. The Java checkpoint uses a streaming-enabled session with `sendAndWait`, so it prints the
+handler. The Java implementation uses a streaming-enabled session with `sendAndWait`, so it prints the
 completed response when the turn finishes.
 
 ## Run it
@@ -924,10 +919,9 @@ Associate each input with a visible label.
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/java/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `AccessibilityReport.java`:
 
