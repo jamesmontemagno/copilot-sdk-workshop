@@ -21,7 +21,8 @@ Use `npm run build` to type-check without contacting a model.
 
 ## Safety shape
 
-Generation exposes no tools and uses only the approved facts. Optional Wikipedia
+Generation allowlists exactly one application-owned tool, `approved_fact_lookup`,
+which returns the bounded approved facts. Optional Wikipedia
 research runs in a separate session with scoped `search` and `readArticle` tools,
 a deny-by-default permission handler, cited `## Sources`, and no JSON contract or
 proposed-addition approval loop. Research notes are shown to the educator but are

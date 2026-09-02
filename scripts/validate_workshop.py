@@ -961,6 +961,7 @@ MUSEUM_HELPER_SYMBOLS = (
     "maximumfactcount",
     "maximumfactlength",
     "boundfacts",
+    "approvedfactlookup",
     "streamexhibit",
     "validateexhibit",
     "formatvalidation",
@@ -996,13 +997,21 @@ MUSEUM_STARTER_SOLUTION_MARKERS = (
     "copilotclient",
     "mcpservers",
 )
-MUSEUM_EMPTY_TOOL_ALLOWLIST = {
-    "dotnet": (r"availabletools=\[\]", r"availabletools=array\.empty"),
-    "nodejs": (r"availabletools:\[\]",),
-    "python": (r"availabletools[\"']?[=:]\[\]",),
-    "go": (r"availabletools:\[\]string\{\}",),
-    "rust": (r"availabletools=some\(vec(::new\(\)|!\[\])\)",),
-    "java": (r"setavailabletools\(list\.of\(\)\)",),
+MUSEUM_ONE_TOOL_ALLOWLIST = {
+    "dotnet": (r"availabletools=\[curatorfacts\.approvedfactlookupname\]",),
+    "nodejs": (r"availabletools:\[approvedfactlookupname\]",),
+    "python": (r"[\"']?availabletools[\"']?[=:]\[approvedfactlookupname\]",),
+    "go": (r"availabletools:\[\]string\{approvedfactlookupname\}",),
+    "rust": (r"availabletools=some\(vec!\[approvedfactlookupname\.toowned\(\)\]\)",),
+    "java": (r"setavailabletools\(list\.of\(curatorfacts\.approvedfactlookupname\)\)",),
+}
+MUSEUM_TOOL_REGISTRATION = {
+    "dotnet": (r"tools=\[curatorfacts\.createapprovedfactlookup\(",),
+    "nodejs": (r"tools:\[createapprovedfactlookup\(",),
+    "python": (r"[\"']?tools[\"']?[=:]\[createapprovedfactlookup\(",),
+    "go": (r"tools:\[\]copilot\.tool\{lookup\}",),
+    "rust": (r"tools=some\(vec!\[approvedfactlookup\(",),
+    "java": (r"settools\(list\.of\(curatorfacts\.approvedfactlookup\(",),
 }
 
 
@@ -1014,6 +1023,14 @@ def museum_symbols(text: str) -> str:
 def museum_tokens(text: str) -> str:
     """Fold case and drop underscores and whitespace so configuration markers match any layout."""
     return re.sub(r"\s+", "", museum_symbols(text))
+
+
+def strip_line_comments(text: str) -> str:
+    """Drop whole-line // and # comments so scaffold guidance is not read as seeded code."""
+    return "\n".join(
+        line for line in text.splitlines()
+        if not re.match(r"\s*(//|#)", line)
+    )
 
 
 def museum_helper_source(directory: Path, language: str) -> str:
@@ -1055,17 +1072,30 @@ def validate_museum_projects() -> None:
         starter = ROOT / "start-museum" / language
         starter_symbols = museum_symbols(project_source(starter))
         entrypoint = read(starter / entrypoint_path(starter, language))
-        entrypoint_symbols = museum_symbols(entrypoint)
+        # Placement comments tell the learner where each step's code goes. They name SDK members
+        # on purpose, so only real code is checked for seeded solutions.
+        entrypoint_symbols = museum_symbols(strip_line_comments(entrypoint))
         require(
             "Museum Exhibit Studio starter" in entrypoint,
             f"{starter.relative_to(ROOT)} does not identify itself when run",
         )
+        for step_reference in ("Step 1", "Step 4", "Step 5", "Step 8"):
+            require(
+                step_reference in entrypoint,
+                f"{starter.relative_to(ROOT)} entrypoint does not tell the learner where "
+                f"{step_reference} code goes",
+            )
         helper_symbols = museum_symbols(museum_helper_source(starter, language))
         for symbol in MUSEUM_HELPER_SYMBOLS:
             require(
                 symbol in helper_symbols,
                 f"{starter.relative_to(ROOT)} helper module is missing {symbol}",
             )
+        require(
+            "approved_fact_lookup" in museum_helper_source(starter, language),
+            f"{starter.relative_to(ROOT)} helper module does not ship the pre-built "
+            "approved_fact_lookup tool",
+        )
         for marker in MUSEUM_STARTER_SOLUTION_MARKERS:
             require(
                 marker not in entrypoint_symbols,
@@ -1116,9 +1146,22 @@ def validate_museum_projects() -> None:
         require(
             any(
                 re.search(pattern, finished_tokens)
-                for pattern in MUSEUM_EMPTY_TOOL_ALLOWLIST[language]
+                for pattern in MUSEUM_ONE_TOOL_ALLOWLIST[language]
             ),
-            f"{finished.relative_to(ROOT)} does not generate the exhibit with an empty tool allowlist",
+            f"{finished.relative_to(ROOT)} does not restrict exhibit generation to the "
+            "single approved_fact_lookup allowlist entry",
+        )
+        require(
+            any(
+                re.search(pattern, finished_tokens)
+                for pattern in MUSEUM_TOOL_REGISTRATION[language]
+            ),
+            f"{finished.relative_to(ROOT)} does not register the approved_fact_lookup "
+            "implementation on the generation session",
+        )
+        require(
+            "approved_fact_lookup" in finished_source,
+            f"{finished.relative_to(ROOT)} never names the approved_fact_lookup tool",
         )
         for marker in ("wikipedia-mcp@1.0.3", "builtin:apply_patch", "exhibit.html"):
             require(
@@ -1462,7 +1505,7 @@ def validate_documentation() -> None:
         "wikipedia-readArticle",
         "deny-by-default",
         "Research notes are never merged into the approved facts.",
-        "The session that writes the exhibit keeps its empty tool allowlist.",
+        "The session that writes the exhibit keeps its one-tool allowlist.",
         "Consulted Wikipedia sources:",
     ):
         require(
@@ -1526,6 +1569,53 @@ def validate_documentation() -> None:
             "museum-workshop-app" in text,
             f"{name} must build the single museum-workshop-app project",
         )
+
+    # The museum curator reaches its approved facts through one application-owned local tool.
+    # Nothing in the track may claim the session is tool-free or that its allowlist is empty.
+    for retired_framing in (
+        "tool-free",
+        "tool free",
+        "empty tool allowlist",
+        "empty allowlist",
+    ):
+        require(
+            retired_framing not in combined_museum.casefold(),
+            f"Museum lessons still describe the curator as {retired_framing!r}; the curator now "
+            "reaches its approved facts through the approved_fact_lookup tool",
+        )
+
+    facts_lesson = museum_lessons["museum-04-approved-facts.md"]
+    require(
+        "Call approved_fact_lookup first." in facts_lesson
+        or "Call `approved_fact_lookup` first." in facts_lesson,
+        "museum-04-approved-facts.md must instruct the curator to call approved_fact_lookup first",
+    )
+    require(
+        "[tool:start] approved_fact_lookup" in facts_lesson,
+        "museum-04-approved-facts.md must show the approved_fact_lookup tool event in its run output",
+    )
+    for language in LANGUAGES:
+        for lesson_name, lesson_label in (
+            ("museum-04-approved-facts.md", "register"),
+            ("museum-05-guardrails.md", "keep"),
+        ):
+            rendered = museum_tokens(render_language_markdown(WORKSHOP / lesson_name, language))
+            require(
+                any(
+                    re.search(pattern, rendered)
+                    for pattern in MUSEUM_TOOL_REGISTRATION[language]
+                ),
+                f"workshop/{lesson_name} ({language}) must {lesson_label} the approved_fact_lookup "
+                "implementation in the session tool list",
+            )
+            require(
+                any(
+                    re.search(pattern, rendered)
+                    for pattern in MUSEUM_ONE_TOOL_ALLOWLIST[language]
+                ),
+                f"workshop/{lesson_name} ({language}) must {lesson_label} approved_fact_lookup as "
+                "the single entry in the session tool allowlist",
+            )
 
     museum_preflight = read(WORKSHOP / "museum-00-preflight.md")
     for clean_clone_step in (

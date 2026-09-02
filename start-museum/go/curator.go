@@ -23,6 +23,8 @@ const (
 	MaximumFactCount  = 20
 	MaximumFactLength = 500
 	ExhibitFileName   = "exhibit.html"
+
+	ApprovedFactLookupName = "approved_fact_lookup"
 )
 
 var Apollo11Facts = []string{
@@ -80,6 +82,24 @@ func BoundFacts(facts []string) ([]string, error) {
 		}
 	}
 	return bounded, nil
+}
+
+// ApprovedFactLookup owns the approved facts. It is the only way the curator can read them.
+func ApprovedFactLookup(facts []string) (copilot.Tool, error) {
+	approvedFacts, err := BoundFacts(facts)
+	if err != nil {
+		return copilot.Tool{}, err
+	}
+
+	lookup := copilot.DefineTool(
+		ApprovedFactLookupName,
+		"Returns the complete list of educator-approved facts this application holds for the current exhibit.",
+		func(_ struct{}, _ copilot.ToolInvocation) ([]string, error) {
+			return append([]string(nil), approvedFacts...), nil
+		},
+	)
+	lookup.SkipPermission = true
+	return lookup, nil
 }
 
 func StreamExhibit(session *copilot.Session, prompt string, timeout time.Duration) (string, error) {

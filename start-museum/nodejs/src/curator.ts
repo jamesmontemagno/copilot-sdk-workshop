@@ -1,7 +1,9 @@
+import { defineTool } from "@github/copilot-sdk";
 import type {
   CopilotSession,
   MCPServerConfig,
   PermissionHandler,
+  Tool,
 } from "@github/copilot-sdk";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface, type Interface } from "node:readline/promises";
@@ -50,6 +52,20 @@ export function boundFacts(facts: Iterable<string>): string[] {
     throw new Error("Each approved fact must be 500 characters or fewer.");
   }
   return bounded;
+}
+
+export const approvedFactLookupName = "approved_fact_lookup";
+
+// The application owns the approved facts. This tool is the only way the curator can read them.
+export function createApprovedFactLookup(facts: Iterable<string>): Tool {
+  const approvedFacts = boundFacts(facts);
+  return defineTool(approvedFactLookupName, {
+    description:
+      "Returns the complete list of educator-approved facts this application holds for the current exhibit.",
+    parameters: { type: "object", properties: {}, additionalProperties: false },
+    skipPermission: true,
+    handler: async () => approvedFacts,
+  });
 }
 
 export const generationTimeoutMs = 120_000;

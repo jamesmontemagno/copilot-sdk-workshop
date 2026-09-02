@@ -6,17 +6,18 @@ use std::time::Duration;
 use github_copilot_sdk::types::{SessionConfig, SystemMessageConfig};
 use github_copilot_sdk::{Client, ClientOptions, IndexMap};
 use museum_exhibit_studio::{
-    EXHIBIT_FILE_NAME, FactBoundsError, GENERATION_TIMEOUT, RESEARCH_TIMEOUT, RuntimeError,
-    WIKIPEDIA_TOOLS, ask_line, ask_yes_no, bound_facts, exhibit_write_permission, extract_sources,
-    fact_sets, format_validation, read_facts, stream_exhibit, validate_exhibit,
-    wikipedia_permission_handler, wikipedia_server,
+    APPROVED_FACT_LOOKUP_NAME, EXHIBIT_FILE_NAME, FactBoundsError, GENERATION_TIMEOUT,
+    RESEARCH_TIMEOUT, RuntimeError, WIKIPEDIA_TOOLS, approved_fact_lookup, ask_line, ask_yes_no,
+    bound_facts, exhibit_write_permission, extract_sources, fact_sets, format_validation,
+    read_facts, stream_exhibit, validate_exhibit, wikipedia_permission_handler, wikipedia_server,
 };
 
 const SYSTEM_MESSAGE: &str = r#"You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -34,21 +35,12 @@ write exhibit copy, do not restate the supplied facts as your own findings, and 
 sources. End your reply with a "## Sources" section listing each consulted article as
 "- <article title>: <canonical Wikipedia URL>"."###;
 
-fn build_exhibit_prompt<I, S>(approved_facts: I) -> Result<String, FactBoundsError>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<str>,
-{
-    let facts = bound_facts(approved_facts)?;
-    let fact_list = facts
-        .iter()
-        .map(|fact| format!("- {fact}"))
-        .collect::<Vec<_>>()
-        .join("\n");
-    Ok(format!(
-        r#"Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+fn build_exhibit_prompt() -> String {
+    format!(
+        r#"Create visitor-facing exhibit text about this application's approved subject.
 
-{fact_list}
+Call {APPROVED_FACT_LOOKUP_NAME} first. Use only the facts it returns, and treat them as
+the complete source of truth for this exhibit.
 
 Return exactly this structure:
 
@@ -61,9 +53,8 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools."#
-    ))
+conclusion, software discussion, or facts the tool did not return."#
+    )
 }
 
 fn build_research_prompt<I, S>(approved_facts: I) -> Result<String, FactBoundsError>
@@ -117,18 +108,19 @@ fn selected_model() -> Option<String> {
         .filter(|model| !model.is_empty())
 }
 
-fn generation_config() -> SessionConfig {
+fn generation_config(approved_facts: &[String]) -> Result<SessionConfig, FactBoundsError> {
     let mut config = SessionConfig::default();
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.model = selected_model();
-    config.available_tools = Some(Vec::new());
+    config.tools = Some(vec![approved_fact_lookup(approved_facts)?]);
+    config.available_tools = Some(vec![APPROVED_FACT_LOOKUP_NAME.to_owned()]);
     config.streaming = Some(true);
     config.system_message = Some(
         SystemMessageConfig::new()
             .with_mode("replace")
             .with_content(SYSTEM_MESSAGE),
     );
-    config
+    Ok(config)
 }
 
 fn research_config() -> SessionConfig {
@@ -253,9 +245,9 @@ async fn run() -> Result<(), RuntimeError> {
         }
     }
 
-    let exhibit_prompt = build_exhibit_prompt(&facts)?;
+    let exhibit_config = generation_config(&facts)?;
     println!();
-    let exhibit = run_session(generation_config(), exhibit_prompt, GENERATION_TIMEOUT).await?;
+    let exhibit = run_session(exhibit_config, build_exhibit_prompt(), GENERATION_TIMEOUT).await?;
 
     println!();
     println!("{}", format_validation(&validate_exhibit(&exhibit)));

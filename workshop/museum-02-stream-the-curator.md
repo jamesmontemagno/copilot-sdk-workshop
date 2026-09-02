@@ -16,7 +16,8 @@ full text it accumulated. Your job is to turn streaming on and call it.
 Exhibit copy is prose a human has to read and judge. Watching it arrive tells you immediately
 whether the tone is right, whether the model is padding, and whether it is drifting off the subject
 — long before the run finishes. Streaming also gives you a place to notice tool calls, which
-matters in Step 5 when you prove that no tools are allowed at all.
+matters from Step 4 onward, when the curator has to call the application's fact tool before it can
+write anything.
 
 The helper returns the whole response as a string, so from here on you always have the finished
 text to inspect after the stream ends.
