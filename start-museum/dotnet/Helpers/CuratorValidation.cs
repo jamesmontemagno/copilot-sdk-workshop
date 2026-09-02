@@ -1,6 +1,7 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MuseumExhibitStudio;
+namespace MuseumExhibitStudio.Helpers;
 
 public sealed record TitleValidation(int TitleCount)
 {
@@ -38,7 +39,7 @@ public sealed record ExhibitValidation(
     public bool Valid => Errors.Count == 0;
 }
 
-public static partial class ExhibitValidator
+public static partial class CuratorValidation
 {
     private static readonly string[] ProhibitedVocabulary =
     [
@@ -49,7 +50,7 @@ public static partial class ExhibitValidator
         "GitHub Copilot"
     ];
 
-    public static ExhibitValidation Validate(string content)
+    public static ExhibitValidation ValidateExhibit(string content)
     {
         ArgumentNullException.ThrowIfNull(content);
 
@@ -121,6 +122,40 @@ public static partial class ExhibitValidator
             vocabulary,
             errors.AsReadOnly());
     }
+
+    public static string FormatValidation(ExhibitValidation validation)
+    {
+        ArgumentNullException.ThrowIfNull(validation);
+
+        var report = new StringBuilder();
+        report.AppendLine(validation.Valid
+            ? "Structural checks passed."
+            : "Structural checks found issues:");
+        report.AppendLine($"- One level-one title: {FormatBool(validation.Title.Present)}");
+        report.AppendLine($"- Narrative section: {FormatBool(validation.Narrative.Present)}");
+        report.AppendLine(
+            $"- Narrative length: {validation.Narrative.WordCount} words " +
+            $"(within 100-140: {FormatBool(validation.Narrative.WithinLimit)})");
+        report.AppendLine($"- Visitor questions section: {FormatBool(validation.VisitorQuestions.Present)}");
+        report.AppendLine(
+            $"- Numbered questions: {validation.VisitorQuestions.QuestionCount} " +
+            $"(exactly three: {FormatBool(validation.VisitorQuestions.ExactlyThree)})");
+        report.AppendLine($"- Every item is a question: {FormatBool(validation.VisitorQuestions.AllItemsAreQuestions)}");
+        report.AppendLine(validation.Vocabulary.ProhibitedTerms.Count == 0
+            ? "- Prohibited vocabulary: none"
+            : $"- Prohibited vocabulary: {string.Join(", ", validation.Vocabulary.ProhibitedTerms)}");
+
+        foreach (var error in validation.Errors)
+        {
+            report.AppendLine($"  - {error}");
+        }
+
+        report.AppendLine();
+        report.Append("Structural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.");
+        return report.ToString();
+    }
+
+    private static string FormatBool(bool value) => value ? "true" : "false";
 
     private static int FindHeading(string[] lines, string heading) =>
         Array.FindIndex(lines, line => line.Trim().Equals(heading, StringComparison.OrdinalIgnoreCase));

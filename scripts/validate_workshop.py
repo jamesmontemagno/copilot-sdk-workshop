@@ -912,6 +912,91 @@ def validate_layout() -> None:
     )
 
 
+MUSEUM_HELPER_PATTERNS = {
+    "dotnet": ("Helpers/Curator*.cs",),
+    "nodejs": ("src/curator.ts",),
+    "python": ("curator.py",),
+    "go": ("curator.go",),
+    "rust": ("src/lib.rs",),
+    "java": ("src/main/java/workshop/Curator*.java",),
+}
+MUSEUM_HELPER_SYMBOLS = (
+    "apollo11facts",
+    "greatbarrierreeffacts",
+    "terracottaarmyfacts",
+    "factsets",
+    "maximumfactcount",
+    "maximumfactlength",
+    "boundfacts",
+    "streamexhibit",
+    "validateexhibit",
+    "formatvalidation",
+    "wikipediaserver",
+    "wikipediapermission",
+    "extractsources",
+    "exhibitwrite",
+    "askyesno",
+    "readfacts",
+)
+MUSEUM_ABSTRACTION_MARKERS = (
+    "icuratorclient",
+    "icuratorsession",
+    "curatorclient",
+    "curatorsession",
+    "curatorruntime",
+    "copilotcuratorclient",
+)
+MUSEUM_RETIRED_RESEARCH_MARKERS = (
+    "proposedaddition",
+    "selectapprovedfacts",
+    "parseresearchresult",
+    "researchmodels",
+    "factreview",
+    "incompleteresearch",
+)
+MUSEUM_STARTER_SOLUTION_MARKERS = (
+    "systemmessage",
+    "buildexhibitprompt",
+    "buildresearchprompt",
+    "availabletools",
+    "createsession",
+    "copilotclient",
+    "mcpservers",
+)
+MUSEUM_EMPTY_TOOL_ALLOWLIST = {
+    "dotnet": (r"availabletools=\[\]", r"availabletools=array\.empty"),
+    "nodejs": (r"availabletools:\[\]",),
+    "python": (r"availabletools[\"']?[=:]\[\]",),
+    "go": (r"availabletools:\[\]string\{\}",),
+    "rust": (r"availabletools=some\(vec(::new\(\)|!\[\])\)",),
+    "java": (r"setavailabletools\(list\.of\(\)\)",),
+}
+
+
+def museum_symbols(text: str) -> str:
+    """Fold case and drop underscores so one marker matches every language's naming style."""
+    return text.casefold().replace("_", "")
+
+
+def museum_tokens(text: str) -> str:
+    """Fold case and drop underscores and whitespace so configuration markers match any layout."""
+    return re.sub(r"\s+", "", museum_symbols(text))
+
+
+def museum_helper_source(directory: Path, language: str) -> str:
+    paths = sorted(
+        path
+        for pattern in MUSEUM_HELPER_PATTERNS[language]
+        for path in directory.glob(pattern)
+    )
+    require(
+        bool(paths),
+        f"{directory.relative_to(ROOT)} has no pre-built curator helper module "
+        f"({', '.join(MUSEUM_HELPER_PATTERNS[language])})",
+    )
+    return "\n".join(read(path) for path in paths)
+
+
 def validate_museum_projects() -> None:
     ignored_directories = {
         ".venv",
@@ -933,32 +1018,30 @@ def validate_museum_projects() -> None:
             )
         )
 
-    solution_markers = (
-        "apollo_11",
-        "apollo11",
-        "build_exhibit_prompt",
-        "exhibitvalidator",
-        "exhibit_validator",
-        "museumexhibitservice",
-        "museum_exhibit_service",
-        "wikipedia",
-        "systemmessage",
-        "system_message",
-        "availabletools",
-        "available_tools",
-    )
     for language in LANGUAGES:
         starter = ROOT / "start-museum" / language
-        source = project_source(starter).casefold()
+        starter_symbols = museum_symbols(project_source(starter))
         entrypoint = read(starter / entrypoint_path(starter, language))
+        entrypoint_symbols = museum_symbols(entrypoint)
         require(
             "Museum Exhibit Studio starter" in entrypoint,
             f"{starter.relative_to(ROOT)} does not identify itself when run",
         )
-        for marker in solution_markers:
+        helper_symbols = museum_symbols(museum_helper_source(starter, language))
+        for symbol in MUSEUM_HELPER_SYMBOLS:
             require(
-                marker not in source,
-                f"{starter.relative_to(ROOT)} seeds later museum behavior: {marker}",
+                symbol in helper_symbols,
+                f"{starter.relative_to(ROOT)} helper module is missing {symbol}",
+            )
+        for marker in MUSEUM_STARTER_SOLUTION_MARKERS:
+            require(
+                marker not in entrypoint_symbols,
+                f"{starter.relative_to(ROOT)} entrypoint seeds lesson solution code: {marker}",
+            )
+        for marker in MUSEUM_ABSTRACTION_MARKERS:
+            require(
+                marker not in starter_symbols,
+                f"{starter.relative_to(ROOT)} still wraps the SDK in an abstraction: {marker}",
             )
         require(
             not any(
@@ -974,6 +1057,41 @@ def validate_museum_projects() -> None:
 
         finished = ROOT / "finished" / language / "museum-exhibit-studio"
         finished_source = project_source(finished)
+        finished_symbols = museum_symbols(finished_source)
+        finished_tokens = museum_tokens(finished_source)
+        finished_helper_symbols = museum_symbols(museum_helper_source(finished, language))
+        for symbol in MUSEUM_HELPER_SYMBOLS:
+            require(
+                symbol in finished_helper_symbols,
+                f"{finished.relative_to(ROOT)} helper module is missing {symbol}",
+            )
+        require(
+            museum_helper_source(starter, language) == museum_helper_source(finished, language),
+            f"{starter.relative_to(ROOT)} and {finished.relative_to(ROOT)} ship different "
+            "curator helper modules; a learner must end up with the starter's helpers unchanged",
+        )
+        for marker in MUSEUM_ABSTRACTION_MARKERS:
+            require(
+                marker not in finished_symbols,
+                f"{finished.relative_to(ROOT)} still wraps the SDK in an abstraction: {marker}",
+            )
+        for marker in MUSEUM_RETIRED_RESEARCH_MARKERS:
+            require(
+                marker not in finished_symbols,
+                f"{finished.relative_to(ROOT)} keeps the retired research contract: {marker}",
+            )
+        require(
+            any(
+                re.search(pattern, finished_tokens)
+                for pattern in MUSEUM_EMPTY_TOOL_ALLOWLIST[language]
+            ),
+            f"{finished.relative_to(ROOT)} does not generate the exhibit with an empty tool allowlist",
+        )
+        for marker in ("wikipedia-mcp@1.0.3", "builtin:apply_patch", "exhibit.html"):
+            require(
+                marker in finished_source,
+                f"{finished.relative_to(ROOT)} is missing required behavior: {marker}",
+            )
         require(
             "#[cfg(test)]" not in finished_source,
             f"{finished.relative_to(ROOT)} contains inline Rust tests",
