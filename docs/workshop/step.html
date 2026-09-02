@@ -206,67 +206,76 @@
                 time: 'Untimed'
             },
             {
-                id: 'museum-01-curator-role',
-                file: 'workshop/museum-01-curator-role.md',
-                title: 'Define the curator contract',
-                navTitle: 'Curator contract',
+                id: 'museum-01-first-curator-session',
+                file: 'workshop/museum-01-first-curator-session.md',
+                title: 'Your first curator session',
+                navTitle: 'First session',
                 kind: 'core',
                 number: 1,
                 time: '10 min'
             },
             {
-                id: 'museum-02-tool-free-session',
-                file: 'workshop/museum-02-tool-free-session.md',
-                title: 'Create a tool-free session',
-                navTitle: 'Tool-free session',
+                id: 'museum-02-stream-the-curator',
+                file: 'workshop/museum-02-stream-the-curator.md',
+                title: 'Stream the curator',
+                navTitle: 'Streaming',
                 kind: 'core',
                 number: 2,
                 time: '10 min'
             },
             {
-                id: 'museum-03-approved-facts',
-                file: 'workshop/museum-03-approved-facts.md',
-                title: 'Ground the exhibit in approved facts',
-                navTitle: 'Approved facts',
+                id: 'museum-03-curator-voice',
+                file: 'workshop/museum-03-curator-voice.md',
+                title: 'Give the curator a voice',
+                navTitle: 'Curator voice',
                 kind: 'core',
                 number: 3,
-                time: '15 min'
+                time: '10 min'
             },
             {
-                id: 'museum-04-deterministic-validation',
-                file: 'workshop/museum-04-deterministic-validation.md',
-                title: 'Validate the exhibit deterministically',
-                navTitle: 'Validation',
+                id: 'museum-04-approved-facts',
+                file: 'workshop/museum-04-approved-facts.md',
+                title: 'Ground it in approved facts',
+                navTitle: 'Approved facts',
                 kind: 'core',
                 number: 4,
                 time: '15 min'
             },
             {
-                id: 'museum-05-lifecycle-tests',
-                file: 'workshop/museum-05-lifecycle-tests.md',
-                title: 'Own the lifecycle and tests',
-                navTitle: 'Lifecycle and tests',
+                id: 'museum-05-guardrails',
+                file: 'workshop/museum-05-guardrails.md',
+                title: 'Set the guardrails',
+                navTitle: 'Guardrails',
                 kind: 'core',
                 number: 5,
                 time: '15 min'
             },
             {
-                id: 'museum-06-run-review',
-                file: 'workshop/museum-06-run-review.md',
-                title: 'Run and review the exhibit',
-                navTitle: 'Run and review',
+                id: 'museum-06-prove-the-structure',
+                file: 'workshop/museum-06-prove-the-structure.md',
+                title: 'Prove the structure',
+                navTitle: 'Structural checks',
                 kind: 'core',
                 number: 6,
                 time: '10 min'
             },
             {
-                id: 'museum-07-wikipedia-grounding',
-                file: 'workshop/museum-07-wikipedia-grounding.md',
-                title: 'Wikipedia MCP',
-                navTitle: 'Wikipedia MCP',
+                id: 'museum-07-wikipedia-research',
+                file: 'workshop/museum-07-wikipedia-research.md',
+                title: 'Research with Wikipedia MCP',
+                navTitle: 'Wikipedia research',
                 kind: 'core',
                 number: 7,
-                time: '30 min'
+                time: '20 min'
+            },
+            {
+                id: 'museum-08-interactive-exhibit-page',
+                file: 'workshop/museum-08-interactive-exhibit-page.md',
+                title: 'Publish an interactive exhibit page',
+                navTitle: 'Exhibit page',
+                kind: 'optional',
+                number: 8,
+                time: '15 min'
             }
         ];
 
@@ -288,7 +297,14 @@
             '09-tool-activity': '05-combine-tools',
             '10-report-prompt': '06-structured-report',
             '11-generate-tests': '07-run-explain',
-            '12-run-review': '07-run-explain'
+            '12-run-review': '07-run-explain',
+            'museum-01-curator-role': 'museum-03-curator-voice',
+            'museum-02-tool-free-session': 'museum-05-guardrails',
+            'museum-03-approved-facts': 'museum-04-approved-facts',
+            'museum-04-deterministic-validation': 'museum-06-prove-the-structure',
+            'museum-05-lifecycle-tests': 'museum-05-guardrails',
+            'museum-06-run-review': 'museum-06-prove-the-structure',
+            'museum-07-wikipedia-grounding': 'museum-07-wikipedia-research'
         };
         const requestedStepParameter = new URLSearchParams(window.location.search).get('step');
         const mappedStepParameter = legacyStepMap[requestedStepParameter] ?? requestedStepParameter;

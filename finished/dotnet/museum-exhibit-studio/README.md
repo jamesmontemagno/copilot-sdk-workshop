@@ -53,3 +53,10 @@ directory and rejects every other write, shell, or MCP request.
 3. Confirm the exhibit contains one title, a 100-140-word narrative, and three questions.
 4. Confirm the validation summary and human-review caveat are displayed.
 5. Optionally generate `exhibit.html` and review the standalone interactive page in a browser.
+
+This is the application a learner ends up with after the museum lessons, not a separate reference
+architecture. The entrypoint keeps one small session runner that starts the client, creates the
+session, enforces the timeout, rejects blank output, and cleans up on every path; the research,
+generation, and optional HTML steps reuse it with different session configurations. Follow the
+track from
+[`workshop/museum-00-preflight.md`](https://github.com/jamesmontemagno/copilot-sdk-workshop/blob/main/workshop/museum-00-preflight.md).

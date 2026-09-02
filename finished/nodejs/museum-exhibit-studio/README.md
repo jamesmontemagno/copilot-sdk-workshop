@@ -31,3 +31,10 @@ After generation, deterministic checks report structure, narrative length, visit
 questions, and prohibited vocabulary. If selected, the HTML step exposes only
 `builtin:apply_patch` and approves writing exactly `exhibit.html` in the app
 directory.
+
+This is the application a learner ends up with after the museum lessons, not a separate reference
+architecture. The entrypoint keeps one small session runner that starts the client, creates the
+session, enforces the timeout, rejects blank output, and cleans up on every path; the research,
+generation, and optional HTML steps reuse it with different session configurations. Follow the
+track from
+[`workshop/museum-00-preflight.md`](https://github.com/jamesmontemagno/copilot-sdk-workshop/blob/main/workshop/museum-00-preflight.md).

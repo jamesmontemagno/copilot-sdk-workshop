@@ -8,12 +8,32 @@
 Museum Exhibit Studio turns educator-approved facts into visitor-ready exhibit copy:
 
 ```text
-approved facts -> bounded prompt -> curator session -> structural validation -> human review
+approved facts -> bounded prompt -> curator session -> structural checks -> human review
 ```
 
+You build one growing console application called `museum-workshop-app`. Each step adds one idea and
+ends with a real run, so the curator comes together in front of you:
+
+| Step | You add | You see |
+|---|---|---|
+| 1 | A client, a session, one prompt | Museum copy in your terminal |
+| 2 | The pre-built streaming printer | Text arriving live |
+| 3 | The curator system message | A different voice and shape |
+| 4 | The approved-fact prompt builder | Copy that tracks your facts |
+| 5 | One session runner with the guardrails | Refused tools and friendly failures |
+| 6 | The pre-built validator | A PASS/FAIL structural report |
+| 7 | A scoped Wikipedia research session | Cited background, kept out of the exhibit |
+| 8 | An optional interactive page | `exhibit.html` in your browser |
+
+The starter already ships the plumbing you should never have to write: the approved fact sets and
+their bounds, a streaming printer, deterministic exhibit validation, the scoped Wikipedia MCP server
+with its deny-by-default permission handler, the single-file `exhibit.html` write permission, and
+small terminal prompts. **You never edit the helper module.** You write the session setup, the two
+system messages, the prompt builders, one session runner, and `main`.
+
 You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal at the
-repository root. Start from the minimal project under `start-museum/<language>`, not the finished app.
-The completed project under `finished/<language>/museum-exhibit-studio` is optional reference
+repository root. Start from the minimal project under `start-museum/<language>`, not the finished
+app. The completed project under `finished/<language>/museum-exhibit-studio` is optional reference
 material only.
 
 ## Clone a clean workshop repository
@@ -48,7 +68,12 @@ dotnet build museum-workshop-app --no-restore
 dotnet run --project museum-workshop-app --no-build
 ```
 
-Pass condition: the build succeeds and the executable prints `Museum Exhibit Studio starter (.NET)`.
+Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in Helpers/.`
+
+Your helper module is `museum-workshop-app/Helpers/Curator*.cs` in the
+`MuseumExhibitStudio.Helpers` namespace. You will write every lesson change in
+`museum-workshop-app/Program.cs`.
 :::
 
 :::language nodejs
@@ -62,7 +87,11 @@ npm --prefix museum-workshop-app run build
 npm --prefix museum-workshop-app start
 ```
 
-Pass condition: the build succeeds and the executable identifies the Node.js/TypeScript museum starter.
+Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in src/curator.ts.`
+
+Your helper module is `museum-workshop-app/src/curator.ts`. You will write every lesson change in
+`museum-workshop-app/src/index.ts`.
 :::
 
 :::language python
@@ -76,7 +105,13 @@ museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/*.py
 museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
 ```
 
-Pass condition: the source compiles and the executable identifies the Python museum starter.
+On Windows, the interpreter lives at `museum-workshop-app/.venv/Scripts/python.exe`.
+
+Pass condition: the source compiles and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in curator.py.`
+
+Your helper module is `museum-workshop-app/curator.py`. You will write every lesson change in
+`museum-workshop-app/main.py`.
 :::
 
 :::language go
@@ -89,7 +124,11 @@ go -C museum-workshop-app build -mod=readonly ./...
 go -C museum-workshop-app run .
 ```
 
-Pass condition: the build succeeds and the executable identifies the Go museum starter.
+Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in curator.go.`
+
+Your helper module is `museum-workshop-app/curator.go`, in the same `main` package. You will write
+every lesson change in `museum-workshop-app/main.go`.
 :::
 
 :::language rust
@@ -102,7 +141,12 @@ cargo check --manifest-path museum-workshop-app/Cargo.toml --locked
 cargo run --manifest-path museum-workshop-app/Cargo.toml --locked
 ```
 
-Pass condition: Cargo leaves `Cargo.lock` unchanged and the executable identifies the Rust museum starter.
+Pass condition: Cargo leaves `Cargo.lock` unchanged and the program prints
+`=== Museum Exhibit Studio starter ===` followed by
+`Pre-built curator helpers are ready in src/lib.rs.`
+
+Your helper module is the `museum_exhibit_studio` library crate in `museum-workshop-app/src/lib.rs`.
+You will write every lesson change in `museum-workshop-app/src/main.rs`.
 :::
 
 :::language java
@@ -115,8 +159,14 @@ mvn -f museum-workshop-app/pom.xml compile
 mvn -f museum-workshop-app/pom.xml exec:java
 ```
 
-Pass condition: Maven succeeds and the executable identifies the Java museum starter.
+Pass condition: Maven succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in src/main/java/workshop/.`
+
+Your helper module is `museum-workshop-app/src/main/java/workshop/Curator*.java`. You will write
+every lesson change in `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`.
 :::
+
+On Windows, replace `cp -R` with `Copy-Item -Recurse`.
 
 ## Establish the trust boundary
 
@@ -127,5 +177,8 @@ Pass condition: Maven succeeds and the executable identifies the Java museum sta
 | Application code | Enforce limits, timeout, validation, and cleanup |
 | Human review | Decide whether every historical claim is supported |
 
-The supplied facts are the only approved source. Model memory is not verified museum knowledge.
-Continue to [Define the curator contract](museum-01-curator-role.md).
+The supplied facts are the only approved source. Model memory is not verified museum knowledge, and
+prompt guidance is not an authorization boundary: only the allowlist and the permission handler
+decide what the session may actually do.
+
+Continue to [Your first curator session](museum-01-first-curator-session.md).

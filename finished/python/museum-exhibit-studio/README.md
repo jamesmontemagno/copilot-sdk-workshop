@@ -67,3 +67,10 @@ boundaries. Generated claims still require human review or a separate evaluator.
 4. Decline research and confirm no MCP tool events appear.
 5. Opt into research and confirm sources print after the exhibit, not inside it.
 6. Opt into `exhibit.html` and confirm only that file is written.
+
+This is the application a learner ends up with after the museum lessons, not a separate reference
+architecture. The entrypoint keeps one small session runner that starts the client, creates the
+session, enforces the timeout, rejects blank output, and cleans up on every path; the research,
+generation, and optional HTML steps reuse it with different session configurations. Follow the
+track from
+[`workshop/museum-00-preflight.md`](https://github.com/jamesmontemagno/copilot-sdk-workshop/blob/main/workshop/museum-00-preflight.md).
