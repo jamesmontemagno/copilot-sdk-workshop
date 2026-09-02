@@ -16,10 +16,10 @@ dotnet run --project finished/dotnet/museum-exhibit-studio
 Set `COPILOT_MODEL` before running to select a model. Otherwise, the Copilot runtime chooses its
 default. The sample requires an authenticated GitHub Copilot CLI.
 
-Run the mocked tests without contacting a model:
+Build without contacting a model:
 
 ```bash
-dotnet test finished/dotnet/museum-exhibit-studio/tests/museum-exhibit-studio.Tests.csproj
+dotnet build finished/dotnet/museum-exhibit-studio
 ```
 
 ## What the sample teaches
@@ -53,5 +53,3 @@ or a separate evaluator.
 6. Reject one proposed addition and approve another.
 7. Confirm only the approved addition can enter the tool-free generation prompt.
 8. Confirm consulted source titles and URLs appear after, not inside, the exhibit.
-
-Automated tests use a deterministic mock MCP process and do not contact Wikipedia or a model.

@@ -19,10 +19,9 @@ npm start
 Set `COPILOT_MODEL` before running to select a model. Otherwise, the Copilot runtime
 chooses its default. The sample requires an authenticated GitHub Copilot CLI.
 
-Run the mocked tests without contacting a model:
+Type-check without contacting a model:
 
 ```bash
-npm test
 npm run build
 ```
 

@@ -12,7 +12,7 @@ approved facts -> bounded prompt -> curator session -> structural validation -> 
 ```
 
 You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal at the
-repository root. Start with dependencies and empty source directories, not the finished app.
+repository root. Start from the minimal project under `start-museum/<language>`, not the finished app.
 The completed project under `finished/<language>/museum-exhibit-studio` is optional reference
 material only.
 
@@ -39,90 +39,83 @@ instead of deleting or overwriting an existing project. Keep this terminal at th
 for every command in the museum workshop.
 
 :::language dotnet
-Create the learner project with the two project manifests and a temporary entrypoint, then restore
-SDK 1.0.11 and the test packages:
+Copy the .NET starter, then restore, build, and run its local entrypoint:
 
 ```bash
-mkdir -p museum-workshop-app/tests
-cp finished/dotnet/museum-exhibit-studio/museum-exhibit-studio.csproj museum-workshop-app/
-cp finished/dotnet/museum-exhibit-studio/tests/museum-exhibit-studio.Tests.csproj museum-workshop-app/tests/
-printf 'Console.WriteLine("Museum Exhibit Studio starter");\n' > museum-workshop-app/Program.cs
-dotnet restore museum-workshop-app/tests/museum-exhibit-studio.Tests.csproj
+cp -R start-museum/dotnet museum-workshop-app
+dotnet restore museum-workshop-app
+dotnet build museum-workshop-app --no-restore
+dotnet run --project museum-workshop-app --no-build
 ```
 
-Pass condition: restore completes without changing either project file. Lesson 6 replaces the
-temporary entrypoint with the finished CLI.
+Pass condition: the build succeeds and the executable prints `Museum Exhibit Studio starter (.NET)`.
 :::
 
 :::language nodejs
-Copy only the package and TypeScript configuration files. The lockfile preserves SDK 1.0.11 and
+Copy the Node.js starter. Its lockfile preserves SDK 1.0.11 and
 the compatible `@github/copilot` 1.0.80 platform package:
 
 ```bash
-mkdir -p museum-workshop-app/src museum-workshop-app/tests
-cp finished/nodejs/museum-exhibit-studio/package.json museum-workshop-app/
-cp finished/nodejs/museum-exhibit-studio/package-lock.json museum-workshop-app/
-cp finished/nodejs/museum-exhibit-studio/tsconfig.json museum-workshop-app/
+cp -R start-museum/nodejs museum-workshop-app
 npm --prefix museum-workshop-app ci --ignore-scripts --no-audit --fund=false
+npm --prefix museum-workshop-app run build
+npm --prefix museum-workshop-app start
 ```
 
-Pass condition: `npm` exits successfully and `museum-workshop-app/src` remains empty.
+Pass condition: the build succeeds and the executable identifies the Node.js/TypeScript museum starter.
 :::
 
 :::language python
-Copy only Python dependency metadata, create an isolated virtual environment, and install SDK
-1.0.11:
+Copy the Python starter, create an isolated virtual environment, and install SDK 1.0.11:
 
 ```bash
-mkdir -p museum-workshop-app/tests
-cp finished/python/museum-exhibit-studio/pyproject.toml museum-workshop-app/
-cp finished/python/museum-exhibit-studio/requirements.txt museum-workshop-app/
+cp -R start-museum/python museum-workshop-app
 python3 -m venv museum-workshop-app/.venv
 museum-workshop-app/.venv/bin/python -m pip install -r museum-workshop-app/requirements.txt
+museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/*.py
+museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
 ```
 
-Pass condition: pip reports `github-copilot-sdk==1.0.11` installed inside
-`museum-workshop-app/.venv`.
+Pass condition: the source compiles and the executable identifies the Python museum starter.
 :::
 
 :::language go
-Copy only module metadata and download the locked SDK 1.0.11 dependency:
+Copy the Go starter, download the locked SDK 1.0.11 dependency, and build it:
 
 ```bash
-mkdir -p museum-workshop-app
-cp finished/go/museum-exhibit-studio/go.mod museum-workshop-app/
-cp finished/go/museum-exhibit-studio/go.sum museum-workshop-app/
+cp -R start-museum/go museum-workshop-app
 go -C museum-workshop-app mod download
+go -C museum-workshop-app build -mod=readonly ./...
+go -C museum-workshop-app run .
 ```
 
-Pass condition: `go mod download` exits successfully and no `.go` file exists yet.
+Pass condition: the build succeeds and the executable identifies the Go museum starter.
 :::
 
 :::language rust
-Copy only Cargo metadata, create an empty source directory, and fetch locked dependencies:
+Copy the Rust starter, fetch locked dependencies, and check it:
 
 ```bash
-mkdir -p museum-workshop-app/src museum-workshop-app/tests
-cp finished/rust/museum-exhibit-studio/Cargo.toml museum-workshop-app/
-cp finished/rust/museum-exhibit-studio/Cargo.lock museum-workshop-app/
-touch museum-workshop-app/src/lib.rs
+cp -R start-museum/rust museum-workshop-app
 cargo fetch --manifest-path museum-workshop-app/Cargo.toml --locked
+cargo check --manifest-path museum-workshop-app/Cargo.toml --locked
+cargo run --manifest-path museum-workshop-app/Cargo.toml --locked
 ```
 
-Pass condition: Cargo fetches `github-copilot-sdk` 1.0.11 without modifying `Cargo.lock`. Lesson 1
-replaces the empty library target with curator code.
+Pass condition: Cargo leaves `Cargo.lock` unchanged and the executable identifies the Rust museum starter.
 :::
 
 :::language java
-Copy only Maven metadata, create empty source trees, and resolve SDK 1.0.11 plus test dependencies:
+Copy the Maven starter, resolve SDK 1.0.11, compile, and run it:
 
 ```bash
-mkdir -p museum-workshop-app/src/main/java/workshop museum-workshop-app/src/test/java/workshop
-cp finished/java/museum-exhibit-studio/pom.xml museum-workshop-app/
+cp -R start-museum/java museum-workshop-app
 mvn -f museum-workshop-app/pom.xml dependency:go-offline
+mvn -f museum-workshop-app/pom.xml compile
+mvn -f museum-workshop-app/pom.xml exec:java
 ```
 
-Pass condition: Maven ends with `BUILD SUCCESS`.
+Pass condition: Maven succeeds and the executable identifies the Java museum starter.
 :::
 
 ## Establish the trust boundary

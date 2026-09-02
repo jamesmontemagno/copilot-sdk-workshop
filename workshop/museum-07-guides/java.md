@@ -374,8 +374,7 @@ separate section. Never insert citations or a sources section into the exhibit p
 
 ## 8. Add the deterministic mock MCP fixture
 
-Create `museum-workshop-app/src/test/resources/mock-wikipedia-mcp.mjs`. The complete fixture is in
-`finished/java/museum-exhibit-studio/src/test/resources/mock-wikipedia-mcp.mjs`.
+Create `museum-workshop-app/src/test/resources/mock-wikipedia-mcp.mjs` with the following contract.
 
 The fixture:
 
@@ -385,8 +384,8 @@ The fixture:
 - records whether `search` ran; and
 - rejects `readArticle` when search has not run.
 
-Create `museum-workshop-app/src/test/java/workshop/WikipediaResearchTest.java`, following
-`finished/java/museum-exhibit-studio/src/test/java/workshop/WikipediaResearchTest.java`.
+Create `museum-workshop-app/src/test/java/workshop/WikipediaResearchTest.java` using the requirements
+below.
 
 The test class must verify:
 

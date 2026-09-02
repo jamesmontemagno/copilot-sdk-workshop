@@ -16,10 +16,10 @@ go run .
 Set `COPILOT_MODEL` to select a model; otherwise the runtime chooses its default. An authenticated
 GitHub Copilot CLI is required.
 
-Tests use fakes and a local mock MCP process; they never contact a model or Wikipedia:
+Build without contacting a model or Wikipedia:
 
 ```bash
-go test -mod=readonly ./...
+go build -mod=readonly ./...
 ```
 
 ## What the sample teaches

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>example.com</groupId>
-  <artifactId>museum-exhibit-studio</artifactId>
+  <artifactId>museum-exhibit-studio-starter</artifactId>
   <version>1.0.0</version>
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
@@ -15,11 +15,6 @@
       <groupId>com.github</groupId>
       <artifactId>copilot-sdk-java</artifactId>
       <version>1.0.11</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.22.1</version>
     </dependency>
   </dependencies>
   <build>

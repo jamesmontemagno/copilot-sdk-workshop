@@ -17,10 +17,10 @@ cargo run --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --locke
 Set `COPILOT_MODEL` to select a model. Otherwise, the Copilot runtime chooses its
 default. The sample requires an authenticated GitHub Copilot CLI.
 
-Run the mocked tests without contacting a model:
+Check the project without contacting a model:
 
 ```bash
-cargo test --locked --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml
+cargo check --locked --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml
 ```
 
 ## What the sample teaches
