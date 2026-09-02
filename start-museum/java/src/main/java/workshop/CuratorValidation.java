@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public final class ExhibitValidator {
+public final class CuratorValidation {
     private static final List<String> PROHIBITED_VOCABULARY = List.of(
             "software", "codebase", "repository", "terminal", "GitHub Copilot");
     private static final Pattern TITLE_PATTERN = Pattern.compile("^# [^#].*$");
@@ -14,10 +14,10 @@ public final class ExhibitValidator {
             Pattern.compile("\\b[\\p{L}\\p{N}]+(?:['’\\-][\\p{L}\\p{N}]+)*\\b");
     private static final Pattern QUESTION_PATTERN = Pattern.compile("^\\s*\\d+\\.\\s+(.+?)\\s*$");
 
-    private ExhibitValidator() {
+    private CuratorValidation() {
     }
 
-    public static ExhibitValidation validate(String content) {
+    public static ExhibitValidation validateExhibit(String content) {
         if (content == null) {
             throw new NullPointerException("content");
         }
@@ -85,6 +85,34 @@ public final class ExhibitValidator {
                 errors);
     }
 
+    public static String formatValidation(ExhibitValidation validation) {
+        StringBuilder report = new StringBuilder();
+        report.append(validation.valid()
+                ? "Structural checks passed."
+                : "Structural checks found issues:").append(System.lineSeparator());
+        report.append("- One level-one title: ").append(validation.title().present()).append(System.lineSeparator());
+        report.append("- Narrative section: ").append(validation.narrative().present()).append(System.lineSeparator());
+        report.append("- Narrative length: ").append(validation.narrative().wordCount())
+                .append(" words (within 100-140: ").append(validation.narrative().withinLimit())
+                .append(")").append(System.lineSeparator());
+        report.append("- Visitor questions section: ")
+                .append(validation.visitorQuestions().present()).append(System.lineSeparator());
+        report.append("- Numbered questions: ").append(validation.visitorQuestions().questionCount())
+                .append(" (exactly three: ").append(validation.visitorQuestions().exactlyThree())
+                .append(")").append(System.lineSeparator());
+        report.append("- Every item is a question: ")
+                .append(validation.visitorQuestions().allItemsAreQuestions()).append(System.lineSeparator());
+        report.append("- Prohibited vocabulary: ")
+                .append(validation.vocabulary().prohibitedTerms().isEmpty()
+                        ? "none"
+                        : String.join(", ", validation.vocabulary().prohibitedTerms()))
+                .append(System.lineSeparator());
+        validation.errors().forEach(error -> report.append("  - ").append(error).append(System.lineSeparator()));
+        report.append(System.lineSeparator())
+                .append("Structural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.");
+        return report.toString();
+    }
+
     private static int findHeading(String[] lines, String heading) {
         for (int index = 0; index < lines.length; index++) {
             if (lines[index].trim().equalsIgnoreCase(heading)) {
@@ -92,5 +120,63 @@ public final class ExhibitValidator {
             }
         }
         return -1;
+    }
+
+    public record TitleValidation(long titleCount) {
+        public boolean present() {
+            return titleCount == 1;
+        }
+
+        public boolean valid() {
+            return present();
+        }
+    }
+
+    public record NarrativeValidation(boolean present, int wordCount) {
+        public boolean withinLimit() {
+            return wordCount >= 100 && wordCount <= 140;
+        }
+
+        public boolean valid() {
+            return present && withinLimit();
+        }
+    }
+
+    public record VisitorQuestionsValidation(
+            boolean present,
+            int questionCount,
+            boolean allItemsAreQuestions) {
+        public boolean exactlyThree() {
+            return questionCount == 3;
+        }
+
+        public boolean valid() {
+            return present && exactlyThree() && allItemsAreQuestions;
+        }
+    }
+
+    public record VocabularyValidation(List<String> prohibitedTerms) {
+        public VocabularyValidation {
+            prohibitedTerms = List.copyOf(prohibitedTerms);
+        }
+
+        public boolean valid() {
+            return prohibitedTerms.isEmpty();
+        }
+    }
+
+    public record ExhibitValidation(
+            TitleValidation title,
+            NarrativeValidation narrative,
+            VisitorQuestionsValidation visitorQuestions,
+            VocabularyValidation vocabulary,
+            List<String> errors) {
+        public ExhibitValidation {
+            errors = List.copyOf(errors);
+        }
+
+        public boolean valid() {
+            return errors.isEmpty();
+        }
     }
 }

@@ -31,9 +31,14 @@ temp-inspect/
 
 # Cross-language validation outputs
 node_modules/
+dist/
 target/
 .cargo-target/
 __pycache__/
 *.pyc
 copilot-sdk-workshop-go.exe
 copilot-sdk-workshop-go
+
+# Generated workshop artifacts
+accessibility-report.html
+exhibit.html

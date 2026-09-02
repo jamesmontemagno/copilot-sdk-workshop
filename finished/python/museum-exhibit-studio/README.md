@@ -1,61 +1,69 @@
 # Museum Exhibit Studio
 
-This Python sample uses the GitHub Copilot SDK as a focused, non-software-engineering
-agent harness. A museum educator can accept the Apollo 11 fixture or enter another
-approved fact set, optionally research it through a constrained Wikipedia MCP session,
-approve sourced additions, then generate visitor-facing copy and inspect deterministic
-checks.
+This Python sample uses the GitHub Copilot SDK as a focused museum exhibit
+studio. The finished app now has two modules:
+
+- `curator.py` contains the pre-built workshop helpers: approved fact sets,
+  bounded fact validation, streaming, deterministic structural checks, scoped
+  Wikipedia permissions, scoped `exhibit.html` write permission, and terminal
+  helpers.
+- `main.py` contains the learner-authored orchestration: prompts, session
+  configuration, console flow, validation, and optional HTML generation.
 
 ## Run the sample
 
 From this directory, create an environment and install the pinned dependency:
 
-```bash
+```powershell
 python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 python main.py
 ```
 
-Set `COPILOT_MODEL` to select a model; otherwise the runtime chooses its default. An
-authenticated GitHub Copilot CLI is required.
+Set `COPILOT_MODEL` to select a model; otherwise the runtime chooses its
+default. An authenticated GitHub Copilot CLI is required.
 
-Wikipedia research also requires Node.js because the research session launches the
-pinned `wikipedia-mcp@1.0.3` package through `npx`. Declining research does not start
-the MCP server.
+Wikipedia research requires Node.js because the research session launches the
+pinned `wikipedia-mcp@1.0.3` package through `npx`. Declining research does not
+start the MCP server.
 
 Check the source without contacting a model:
 
-```bash
+```powershell
 python -m py_compile *.py
 ```
 
 ## What the sample teaches
 
-`SYSTEM_MESSAGE` is the complete durable curator definition and uses replace mode.
-Approved facts remain in the separate user prompt because they are task data. Hard
-controls expose no tools, bound facts to 20 items of 500 characters each, enforce a
-120-second timeout, and disconnect the session and stop the client on every outcome.
-The validator checks one H1, required sections, a 100-140-word narrative, exactly
-three numbered questions ending in `?`, and prohibited software vocabulary.
+Generation uses an empty tool allowlist, bounded approved facts, a replace-mode
+curator system message, streaming, a 120-second timeout, and deterministic
+structural validation. Imported modules have no side effects; `main.py` only
+runs behind the `if __name__ == "__main__"` guard.
 
-The optional research stage uses a separate 45-second session. It exposes only
-Wikipedia search and article retrieval, rejects all other permission requests, limits
-the structured response to 65,536 characters, validates every status and canonical
-source URL, and falls back to the original facts when research is incomplete. Proposed
-facts remain outside the generation prompt until the educator explicitly approves them.
-Consulted sources print after the exhibit rather than inside its Markdown.
+Optional Wikipedia research is intentionally separate from generation. The
+research session exposes only scoped Wikipedia search and article-read tools,
+uses a deny-by-default permission handler, asks for a prose summary, and parses
+a trailing `## Sources` list. Research notes and cited sources are shown to the
+human, but they are never merged into the approved facts used to generate the
+exhibit. There is no strict JSON contract and no proposed-addition approval
+loop.
+
+After validation, the optional HTML capstone exposes only `builtin:apply_patch`
+and approves writing exactly `exhibit.html` in the application working
+directory. The prompt asks for one standalone semantic HTML file with embedded
+CSS and JavaScript, a human-review caveat, and an accessible question filter.
 
 Prompt guidance and structural validation are not authorization or grounding
 boundaries. Generated claims still require human review or a separate evaluator.
 
 ## Manual check
 
-1. Run with the default Apollo 11 facts.
-2. Confirm one title, a 100-140-word narrative, and three questions.
+1. Run with each built-in fact set and confirm the selected facts print before
+   generation.
+2. Confirm the exhibit has one title, a 100-140-word narrative, and three
+   visitor questions.
 3. Inspect the validation summary and grounding disclaimer.
-4. Review the prose for claims absent from the approved facts.
-5. Decline research and confirm no tool events or permission requests appear.
-6. Opt into research and confirm every original fact receives a visible status.
-7. Reject and approve proposed additions, then confirm only approved facts reach the
-   exhibit while consulted sources remain separately visible.
+4. Decline research and confirm no MCP tool events appear.
+5. Opt into research and confirm sources print after the exhibit, not inside it.
+6. Opt into `exhibit.html` and confirm only that file is written.
