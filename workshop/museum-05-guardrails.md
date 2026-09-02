@@ -330,8 +330,8 @@ the stream raises.
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Add `"errors"`, `"os"`, and `"time"` to the import block, then
-add the configuration builder, the session runner, and the error helpers:
+Open `museum-workshop-app/main.go`. Add `"errors"`, `"os"`, `"strings"`, and `"time"` to the import
+block, then add the configuration builder, the session runner, and the error helpers:
 
 ```go
 func generationConfig(workingDirectory string, approvedFacts []string) (*copilot.SessionConfig, error) {
