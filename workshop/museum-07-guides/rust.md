@@ -422,7 +422,7 @@ Use deterministic JSON and cover:
 - permission helper accepts only the Wikipedia read tools and fails closed
 
 The completed reference test is
-`samples/rust/museum-exhibit-studio/tests/research.rs`.
+`finished/rust/museum-exhibit-studio/tests/research.rs`.
 
 ## 10. Final locked validation
 
@@ -437,9 +437,9 @@ cargo build --manifest-path museum-workshop-app/Cargo.toml --locked
 For the completed sample:
 
 ```bash
-cargo fmt --manifest-path samples/rust/museum-exhibit-studio/Cargo.toml --check
-cargo test --manifest-path samples/rust/museum-exhibit-studio/Cargo.toml --locked
-cargo build --manifest-path samples/rust/museum-exhibit-studio/Cargo.toml --locked
+cargo fmt --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --check
+cargo test --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --locked
+cargo build --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --locked
 ```
 
 Only run `cargo run` when you intentionally want a live, authenticated research

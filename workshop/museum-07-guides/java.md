@@ -323,7 +323,7 @@ For any startup, timeout, tool, parsing, validation, or cleanup failure, return:
 - the actionable root failure message.
 
 Use the complete implementation in
-`samples/java/museum-exhibit-studio/src/main/java/workshop/MuseumExhibitService.java` as the
+`finished/java/museum-exhibit-studio/src/main/java/workshop/MuseumExhibitService.java` as the
 line-for-line reference for `research`, `buildResearchPrompt`, `parseResearchResult`, and the
 validation helpers.
 
@@ -375,7 +375,7 @@ separate section. Never insert citations or a sources section into the exhibit p
 ## 8. Add the deterministic mock MCP fixture
 
 Create `museum-workshop-app/src/test/resources/mock-wikipedia-mcp.mjs`. The complete fixture is in
-`samples/java/museum-exhibit-studio/src/test/resources/mock-wikipedia-mcp.mjs`.
+`finished/java/museum-exhibit-studio/src/test/resources/mock-wikipedia-mcp.mjs`.
 
 The fixture:
 
@@ -386,7 +386,7 @@ The fixture:
 - rejects `readArticle` when search has not run.
 
 Create `museum-workshop-app/src/test/java/workshop/WikipediaResearchTest.java`, following
-`samples/java/museum-exhibit-studio/src/test/java/workshop/WikipediaResearchTest.java`.
+`finished/java/museum-exhibit-studio/src/test/java/workshop/WikipediaResearchTest.java`.
 
 The test class must verify:
 

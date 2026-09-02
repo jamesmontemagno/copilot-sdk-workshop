@@ -22,7 +22,7 @@ validate_dotnet() {
     projects=()
     while IFS= read -r project; do
         projects+=("$project")
-    done < <(find start/dotnet samples/dotnet checkpoints/dotnet -name '*.csproj' -print | sort)
+    done < <(find start-accessibility/dotnet finished/dotnet -name '*.csproj' -print | sort)
     projects+=("src/BlazorApp/BlazorApp.csproj")
     for project in "${projects[@]}"; do
         echo "Restoring and building $project"
@@ -35,7 +35,7 @@ validate_dotnet() {
 }
 
 validate_nodejs() {
-    for project in start/nodejs samples/nodejs/* checkpoints/nodejs/*; do
+    for project in start-accessibility/nodejs finished/nodejs/*; do
         echo "Installing and type-checking $project"
         (
             cd "$project"
@@ -50,7 +50,7 @@ validate_python() {
     python_venv="$temporary_directory/python-venv"
     python3 -m venv "$python_venv"
 
-    for project in start/python samples/python/* checkpoints/python/*; do
+    for project in start-accessibility/python finished/python/*; do
         echo "Installing and smoke-checking $project"
         (
             cd "$project"
@@ -68,7 +68,7 @@ validate_go() {
     go_build_directory="$temporary_directory/go-build"
     mkdir -p "$go_build_directory"
 
-    for project in start/go samples/go/* checkpoints/go/*; do
+    for project in start-accessibility/go finished/go/*; do
         echo "Resolving and testing $project"
         (cd "$project" && go mod download && go mod verify && go build -mod=readonly -o "$go_build_directory/" ./... && go test -mod=readonly ./...)
     done
@@ -76,14 +76,14 @@ validate_go() {
 
 validate_rust() {
     export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$repo_root/.cargo-target}"
-    for project in start/rust samples/rust/* checkpoints/rust/*; do
+    for project in start-accessibility/rust finished/rust/*; do
         echo "Checking and testing $project"
         (cd "$project" && cargo check --locked && cargo test --locked)
     done
 }
 
 validate_java() {
-    for project in start/java samples/java/* checkpoints/java/*; do
+    for project in start-accessibility/java finished/java/*; do
         echo "Resolving and testing $project"
         (cd "$project" && mvn --batch-mode --no-transfer-progress dependency:go-offline test)
         (cd "$project" && mvn --batch-mode --no-transfer-progress --offline test)

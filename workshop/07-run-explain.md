@@ -51,7 +51,7 @@ Node.js application
 ```
 
 The completed report is also in
-[`samples/nodejs/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/nodejs/accessibility-report).
+[`finished/nodejs/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/nodejs/accessibility-report).
 :::
 
 :::language python
@@ -75,7 +75,7 @@ Python application
 ```
 
 The completed report is also in
-[`samples/python/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/python/accessibility-report).
+[`finished/python/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/python/accessibility-report).
 :::
 
 :::language go
@@ -179,8 +179,8 @@ The complete flow is
 
 ## Take a victory lap
 
-There is no code to change. Keep the Step 6 checkpoint in place so this run tests the application
-you built.
+There is no code to change. Keep the Step 6 implementation in place so this run tests the
+application you built.
 
 ## Run it
 
@@ -417,8 +417,7 @@ You can also go straight to the HTML report extension. Otherwise, the core works
 :::language dotnet
 Complete references:
 
-- [Step 6 checkpoint](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/06-structured-report)
-- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/dotnet/accessibility-report)
+- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/dotnet/accessibility-report)
 - [GitHub Copilot SDK for .NET](https://github.com/github/copilot-sdk/tree/main/dotnet)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)
 :::
@@ -426,8 +425,7 @@ Complete references:
 :::language nodejs
 Complete references:
 
-- [Step 6 checkpoint](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/06-structured-report)
-- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/nodejs/accessibility-report)
+- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/nodejs/accessibility-report)
 - [GitHub Copilot SDK for Node.js](https://github.com/github/copilot-sdk/tree/main/nodejs)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)
 :::
@@ -435,8 +433,7 @@ Complete references:
 :::language python
 Complete references:
 
-- [Step 6 checkpoint](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/06-structured-report)
-- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/python/accessibility-report)
+- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/python/accessibility-report)
 - [GitHub Copilot SDK for Python](https://github.com/github/copilot-sdk/tree/main/python)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)
 :::
@@ -444,8 +441,7 @@ Complete references:
 :::language go
 Complete references:
 
-- [Step 6 checkpoint](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/06-structured-report)
-- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/go/accessibility-report)
+- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/go/accessibility-report)
 - [GitHub Copilot SDK for Go](https://github.com/github/copilot-sdk/tree/main/go)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)
 
@@ -455,8 +451,7 @@ If the CLI is missing, install it rather than granting broader permissions.
 :::language rust
 Complete references:
 
-- [Step 6 checkpoint](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/06-structured-report)
-- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/rust/accessibility-report)
+- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/rust/accessibility-report)
 - [GitHub Copilot SDK for Rust](https://github.com/github/copilot-sdk/tree/main/rust)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)
 
@@ -466,8 +461,7 @@ If it cannot start, install and authenticate the Copilot CLI.
 :::language java
 Complete references:
 
-- [Step 6 checkpoint](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/06-structured-report)
-- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/java/accessibility-report)
+- [Finished accessibility reporter](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/java/accessibility-report)
 - [GitHub Copilot SDK for Java](https://github.com/github/copilot-sdk/tree/main/java)
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp)
 

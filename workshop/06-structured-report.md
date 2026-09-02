@@ -518,7 +518,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-Keep the checkpoint's `parseTarget` and fallback helpers next to `main`:
+Keep the implementation's `parseTarget` and fallback helpers next to `main`:
 
 ```java
 private static URI parseTarget(String value) throws URISyntaxException {
@@ -645,12 +645,11 @@ writing the remediation are interpretations based on that evidence and the catal
 
 :::language dotnet
 <details>
-<summary>Complete Step 6 checkpoint</summary>
+<summary>Complete Step 6 implementation</summary>
 
 For comparison, use the
-[`checkpoints/dotnet/06-structured-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/06-structured-report)
-project. The completed application is also in
-[`samples/dotnet/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/samples/dotnet/accessibility-report).
+[`finished/dotnet/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/dotnet/accessibility-report)
+project.
 
 ```csharp
 using GitHub.Copilot;
@@ -722,10 +721,10 @@ await ResponseStreamer.SendAndPrintAsync(session, Prompts.CreateReportPrompt(tar
 
 :::language nodejs
 <details>
-<summary>Complete Step 6 checkpoint</summary>
+<summary>Complete Step 6 implementation</summary>
 
 For comparison, use the
-[`checkpoints/nodejs/06-structured-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/06-structured-report)
+[`finished/nodejs/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/nodejs/accessibility-report)
 project.
 
 `src/index.ts`:
@@ -784,10 +783,10 @@ Do not invent evidence, report unsupported statistics, or claim the page is WCAG
 
 :::language python
 <details>
-<summary>Complete Step 6 checkpoint</summary>
+<summary>Complete Step 6 implementation</summary>
 
 For comparison, use the
-[`checkpoints/python/06-structured-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/06-structured-report)
+[`finished/python/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/python/accessibility-report)
 project.
 
 `main.py`:
@@ -875,10 +874,10 @@ Do not invent evidence, report unsupported statistics, or claim the page is WCAG
 
 :::language go
 <details>
-<summary>Complete Step 6 checkpoint</summary>
+<summary>Complete Step 6 implementation</summary>
 
 For comparison, use the
-[`checkpoints/go/06-structured-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/06-structured-report)
+[`finished/go/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/go/accessibility-report)
 project. The report contract and entrypoint:
 
 ```go
@@ -955,10 +954,10 @@ func main() {
 
 :::language rust
 <details>
-<summary>Complete Step 6 checkpoint</summary>
+<summary>Complete Step 6 implementation</summary>
 
 For comparison, use the
-[`checkpoints/rust/06-structured-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/06-structured-report)
+[`finished/rust/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/rust/accessibility-report)
 project. The report contract and entrypoint:
 
 ```rust
@@ -1057,10 +1056,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 :::language java
 <details>
-<summary>Complete Step 6 checkpoint</summary>
+<summary>Complete Step 6 implementation</summary>
 
 For comparison, use the
-[`checkpoints/java/06-structured-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/06-structured-report)
+[`finished/java/accessibility-report`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/java/accessibility-report)
 project. The report contract, argument parsing, and entrypoint:
 
 ```java
