@@ -1,8 +1,8 @@
 # Museum Exhibit Studio
 
 This completed Node.js/TypeScript sample uses the GitHub Copilot SDK as a focused,
-non-software-engineering agent harness. A museum educator can accept the Apollo 11
-fixture or enter another approved fact set, then generate visitor-facing exhibit
+non-software-engineering agent harness. A museum educator can accept the built-in Apollo 11
+facts or enter another approved fact set, then generate visitor-facing exhibit
 copy, optionally research it through a separately bounded Wikipedia session, explicitly
 approve sourced additions, and inspect deterministic structural checks.
 

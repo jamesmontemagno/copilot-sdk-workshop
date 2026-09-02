@@ -1,7 +1,7 @@
 # Museum Exhibit Studio
 
 This Rust sample uses the GitHub Copilot SDK as a focused, non-software-engineering
-agent harness. A museum educator can accept the Apollo 11 fixture or enter another
+agent harness. A museum educator can accept the built-in Apollo 11 facts or enter another
 approved fact set, optionally research it through a tightly scoped Wikipedia MCP
 session, approve sourced additions one by one, generate visitor-facing exhibit copy
 in a separate tool-free session, and inspect deterministic structural checks.

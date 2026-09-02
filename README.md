@@ -5,8 +5,8 @@ Rust, or Maven Java:
 
 - **Accessibility Reviewer:** build an SDLC developer tool that inspects a web page, consults
   application-owned WCAG guidance, and produces an evidence-based report.
-- **Museum Exhibit Studio:** build a non-SDLC curator that transforms approved facts into
-  visitor-ready exhibit copy behind deterministic application boundaries.
+- **Museum Exhibit Studio:** build a cumulative non-SDLC curator CLI that transforms approved
+  facts into visitor-ready exhibit copy behind deterministic application boundaries.
 
 Across the workshops, you'll:
 
@@ -80,10 +80,9 @@ bash scripts/validate-workshop.sh
 ```
 
 The command checks lesson structure, internal links, site behavior hooks, and project coverage.
-It then runs browser-independent language-selection tests and restores, builds, or syntax-checks every
-accessibility and museum starter, every finished project, and the Blazor target without authenticating
-Copilot, launching a browser, or sending a prompt. Museum application builds do not run model or
-Wikipedia test harnesses.
+It then checks browser-independent language-selection behavior and restores, builds, or syntax-checks
+every accessibility and museum starter, every finished project, and the Blazor target without
+authenticating Copilot, launching a browser, or sending a prompt.
 
 Pass a language ID to run one smoke-build target:
 
@@ -97,13 +96,15 @@ jobs, so a failure identifies the affected SDK track.
 ## Museum Exhibit Studio workshop
 
 Museum Exhibit Studio starters are available under `start-museum/<language>`, with completed
-references under `finished/<language>/museum-exhibit-studio`. Each completed implementation demonstrates a complete custom
-system message, a task-specific approved fact list, an empty tool allowlist, and deterministic
-output checks in a non-software-engineering agent harness.
+references under `finished/<language>/museum-exhibit-studio`. Copy one starter to
+`museum-workshop-app`, then keep extending that same runnable CLI through every lesson. Each completed
+implementation demonstrates a complete custom system message, bounded approved facts, an empty
+generation-tool allowlist, deterministic output checks, and separately bounded Wikipedia research.
 
 The learner-facing track begins at
 [`workshop/museum-00-preflight.md`](workshop/museum-00-preflight.md), then continues through seven
-required steps ending with Wikipedia MCP.
+required steps ending with Wikipedia MCP. Each step builds and runs the CLI so learners can observe
+the production behavior directly.
 
 Rust checks share one Cargo target directory across all workshop projects, avoiding repeated SDK
 dependency compilation.

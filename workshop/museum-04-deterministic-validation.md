@@ -1,15 +1,31 @@
 # Validate the exhibit deterministically
 
-> **Time:** 25 minutes  
-> **Goal:** Add a pure validator and prove valid and missing-Narrative behavior.
+> **Time:** 15 minutes
+> **Goal:** Add the structural validator the finished application ships with, and print its result
+> after every generated exhibit.
 
-The validator checks one level-one title, both required sections, a 100-140-word narrative, exactly
-three numbered questions ending in question marks, and prohibited software vocabulary. It has no SDK
-dependency, so it is fast and deterministic.
+Previous: [Ground the exhibit in approved facts](museum-03-approved-facts.md)
 
-The result composes `TitleValidation`, `NarrativeValidation`,
-`VisitorQuestionsValidation`, and `VocabularyValidation`. Each component stores only observed
-measurements; presence, limits, component validity, and overall validity are derived.
+The lesson 3 draft looked right. "Looked right" is not a result you can act on. This lesson adds
+application code that answers the same questions the same way every time, with no model involved:
+
+| Check | Rule |
+|---|---|
+| Title | Exactly one level-one Markdown title |
+| Narrative | A `## Narrative` section exists |
+| Narrative length | 100-140 words between the narrative heading and the questions heading |
+| Visitor questions | A `## Visitor questions` section exists |
+| Question count | Exactly three numbered items |
+| Question form | Every numbered item ends with `?` |
+| Vocabulary | None of `software`, `codebase`, `repository`, `terminal`, `GitHub Copilot` |
+
+Each check reports its own measured value, not just pass or fail, so a failed run tells you what to
+change.
+
+Draw the boundary clearly before you write the code: these checks prove **shape**. A perfectly
+structured exhibit can still claim that the crew planted a flag on the far side of the Moon.
+Deterministic validation cannot detect that, which is why the CLI prints a standing disclaimer
+underneath the result and why lesson 6 adds a human review step.
 
 :::language dotnet
 Create `museum-workshop-app/ExhibitValidator.cs`:
@@ -153,92 +169,66 @@ public static partial class ExhibitValidator
 }
 ```
 
-Create `museum-workshop-app/tests/ExhibitValidatorTests.cs`:
+Replace `museum-workshop-app/Program.cs`:
 
 ```csharp
 using MuseumExhibitStudio;
 
-namespace MuseumExhibitStudio.Tests;
-
-public sealed class ExhibitValidatorTests
+Console.WriteLine("=== Museum Exhibit Studio ===");
+Console.WriteLine("Curator policy: replace-mode system message, no tools allowed.");
+Console.WriteLine("Approved Apollo 11 facts:");
+for (var index = 0; index < CuratorPrompts.Apollo11Facts.Count; index++)
 {
-    [Fact]
-    public void ValidateAcceptsACompleteExhibit()
-    {
-        var validation = ExhibitValidator.Validate(CreateExhibit(110, 3));
+    Console.WriteLine($"{index + 1}. {CuratorPrompts.Apollo11Facts[index]}");
+}
 
-        Assert.True(validation.Valid);
-        Assert.Equal(110, validation.Narrative.WordCount);
-        Assert.Equal(3, validation.VisitorQuestions.QuestionCount);
+var prompt = CuratorPrompts.BuildExhibitPrompt(CuratorPrompts.Apollo11Facts);
+Console.WriteLine("\nBounded prompt sent to the curator:");
+Console.WriteLine("--------");
+Console.WriteLine(prompt);
+Console.WriteLine("--------");
+
+await using var client = new CopilotCuratorClient();
+await client.StartAsync();
+try
+{
+    await using var session = await client.CreateSessionAsync(
+        MuseumExhibitService.CreateSessionConfiguration(
+            Environment.GetEnvironmentVariable("COPILOT_MODEL")));
+    var content = await session.SendAndWaitAsync(prompt, TimeSpan.FromMinutes(2)) ?? string.Empty;
+    Console.WriteLine($"\n{content}\n");
+    PrintValidation(ExhibitValidator.Validate(content));
+}
+finally
+{
+    await client.StopAsync();
+}
+
+static void PrintValidation(ExhibitValidation validation)
+{
+    Console.WriteLine(validation.Valid
+        ? "Structural checks passed."
+        : "Structural checks found issues:");
+
+    Console.WriteLine($"- One level-one title: {validation.Title.Present}");
+    Console.WriteLine($"- Narrative section: {validation.Narrative.Present}");
+    Console.WriteLine(
+        $"- Narrative length: {validation.Narrative.WordCount} words " +
+        $"(within 100-140: {validation.Narrative.WithinLimit})");
+    Console.WriteLine($"- Visitor questions section: {validation.VisitorQuestions.Present}");
+    Console.WriteLine(
+        $"- Numbered questions: {validation.VisitorQuestions.QuestionCount} " +
+        $"(exactly three: {validation.VisitorQuestions.ExactlyThree})");
+    Console.WriteLine($"- Every item is a question: {validation.VisitorQuestions.AllItemsAreQuestions}");
+
+    foreach (var error in validation.Errors)
+    {
+        Console.WriteLine($"  - {error}");
     }
 
-    [Fact]
-    public void ValidateRejectsMissingTitle()
-    {
-        var validation = ExhibitValidator.Validate(
-            CreateExhibit(110, 3).Replace("# A Journey\n", string.Empty));
-
-        Assert.False(validation.Title.Present);
-        Assert.False(validation.Valid);
-    }
-
-    [Theory]
-    [InlineData(99)]
-    [InlineData(141)]
-    public void ValidateRejectsNarrativeOutsideLimit(int wordCount)
-    {
-        var validation = ExhibitValidator.Validate(CreateExhibit(wordCount, 3));
-
-        Assert.False(validation.Narrative.WithinLimit);
-        Assert.False(validation.Valid);
-    }
-
-    [Theory]
-    [InlineData(2)]
-    [InlineData(4)]
-    public void ValidateRejectsWrongQuestionCount(int questionCount)
-    {
-        var validation = ExhibitValidator.Validate(CreateExhibit(110, questionCount));
-
-        Assert.False(validation.VisitorQuestions.ExactlyThree);
-        Assert.False(validation.Valid);
-    }
-
-    [Fact]
-    public void ValidateRejectsItemsThatAreNotQuestions()
-    {
-        var validation = ExhibitValidator.Validate(
-            CreateExhibit(110, 3).Replace("3. Reflection question?", "3. Reflection prompt."));
-
-        Assert.False(validation.VisitorQuestions.AllItemsAreQuestions);
-        Assert.False(validation.Valid);
-    }
-
-    [Fact]
-    public void ValidateReportsProhibitedVocabulary()
-    {
-        var validation = ExhibitValidator.Validate(
-            CreateExhibit(110, 3).Replace("word1", "software"));
-
-        Assert.Contains("software", validation.Vocabulary.ProhibitedTerms);
-        Assert.False(validation.Valid);
-    }
-
-    private static string CreateExhibit(int narrativeWordCount, int questionCount)
-    {
-        var narrative = string.Join(' ', Enumerable.Range(1, narrativeWordCount).Select(index => $"word{index}"));
-        var questions = string.Join(
-            '\n',
-            Enumerable.Range(1, questionCount).Select(index => $"{index}. Reflection question?"));
-
-        return $"""
-            # A Journey
-            ## Narrative
-            {narrative}
-            ## Visitor questions
-            {questions}
-            """;
-    }
+    Console.WriteLine(
+        "\nStructural checks do not prove factual grounding. " +
+        "Unsupported claims require human review or a separate evaluator.");
 }
 ```
 :::
@@ -343,65 +333,54 @@ function findHeading(lines: string[], heading: string): number {
 }
 ```
 
-Create `museum-workshop-app/tests/validator.test.ts`:
+Replace `museum-workshop-app/src/index.ts`:
 
 ```typescript
-import assert from "node:assert/strict";
-import test from "node:test";
-import { validateExhibit } from "../src/validator.js";
+import { apollo11Facts, buildExhibitPrompt } from "./prompts.js";
+import {
+  createCopilotCuratorClient,
+  createSessionConfiguration,
+  type CuratorSession,
+} from "./service.js";
+import { validateExhibit, type ExhibitValidation } from "./validator.js";
 
-test("validator accepts narrative boundaries", () => {
-  for (const count of [100, 140]) {
-    const result = validateExhibit(createExhibit(count, 3));
-    assert.equal(result.valid, true);
-    assert.equal(result.narrative.wordCount, count);
-  }
-});
+console.log("=== Museum Exhibit Studio ===");
+console.log("Curator policy: replace-mode system message, no tools allowed.");
+console.log("Approved Apollo 11 facts:");
+apollo11Facts.forEach((fact, index) => console.log(`${index + 1}. ${fact}`));
 
-test("validator rejects narrative outside boundaries", () => {
-  for (const count of [99, 141]) {
-    assert.equal(validateExhibit(createExhibit(count, 3)).narrative.withinLimit, false);
-  }
-});
+const prompt = buildExhibitPrompt(apollo11Facts);
+console.log("\nBounded prompt sent to the curator:");
+console.log("--------");
+console.log(prompt);
+console.log("--------");
 
-test("validator requires exactly one title and both sections", () => {
-  const valid = createExhibit(110, 3);
-  assert.equal(validateExhibit(valid.replace("# A Journey\n", "")).title.present, false);
-  assert.equal(validateExhibit(`${valid}\n# Another`).title.present, false);
-  assert.equal(validateExhibit(valid.replace("## Narrative\n", "")).narrative.present, false);
-  assert.equal(
-    validateExhibit(valid.replace("## Visitor questions\n", "")).visitorQuestions.present,
-    false,
+const client = createCopilotCuratorClient();
+let session: CuratorSession | undefined;
+await client.start();
+try {
+  session = await client.createSession(
+    createSessionConfiguration(process.env.COPILOT_MODEL),
   );
-});
+  const response = await session.sendAndWait(prompt, 120_000);
+  const content = response?.data.content ?? "";
+  console.log(`\n${content}\n`);
+  printValidation(validateExhibit(content));
+} finally {
+  await session?.disconnect();
+  await client.stop();
+}
 
-test("validator requires exactly three numbered questions ending in question marks", () => {
-  assert.equal(validateExhibit(createExhibit(110, 2)).visitorQuestions.exactlyThree, false);
-  assert.equal(validateExhibit(createExhibit(110, 4)).visitorQuestions.exactlyThree, false);
-  assert.equal(
-    validateExhibit(createExhibit(110, 3).replace("3. Reflection question?", "3. Reflection prompt."))
-      .visitorQuestions.allItemsAreQuestions,
-    false,
-  );
-});
-
-test("validator reports every prohibited term case-insensitively", () => {
-  const result = validateExhibit(
-    createExhibit(105, 3).replace(
-      "word1 word2 word3 word4 word5",
-      "SOFTWARE codebase repository terminal GitHub Copilot",
-    ),
-  );
-  assert.deepEqual(result.vocabulary.prohibitedTerms, [
-    "software", "codebase", "repository", "terminal", "GitHub Copilot",
-  ]);
-  assert.equal(result.valid, false);
-});
-
-function createExhibit(narrativeWordCount: number, questionCount: number): string {
-  const narrative = Array.from({ length: narrativeWordCount }, (_, index) => `word${index + 1}`).join(" ");
-  const questions = Array.from({ length: questionCount }, (_, index) => `${index + 1}. Reflection question?`).join("\n");
-  return `# A Journey\n## Narrative\n${narrative}\n## Visitor questions\n${questions}`;
+function printValidation(validation: ExhibitValidation): void {
+  console.log(validation.valid ? "Structural checks passed." : "Structural checks found issues:");
+  console.log(`- One level-one title: ${validation.title.present}`);
+  console.log(`- Narrative section: ${validation.narrative.present}`);
+  console.log(`- Narrative length: ${validation.narrative.wordCount} words (within 100-140: ${validation.narrative.withinLimit})`);
+  console.log(`- Visitor questions section: ${validation.visitorQuestions.present}`);
+  console.log(`- Numbered questions: ${validation.visitorQuestions.questionCount} (exactly three: ${validation.visitorQuestions.exactlyThree})`);
+  console.log(`- Every item is a question: ${validation.visitorQuestions.allItemsAreQuestions}`);
+  validation.errors.forEach((error) => console.log(`  - ${error}`));
+  console.log("\nStructural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.");
 }
 ```
 :::
@@ -576,78 +555,84 @@ def _find_heading(lines: list[str], heading: str) -> int:
     )
 ```
 
-Create `museum-workshop-app/tests/test_exhibit_validator.py`:
+Replace `museum-workshop-app/main.py`:
 
 ```python
-import unittest
+from __future__ import annotations
 
-from exhibit_validator import validate_exhibit
+import asyncio
+import os
+
+from copilot import CopilotClient
+
+from curator_prompts import APOLLO_11_FACTS, build_exhibit_prompt
+from exhibit_validator import ExhibitValidation, validate_exhibit
+from museum_exhibit_service import create_session_configuration
+
+GROUNDING_DISCLAIMER = (
+    "Structural checks do not prove factual grounding. "
+    "Unsupported claims require human review or a separate evaluator."
+)
 
 
-def create_exhibit(word_count: int, question_count: int = 3) -> str:
-    narrative = " ".join(f"word{index}" for index in range(1, word_count + 1))
-    questions = "\n".join(
-        f"{index}. Reflection question?" for index in range(1, question_count + 1)
+def print_validation(validation: ExhibitValidation) -> None:
+    print(
+        "Structural checks passed."
+        if validation.valid
+        else "Structural checks found issues:"
     )
-    return (
-        f"# A Journey\n## Narrative\n{narrative}\n"
-        f"## Visitor questions\n{questions}"
+    print(f"- One level-one title: {validation.title.present}")
+    print(f"- Narrative section: {validation.narrative.present}")
+    print(
+        f"- Narrative length: {validation.narrative.word_count} words "
+        f"(within 100-140: {validation.narrative.within_limit})"
     )
+    print(f"- Visitor questions section: {validation.visitor_questions.present}")
+    print(
+        f"- Numbered questions: {validation.visitor_questions.question_count} "
+        f"(exactly three: {validation.visitor_questions.exactly_three})"
+    )
+    print(
+        "- Every item is a question: "
+        f"{validation.visitor_questions.all_items_are_questions}"
+    )
+    for error in validation.errors:
+        print(f"  - {error}")
+    print(f"\n{GROUNDING_DISCLAIMER}")
 
 
-class ExhibitValidatorTests(unittest.TestCase):
-    def test_accepts_complete_exhibit_at_both_word_boundaries(self) -> None:
-        for word_count in (100, 140):
-            with self.subTest(word_count=word_count):
-                validation = validate_exhibit(create_exhibit(word_count))
-                self.assertTrue(validation.valid)
-                self.assertEqual(word_count, validation.narrative.word_count)
+async def main() -> None:
+    print("=== Museum Exhibit Studio ===")
+    print("Curator policy: replace-mode system message, no tools allowed.")
+    print("Approved Apollo 11 facts:")
+    for index, fact in enumerate(APOLLO_11_FACTS, start=1):
+        print(f"{index}. {fact}")
 
-    def test_rejects_word_counts_outside_boundaries(self) -> None:
-        for word_count in (99, 141):
-            with self.subTest(word_count=word_count):
-                self.assertFalse(
-                    validate_exhibit(create_exhibit(word_count)).narrative.within_limit
-                )
+    prompt = build_exhibit_prompt(APOLLO_11_FACTS)
+    print("\nBounded prompt sent to the curator:")
+    print("--------")
+    print(prompt)
+    print("--------")
 
-    def test_requires_exactly_one_title_and_both_sections(self) -> None:
-        exhibit = create_exhibit(110)
-        self.assertFalse(validate_exhibit(exhibit.replace("# A Journey\n", "")).valid)
-        self.assertFalse(validate_exhibit(f"# Extra\n{exhibit}").valid)
-        self.assertFalse(validate_exhibit(exhibit.replace("## Narrative", "Narrative")).valid)
-        self.assertFalse(
-            validate_exhibit(
-                exhibit.replace("## Visitor questions", "Visitor questions")
-            ).valid
+    client = CopilotClient()
+    session = None
+    await client.start()
+    try:
+        session = await client.create_session(
+            **create_session_configuration(os.getenv("COPILOT_MODEL"))
         )
-
-    def test_requires_exactly_three_numbered_questions(self) -> None:
-        for count in (2, 4):
-            with self.subTest(count=count):
-                self.assertFalse(
-                    validate_exhibit(
-                        create_exhibit(110, count)
-                    ).visitor_questions.exactly_three
-                )
-
-    def test_requires_every_numbered_item_to_end_in_question_mark(self) -> None:
-        exhibit = create_exhibit(110).replace(
-            "3. Reflection question?", "3. Reflection prompt."
-        )
-        self.assertFalse(
-            validate_exhibit(exhibit).visitor_questions.all_items_are_questions
-        )
-
-    def test_rejects_prohibited_vocabulary_case_insensitively(self) -> None:
-        validation = validate_exhibit(
-            create_exhibit(110).replace("word1", "GITHUB COPILOT")
-        )
-        self.assertIn("GitHub Copilot", validation.vocabulary.prohibited_terms)
-        self.assertFalse(validation.valid)
+        response = await session.send_and_wait(prompt, timeout=120.0)
+        content = response.data.content or ""
+        print(f"\n{content}\n")
+        print_validation(validate_exhibit(content))
+    finally:
+        if session is not None:
+            await session.disconnect()
+        await client.stop()
 
 
 if __name__ == "__main__":
-    unittest.main()
+    asyncio.run(main())
 ```
 :::
 
@@ -805,123 +790,89 @@ func findHeading(lines []string, heading string) int {
 }
 ```
 
-Create `museum-workshop-app/validator_test.go`:
+Replace `museum-workshop-app/main.go`:
 
 ```go
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
-	"strings"
-	"testing"
+	"os"
+	"time"
 )
 
-func TestValidateExhibit(t *testing.T) {
-	tests := []struct {
-		name      string
-		content   string
-		wantValid bool
-		check     func(t *testing.T, validation ExhibitValidation)
-	}{
-		{name: "accepts complete exhibit", content: makeExhibit(110, 3, true), wantValid: true},
-		{
-			name: "counts lower word boundary", content: makeExhibit(100, 3, true), wantValid: true,
-			check: func(t *testing.T, v ExhibitValidation) {
-				if v.Narrative.WordCount != 100 {
-					t.Errorf("word count = %d, want 100", v.Narrative.WordCount)
-				}
-			},
-		},
-		{name: "counts upper word boundary", content: makeExhibit(140, 3, true), wantValid: true},
-		{
-			name: "rejects 99 words", content: makeExhibit(99, 3, true),
-			check: func(t *testing.T, v ExhibitValidation) {
-				if v.Narrative.WithinLimit() {
-					t.Error("NarrativeWithinLimit = true")
-				}
-			},
-		},
-		{name: "rejects 141 words", content: makeExhibit(141, 3, true)},
-		{
-			name: "rejects missing title", content: strings.Replace(makeExhibit(110, 3, true), "# A Journey\n", "", 1),
-			check: func(t *testing.T, v ExhibitValidation) {
-				if v.Title.Present() {
-					t.Error("TitlePresent = true")
-				}
-			},
-		},
-		{name: "rejects two titles", content: "# Another Title\n" + makeExhibit(110, 3, true)},
-		{
-			name: "rejects missing narrative section", content: strings.Replace(makeExhibit(110, 3, true), "## Narrative", "## Story", 1),
-			check: func(t *testing.T, v ExhibitValidation) {
-				if v.Narrative.Present {
-					t.Error("NarrativePresent = true")
-				}
-			},
-		},
-		{
-			name: "rejects missing questions section", content: strings.Replace(makeExhibit(110, 3, true), "## Visitor questions", "## Prompts", 1),
-			check: func(t *testing.T, v ExhibitValidation) {
-				if v.VisitorQuestions.Present {
-					t.Error("VisitorQuestionsPresent = true")
-				}
-			},
-		},
-		{name: "rejects two questions", content: makeExhibit(110, 2, true)},
-		{name: "rejects four questions", content: makeExhibit(110, 4, true)},
-		{
-			name: "rejects item without question mark", content: makeExhibit(110, 3, false),
-			check: func(t *testing.T, v ExhibitValidation) {
-				if v.VisitorQuestions.AllItemsAreQuestions {
-					t.Error("AllItemsAreQuestions = true")
-				}
-			},
-		},
-		{
-			name:    "reports prohibited terms case insensitively",
-			content: strings.Replace(makeExhibit(110, 3, true), "word1", "SOFTWARE", 1),
-			check: func(t *testing.T, v ExhibitValidation) {
-				if len(v.Vocabulary.ProhibitedTerms) != 1 || v.Vocabulary.ProhibitedTerms[0] != "software" {
-					t.Errorf("ProhibitedTerms = %v", v.Vocabulary.ProhibitedTerms)
-				}
-			},
-		},
+func main() {
+	fmt.Println("=== Museum Exhibit Studio ===")
+	fmt.Println("Curator policy: replace-mode system message, no tools allowed.")
+	fmt.Println("Approved Apollo 11 facts:")
+	for index, fact := range apollo11Facts {
+		fmt.Printf("%d. %s\n", index+1, fact)
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			validation := validateExhibit(test.content)
-			if validation.Valid() != test.wantValid {
-				t.Errorf("Valid = %t, want %t; errors: %v", validation.Valid(), test.wantValid, validation.Errors)
-			}
-			if test.check != nil {
-				test.check(t, validation)
-			}
-		})
+	if err := draftExhibit(); err != nil {
+		fmt.Fprintln(os.Stderr, "Could not generate the exhibit:", err)
+		os.Exit(1)
 	}
 }
 
-func makeExhibit(wordCount, questionCount int, allQuestions bool) string {
-	words := make([]string, wordCount)
-	for index := range words {
-		words[index] = fmt.Sprintf("word%d", index+1)
+func draftExhibit() (err error) {
+	prompt, err := buildExhibitPrompt(apollo11Facts)
+	if err != nil {
+		return err
 	}
-	questions := make([]string, questionCount)
-	for index := range questions {
-		suffix := "?"
-		if !allQuestions && index == questionCount-1 {
-			suffix = "."
-		}
-		questions[index] = fmt.Sprintf("%d. Reflection question%s", index+1, suffix)
+	fmt.Println("\nBounded prompt sent to the curator:")
+	fmt.Println("--------")
+	fmt.Println(prompt)
+	fmt.Println("--------")
+
+	ctx := context.Background()
+	client := newCopilotCuratorClient()
+	if err = client.Start(ctx); err != nil {
+		return err
 	}
-	return "# A Journey\n## Narrative\n" + strings.Join(words, " ") +
-		"\n## Visitor questions\n" + strings.Join(questions, "\n")
+	defer func() { err = errors.Join(err, client.Stop()) }()
+
+	session, err := client.CreateSession(ctx, createSessionConfiguration(os.Getenv("COPILOT_MODEL")))
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, session.Disconnect()) }()
+
+	generationContext, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	content, err := session.SendAndWait(generationContext, prompt)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\n%s\n\n", content)
+	printValidation(validateExhibit(content))
+	return nil
+}
+
+func printValidation(validation ExhibitValidation) {
+	if validation.Valid() {
+		fmt.Println("Structural checks passed.")
+	} else {
+		fmt.Println("Structural checks found issues:")
+	}
+	fmt.Printf("- One level-one title: %t\n", validation.Title.Present())
+	fmt.Printf("- Narrative section: %t\n", validation.Narrative.Present)
+	fmt.Printf("- Narrative length: %d words (within 100-140: %t)\n", validation.Narrative.WordCount, validation.Narrative.WithinLimit())
+	fmt.Printf("- Visitor questions section: %t\n", validation.VisitorQuestions.Present)
+	fmt.Printf("- Numbered questions: %d (exactly three: %t)\n", validation.VisitorQuestions.QuestionCount, validation.VisitorQuestions.ExactlyThree())
+	fmt.Printf("- Every item is a question: %t\n", validation.VisitorQuestions.AllItemsAreQuestions)
+	for _, message := range validation.Errors {
+		fmt.Println("  -", message)
+	}
+	fmt.Println("\nStructural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.")
 }
 ```
 :::
 
 :::language rust
-Append the following validator and result type to `museum-workshop-app/src/lib.rs`:
+Add the validator to `museum-workshop-app/src/lib.rs`, below `build_exhibit_prompt`:
 
 ```rust
 const PROHIBITED_VOCABULARY: [&str; 5] = [
@@ -1115,29 +1066,101 @@ fn count_words(text: &str) -> usize {
 }
 ```
 
-Create `museum-workshop-app/tests/validator.rs`:
+Replace `museum-workshop-app/src/main.rs`:
 
 ```rust
-use museum_exhibit_studio::validate_exhibit;
+use std::time::Duration;
 
-fn valid() -> String {
-    let words = (1..=110).map(|i| format!("word{i}")).collect::<Vec<_>>().join(" ");
-    format!("# A Journey\n## Narrative\n{words}\n## Visitor questions\n\
-1. What do you notice?\n2. What would you ask?\n3. What will you remember?")
+use museum_exhibit_studio::{
+    APOLLO_11_FACTS, CopilotCuratorClient, CuratorClient, CuratorSession, ExhibitValidation,
+    RuntimeError, build_exhibit_prompt, create_session_configuration, validate_exhibit,
+};
+
+fn print_validation(validation: &ExhibitValidation) {
+    println!(
+        "{}",
+        if validation.is_valid() {
+            "Structural checks passed."
+        } else {
+            "Structural checks found issues:"
+        }
+    );
+    println!("- One level-one title: {}", validation.title.is_present());
+    println!("- Narrative section: {}", validation.narrative.present);
+    println!(
+        "- Narrative length: {} words (within 100-140: {})",
+        validation.narrative.word_count,
+        validation.narrative.is_within_limit()
+    );
+    println!(
+        "- Visitor questions section: {}",
+        validation.visitor_questions.present
+    );
+    println!(
+        "- Numbered questions: {} (exactly three: {})",
+        validation.visitor_questions.question_count,
+        validation.visitor_questions.has_exactly_three()
+    );
+    println!(
+        "- Every item is a question: {}",
+        validation.visitor_questions.all_items_are_questions
+    );
+    for error in &validation.errors {
+        println!("  - {error}");
+    }
+    println!(
+        "\nStructural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator."
+    );
 }
 
-#[test]
-fn valid_and_missing_narrative() {
-    assert!(validate_exhibit(&valid()).is_valid());
-    let result = validate_exhibit(&valid().replacen("## Narrative\n", "", 1));
-    assert!(!result.narrative.present);
-    assert!(!result.is_valid());
+async fn draft_exhibit() -> Result<(), RuntimeError> {
+    let facts: Vec<String> = APOLLO_11_FACTS.map(str::to_owned).to_vec();
+    let prompt = build_exhibit_prompt(&facts)?;
+    println!("\nBounded prompt sent to the curator:");
+    println!("--------");
+    println!("{prompt}");
+    println!("--------");
+
+    let mut client = CopilotCuratorClient::new();
+    client.start().await?;
+    let mut session = client
+        .create_session(create_session_configuration(
+            std::env::var("COPILOT_MODEL").ok().as_deref(),
+        ))
+        .await?;
+    let response = session
+        .send_and_wait(prompt, Duration::from_secs(120))
+        .await;
+    session.disconnect().await?;
+    client.stop().await?;
+
+    let content = response?.unwrap_or_default();
+    println!("\n{content}\n");
+    print_validation(&validate_exhibit(&content));
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    println!("=== Museum Exhibit Studio ===");
+    println!("Curator policy: replace-mode system message, no tools allowed.");
+    println!("Approved Apollo 11 facts:");
+    for (index, fact) in APOLLO_11_FACTS.iter().enumerate() {
+        println!("{}. {fact}", index + 1);
+    }
+
+    if let Err(error) = draft_exhibit().await {
+        eprintln!("Could not generate the exhibit: {error}");
+        std::process::exit(1);
+    }
 }
 ```
 :::
 
 :::language java
-Create `museum-workshop-app/src/main/java/workshop/TitleValidation.java`:
+Create the five result records under `museum-workshop-app/src/main/java/workshop/`.
+
+`TitleValidation.java`:
 
 ```java
 package workshop;
@@ -1153,7 +1176,7 @@ public record TitleValidation(long titleCount) {
 }
 ```
 
-Create `museum-workshop-app/src/main/java/workshop/NarrativeValidation.java`:
+`NarrativeValidation.java`:
 
 ```java
 package workshop;
@@ -1169,7 +1192,7 @@ public record NarrativeValidation(boolean present, int wordCount) {
 }
 ```
 
-Create `museum-workshop-app/src/main/java/workshop/VisitorQuestionsValidation.java`:
+`VisitorQuestionsValidation.java`:
 
 ```java
 package workshop;
@@ -1188,7 +1211,7 @@ public record VisitorQuestionsValidation(
 }
 ```
 
-Create `museum-workshop-app/src/main/java/workshop/VocabularyValidation.java`:
+`VocabularyValidation.java`:
 
 ```java
 package workshop;
@@ -1206,7 +1229,7 @@ public record VocabularyValidation(List<String> prohibitedTerms) {
 }
 ```
 
-Create `museum-workshop-app/src/main/java/workshop/ExhibitValidation.java`:
+`ExhibitValidation.java`:
 
 ```java
 package workshop;
@@ -1330,138 +1353,159 @@ public final class ExhibitValidator {
 }
 ```
 
-Create `museum-workshop-app/src/test/java/workshop/ExhibitValidatorTest.java`:
+Replace `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`:
 
 ```java
 package workshop;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.stream.IntStream;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-class ExhibitValidatorTest {
-    @Test
-    void acceptsCompleteExhibit() {
-        ExhibitValidation validation = ExhibitValidator.validate(createExhibit(110, 3));
-
-        assertTrue(validation.valid());
-        assertEquals(110, validation.narrative().wordCount());
-        assertEquals(3, validation.visitorQuestions().questionCount());
+public final class MuseumExhibitStudio {
+    private MuseumExhibitStudio() {
     }
 
-    @Test
-    void rejectsMissingOrMultipleTitle() {
-        assertFalse(ExhibitValidator.validate(
-                createExhibit(110, 3).replace("# A Journey\n", "")).title().present());
-        assertFalse(ExhibitValidator.validate(
-                createExhibit(110, 3) + "\n# Another title").title().present());
+    public static void main(String[] args) throws Exception {
+        System.out.println("=== Museum Exhibit Studio ===");
+        System.out.println("Curator policy: replace-mode system message, no tools allowed.");
+        System.out.println("Approved Apollo 11 facts:");
+        for (int index = 0; index < CuratorPrompts.APOLLO_11_FACTS.size(); index++) {
+            System.out.printf("%d. %s%n", index + 1, CuratorPrompts.APOLLO_11_FACTS.get(index));
+        }
+
+        String prompt = CuratorPrompts.buildExhibitPrompt(CuratorPrompts.APOLLO_11_FACTS);
+        System.out.println("\nBounded prompt sent to the curator:");
+        System.out.println("--------");
+        System.out.println(prompt);
+        System.out.println("--------");
+
+        try (CuratorClient client = new CopilotCuratorClient()) {
+            client.start();
+            CuratorSession session = null;
+            try {
+                session = client.createSession(
+                        MuseumExhibitService.createSessionConfiguration(
+                                System.getenv("COPILOT_MODEL")));
+                String content = session.sendAndWait(prompt, 120_000L);
+                System.out.printf("%n%s%n%n", content);
+                printValidation(ExhibitValidator.validate(content == null ? "" : content));
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                }
+                client.stop();
+            }
+        }
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {99, 141})
-    void rejectsNarrativeOutsideLimit(int words) {
-        ExhibitValidation validation = ExhibitValidator.validate(createExhibit(words, 3));
-        assertFalse(validation.narrative().withinLimit());
-        assertFalse(validation.valid());
-    }
+    private static void printValidation(ExhibitValidation validation) {
+        System.out.println(validation.valid()
+                ? "Structural checks passed."
+                : "Structural checks found issues:");
+        System.out.println("- One level-one title: " + validation.title().present());
+        System.out.println("- Narrative section: " + validation.narrative().present());
+        System.out.printf(
+                "- Narrative length: %d words (within 100-140: %s)%n",
+                validation.narrative().wordCount(),
+                validation.narrative().withinLimit());
+        System.out.println(
+                "- Visitor questions section: " + validation.visitorQuestions().present());
+        System.out.printf(
+                "- Numbered questions: %d (exactly three: %s)%n",
+                validation.visitorQuestions().questionCount(),
+                validation.visitorQuestions().exactlyThree());
+        System.out.println(
+                "- Every item is a question: "
+                        + validation.visitorQuestions().allItemsAreQuestions());
+        validation.errors().forEach(error -> System.out.println("  - " + error));
+        System.out.println("""
 
-    @ParameterizedTest
-    @ValueSource(ints = {2, 4})
-    void rejectsWrongQuestionCount(int count) {
-        assertFalse(ExhibitValidator.validate(createExhibit(110, count))
-                .visitorQuestions().exactlyThree());
-    }
-
-    @Test
-    void rejectsItemsThatAreNotQuestions() {
-        ExhibitValidation validation = ExhibitValidator.validate(
-                createExhibit(110, 3).replace("3. Reflection question?", "3. Reflection prompt."));
-        assertFalse(validation.visitorQuestions().allItemsAreQuestions());
-        assertFalse(validation.valid());
-    }
-
-    @Test
-    void reportsProhibitedVocabularyAndMissingSections() {
-        ExhibitValidation prohibited = ExhibitValidator.validate(
-                createExhibit(110, 3).replace("word1", "software"));
-        assertTrue(prohibited.vocabulary().prohibitedTerms().contains("software"));
-        assertFalse(prohibited.valid());
-
-        ExhibitValidation missing = ExhibitValidator.validate("# Title\n" + "word ".repeat(110));
-        assertFalse(missing.narrative().present());
-        assertFalse(missing.visitorQuestions().present());
-        assertFalse(missing.valid());
-    }
-
-    private static String createExhibit(int wordCount, int questionCount) {
-        String narrative = IntStream.rangeClosed(1, wordCount)
-                .mapToObj(index -> "word" + index)
-                .reduce((left, right) -> left + " " + right)
-                .orElse("");
-        String questions = IntStream.rangeClosed(1, questionCount)
-                .mapToObj(index -> index + ". Reflection question?")
-                .reduce((left, right) -> left + "\n" + right)
-                .orElse("");
-        return "# A Journey\n## Narrative\n%s\n## Visitor questions\n%s"
-                .formatted(narrative, questions);
+                Structural checks do not prove factual grounding. Unsupported claims require \
+                human review or a separate evaluator.""");
     }
 }
 ```
 :::
 
-## Preserve the factual-grounding boundary
-
-Passing these checks does **not** prove that every sentence came from the approved facts. Every
-application track will display:
-
-> Structural checks do not prove factual grounding. Unsupported claims require human review or a
-> separate evaluator.
-
-Do not turn that disclaimer into a success-shaped "grounded" boolean.
-
 ## Run it
+
+Build, then run. The run contacts a model and needs an authenticated GitHub Copilot CLI.
 
 :::language dotnet
 ```bash
-dotnet test museum-workshop-app/tests/museum-exhibit-studio.Tests.csproj
+dotnet build museum-workshop-app
+dotnet run --project museum-workshop-app
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app test
+npm --prefix museum-workshop-app run build
+npm --prefix museum-workshop-app start
 ```
 :::
 :::language python
 ```bash
-PYTHONPATH=museum-workshop-app museum-workshop-app/.venv/bin/python -m unittest discover -s museum-workshop-app/tests -p test_exhibit_validator.py
+museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/*.py
+museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app test -run ValidateExhibit ./...
+go -C museum-workshop-app build -mod=readonly ./...
+go -C museum-workshop-app run .
 ```
 :::
 :::language rust
 ```bash
-cargo test --manifest-path museum-workshop-app/Cargo.toml --locked --test validator
+cargo check --manifest-path museum-workshop-app/Cargo.toml
+cargo run --manifest-path museum-workshop-app/Cargo.toml
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml -Dtest=ExhibitValidatorTest test
+mvn -f museum-workshop-app/pom.xml compile
+mvn -f museum-workshop-app/pom.xml compile exec:java
 ```
 :::
 
-Pass condition: valid output passes; deleting `## Narrative` makes both the section flag and overall
-result false.
+After the exhibit, the run now prints a measured result:
+
+```text
+Structural checks passed.
+- One level-one title: True
+- Narrative section: True
+- Narrative length: 126 words (within 100-140: True)
+- Visitor questions section: True
+- Numbered questions: 3 (exactly three: True)
+- Every item is a question: True
+
+Structural checks do not prove factual grounding. Unsupported claims require human review
+or a separate evaluator.
+```
+
+Boolean spelling differs by language (`True`, `true`); the lines and their order do not.
+
+A failing run is just as useful, and it names the measurement that missed:
+
+```text
+Structural checks found issues:
+- One level-one title: True
+- Narrative section: True
+- Narrative length: 168 words (within 100-140: False)
+- Visitor questions section: True
+- Numbered questions: 4 (exactly three: False)
+- Every item is a question: True
+  - The narrative must contain 100-140 words; found 168.
+  - The exhibit must contain exactly three numbered questions; found 4.
+```
+
+Run it a second time. The exhibit text changes; the checks stay comparable, because nothing in the
+validator asks a model anything.
 
 ## Check your understanding
 
-1. Which exhibit claims can code determine?
-2. Why does structural validity not prove factual grounding?
-3. Why is the validator independent from the SDK?
+1. The validator reports `Narrative length: 126 words` instead of only `passed`. What can you do
+   with the number that you cannot do with the verdict?
+2. The prohibited vocabulary list contains `repository` and `terminal`. Which lesson 1 artifact
+   already asked the curator to avoid those words, and why is this check still worth having?
+3. An exhibit passes every check and states that the crew planted a flag on the far side of the
+   Moon. Which line of the printed output is the honest answer to that situation?
+
+Continue to [Own the lifecycle](museum-05-lifecycle.md).

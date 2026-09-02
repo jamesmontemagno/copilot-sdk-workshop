@@ -1,6 +1,8 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const { readFileSync } = require('node:fs');
+const { join } = require('node:path');
 const { getLanguage } = require('../language-registry.js');
 const {
     firstLessonUrl,
@@ -40,5 +42,13 @@ assert.equal(homeUrl(), '../index.html');
 assert.equal(resolveLanguage('?lang=go', 'rust', getLanguage).id, 'go');
 assert.equal(resolveLanguage('', 'rust', getLanguage).id, 'rust');
 assert.equal(resolveLanguage('?lang=unknown', 'rust', getLanguage), null);
+
+const lessonViewer = readFileSync(join(__dirname, '..', 'workshop', 'step.html'), 'utf8');
+assert.match(lessonViewer, /id: 'museum-05-lifecycle'/);
+assert.match(lessonViewer, /file: 'workshop\/museum-05-lifecycle\.md'/);
+assert.match(
+    lessonViewer,
+    /'museum-05-lifecycle-tests': 'museum-05-lifecycle'/,
+);
 
 console.log('Workshop language directive and navigation tests passed.');

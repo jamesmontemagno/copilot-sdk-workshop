@@ -242,10 +242,10 @@
                 time: '15 min'
             },
             {
-                id: 'museum-05-lifecycle-tests',
-                file: 'workshop/museum-05-lifecycle-tests.md',
-                title: 'Own the lifecycle and tests',
-                navTitle: 'Lifecycle and tests',
+                id: 'museum-05-lifecycle',
+                file: 'workshop/museum-05-lifecycle.md',
+                title: 'Own the lifecycle',
+                navTitle: 'Lifecycle',
                 kind: 'core',
                 number: 5,
                 time: '15 min'
@@ -288,7 +288,8 @@
             '09-tool-activity': '05-combine-tools',
             '10-report-prompt': '06-structured-report',
             '11-generate-tests': '07-run-explain',
-            '12-run-review': '07-run-explain'
+            '12-run-review': '07-run-explain',
+            'museum-05-lifecycle-tests': 'museum-05-lifecycle'
         };
         const requestedStepParameter = new URLSearchParams(window.location.search).get('step');
         const mappedStepParameter = legacyStepMap[requestedStepParameter] ?? requestedStepParameter;

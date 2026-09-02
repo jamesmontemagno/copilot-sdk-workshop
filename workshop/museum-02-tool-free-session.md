@@ -1,70 +1,37 @@
 # Create a tool-free session
 
-> **Time:** 15 minutes  
-> **Goal:** Add the SDK boundary and a session configuration with no tools.
+> **Time:** 10 minutes
+> **Goal:** Start a real Copilot session that carries the curator policy and has an empty tool
+> allowlist, then watch the curator answer with no capability to look anything up.
 
-The system message guides behavior; it does not remove capabilities. `availableTools: []` is the
-application-owned capability boundary. Streaming is disabled because validation needs the complete
-response. `replace` removes coding-agent defaults instead of combining them with the curator role.
+Previous: [Define the curator contract](museum-01-curator-role.md)
 
-:::language dotnet
-Create `museum-workshop-app/CuratorRuntime.cs` with the exact SDK adapter:
+The system message from lesson 1 guides behavior. It does not remove capability. Three session
+settings do the structural work:
 
-```csharp
-using GitHub.Copilot;
+| Setting | Value | Why |
+|---|---|---|
+| Tool allowlist | empty | The session cannot invoke any tool, whatever the prompt says |
+| System message mode | `replace` | Removes the coding-agent defaults instead of merging with them |
+| Streaming | off | Later lessons validate a complete response, not partial deltas |
 
-namespace MuseumExhibitStudio;
+This lesson wires the session configuration into the SDK adapter that shipped with the starter and
+sends one probe prompt:
 
-public interface ICuratorSession : IAsyncDisposable
-{
-    Task<string?> SendAndWaitAsync(
-        string prompt,
-        TimeSpan timeout,
-        CancellationToken cancellationToken = default);
-}
-
-public interface ICuratorClient : IAsyncDisposable
-{
-    Task StartAsync(CancellationToken cancellationToken = default);
-    Task<ICuratorSession> CreateSessionAsync(
-        SessionConfig configuration,
-        CancellationToken cancellationToken = default);
-    Task StopAsync();
-}
-
-public sealed class CopilotCuratorClient : ICuratorClient
-{
-    private readonly CopilotClient client = new();
-
-    public Task StartAsync(CancellationToken cancellationToken = default) =>
-        client.StartAsync(cancellationToken);
-
-    public async Task<ICuratorSession> CreateSessionAsync(
-        SessionConfig configuration,
-        CancellationToken cancellationToken = default) =>
-        new CopilotCuratorSession(
-            await client.CreateSessionAsync(configuration, cancellationToken));
-
-    public Task StopAsync() => client.StopAsync();
-    public ValueTask DisposeAsync() => client.DisposeAsync();
-
-    private sealed class CopilotCuratorSession(CopilotSession session) : ICuratorSession
-    {
-        public async Task<string?> SendAndWaitAsync(
-            string prompt,
-            TimeSpan timeout,
-            CancellationToken cancellationToken = default)
-        {
-            var response = await session.SendAndWaitAsync(prompt, timeout, cancellationToken);
-            return response?.Data.Content;
-        }
-
-        public ValueTask DisposeAsync() => session.DisposeAsync();
-    }
-}
+```text
+Using only facts supplied by the user, write one sentence of exhibit copy about Apollo 11.
+If no facts have been supplied, say so instead of inventing any.
 ```
 
-Create `museum-workshop-app/MuseumExhibitService.cs` as the compile-ready configuration shell:
+No facts are supplied yet, so a correctly configured curator has nothing to draw on and says so.
+That single reply demonstrates both boundaries at once: the policy holds, and the session has no
+tool with which to go find the facts itself.
+
+Authentication is required from this lesson onward. Set `COPILOT_MODEL` to choose a model, or leave
+it unset and let the Copilot runtime pick its default.
+
+:::language dotnet
+Create `museum-workshop-app/MuseumExhibitService.cs`:
 
 ```csharp
 using GitHub.Copilot;
@@ -87,10 +54,55 @@ public sealed class MuseumExhibitService
     };
 }
 ```
+
+Replace `museum-workshop-app/Program.cs`. `CopilotCuratorClient` is the adapter already in
+`museum-workshop-app/CuratorRuntime.cs`:
+
+```csharp
+using MuseumExhibitStudio;
+
+const string ProbePrompt =
+    "Using only facts supplied by the user, write one sentence of exhibit copy about " +
+    "Apollo 11. If no facts have been supplied, say so instead of inventing any.";
+
+Console.WriteLine("=== Museum Exhibit Studio ===");
+Console.WriteLine("Curator policy (durable system message):");
+Console.WriteLine(CuratorPrompts.SystemMessage);
+
+Console.WriteLine();
+Console.WriteLine("Approved Apollo 11 facts (task data):");
+for (var index = 0; index < CuratorPrompts.Apollo11Facts.Count; index++)
+{
+    Console.WriteLine($"{index + 1}. {CuratorPrompts.Apollo11Facts[index]}");
+}
+
+Console.WriteLine();
+Console.WriteLine(
+    $"Application limits: at most {CuratorPrompts.MaximumFactCount} facts, " +
+    $"{CuratorPrompts.MaximumFactLength} characters each.");
+Console.WriteLine("Session tools allowed: none (empty allowlist).");
+
+await using var client = new CopilotCuratorClient();
+await client.StartAsync();
+try
+{
+    await using var session = await client.CreateSessionAsync(
+        MuseumExhibitService.CreateSessionConfiguration(
+            Environment.GetEnvironmentVariable("COPILOT_MODEL")));
+    var reply = await session.SendAndWaitAsync(ProbePrompt, TimeSpan.FromMinutes(2));
+    Console.WriteLine($"\nCurator reply:\n{reply}");
+}
+finally
+{
+    await client.StopAsync();
+}
+```
 :::
 
 :::language nodejs
-Create `museum-workshop-app/src/service.ts`:
+The starter's SDK adapter now moves next to the session configuration it serves. Create
+`museum-workshop-app/src/service.ts` with the contents of `museum-workshop-app/src/runtime.ts` plus
+the new configuration:
 
 ```typescript
 import { CopilotClient, type SessionConfig } from "@github/copilot-sdk";
@@ -115,7 +127,10 @@ export function createSessionConfiguration(model?: string): SessionConfig {
     model: model?.trim() || undefined,
     availableTools: [],
     streaming: false,
-    systemMessage: { mode: "replace", content: systemMessage },
+    systemMessage: {
+      mode: "replace",
+      content: systemMessage,
+    },
   };
 }
 
@@ -123,10 +138,59 @@ export function createCopilotCuratorClient(): CuratorClient {
   return new CopilotClient();
 }
 ```
+
+Delete the now-duplicated adapter so one module owns the SDK boundary:
+
+```bash
+rm museum-workshop-app/src/runtime.ts
+```
+
+Replace `museum-workshop-app/src/index.ts`:
+
+```typescript
+import { apollo11Facts, maximumFactCount, maximumFactLength, systemMessage } from "./prompts.js";
+import {
+  createCopilotCuratorClient,
+  createSessionConfiguration,
+  type CuratorSession,
+} from "./service.js";
+
+const probePrompt =
+  "Using only facts supplied by the user, write one sentence of exhibit copy about " +
+  "Apollo 11. If no facts have been supplied, say so instead of inventing any.";
+
+console.log("=== Museum Exhibit Studio ===");
+console.log("Curator policy (durable system message):");
+console.log(systemMessage);
+
+console.log("\nApproved Apollo 11 facts (task data):");
+apollo11Facts.forEach((fact, index) => console.log(`${index + 1}. ${fact}`));
+
+console.log(
+  `\nApplication limits: at most ${maximumFactCount} facts, ` +
+    `${maximumFactLength} characters each.`,
+);
+console.log("Session tools allowed: none (empty allowlist).");
+
+const client = createCopilotCuratorClient();
+let session: CuratorSession | undefined;
+await client.start();
+try {
+  session = await client.createSession(
+    createSessionConfiguration(process.env.COPILOT_MODEL),
+  );
+  const response = await session.sendAndWait(probePrompt, 120_000);
+  console.log(`\nCurator reply:\n${response?.data.content ?? ""}`);
+} finally {
+  await session?.disconnect();
+  await client.stop();
+}
+```
 :::
 
 :::language python
-Create `museum-workshop-app/museum_exhibit_service.py`:
+The starter's SDK protocols now move next to the session configuration they serve. Create
+`museum-workshop-app/museum_exhibit_service.py`:
 
 ```python
 from __future__ import annotations
@@ -151,12 +215,74 @@ class MuseumExhibitService:
         self._client = client
 ```
 
-`Any` is the deliberately small test seam used by the completed sample: production supplies a
-`CopilotClient`, while tests supply a fake with the same three async methods.
+Delete the now-duplicated adapter so one module owns the SDK boundary:
+
+```bash
+rm museum-workshop-app/curator_runtime.py
+```
+
+Replace `museum-workshop-app/main.py`:
+
+```python
+from __future__ import annotations
+
+import asyncio
+import os
+
+from copilot import CopilotClient
+
+from curator_prompts import (
+    APOLLO_11_FACTS,
+    MAXIMUM_FACT_COUNT,
+    MAXIMUM_FACT_LENGTH,
+    SYSTEM_MESSAGE,
+)
+from museum_exhibit_service import create_session_configuration
+
+PROBE_PROMPT = (
+    "Using only facts supplied by the user, write one sentence of exhibit copy about "
+    "Apollo 11. If no facts have been supplied, say so instead of inventing any."
+)
+
+
+async def main() -> None:
+    print("=== Museum Exhibit Studio ===")
+    print("Curator policy (durable system message):")
+    print(SYSTEM_MESSAGE)
+
+    print("\nApproved Apollo 11 facts (task data):")
+    for index, fact in enumerate(APOLLO_11_FACTS, start=1):
+        print(f"{index}. {fact}")
+
+    print(
+        f"\nApplication limits: at most {MAXIMUM_FACT_COUNT} facts, "
+        f"{MAXIMUM_FACT_LENGTH} characters each."
+    )
+    print("Session tools allowed: none (empty allowlist).")
+
+    client = CopilotClient()
+    session = None
+    await client.start()
+    try:
+        session = await client.create_session(
+            **create_session_configuration(os.getenv("COPILOT_MODEL"))
+        )
+        response = await session.send_and_wait(PROBE_PROMPT, timeout=120.0)
+        print(f"\nCurator reply:\n{response.data.content}")
+    finally:
+        if session is not None:
+            await session.disconnect()
+        await client.stop()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 :::
 
 :::language go
-Create `museum-workshop-app/service.go` with the configuration, interfaces, and SDK adapter:
+The starter's SDK adapter now moves next to the session configuration it serves. Create
+`museum-workshop-app/service.go`:
 
 ```go
 package main
@@ -186,7 +312,8 @@ func createSessionConfiguration(model string) *copilot.SessionConfig {
 		AvailableTools: []string{},
 		Streaming:      copilot.Bool(false),
 		SystemMessage: &copilot.SystemMessageConfig{
-			Mode: "replace", Content: curatorSystemMessage,
+			Mode:    "replace",
+			Content: curatorSystemMessage,
 		},
 	}
 }
@@ -196,7 +323,9 @@ type copilotCuratorClient struct {
 }
 
 func newCopilotCuratorClient() *copilotCuratorClient {
-	return &copilotCuratorClient{client: copilot.NewClient(&copilot.ClientOptions{LogLevel: "error"})}
+	return &copilotCuratorClient{
+		client: copilot.NewClient(&copilot.ClientOptions{LogLevel: "error"}),
+	}
 }
 
 func (client *copilotCuratorClient) Start(ctx context.Context) error {
@@ -204,7 +333,8 @@ func (client *copilotCuratorClient) Start(ctx context.Context) error {
 }
 
 func (client *copilotCuratorClient) CreateSession(
-	ctx context.Context, config *copilot.SessionConfig,
+	ctx context.Context,
+	config *copilot.SessionConfig,
 ) (curatorSession, error) {
 	session, err := client.client.CreateSession(ctx, config)
 	if err != nil {
@@ -213,14 +343,17 @@ func (client *copilotCuratorClient) CreateSession(
 	return copilotCuratorSession{session: session}, nil
 }
 
-func (client *copilotCuratorClient) Stop() error { return client.client.Stop() }
+func (client *copilotCuratorClient) Stop() error {
+	return client.client.Stop()
+}
 
 type copilotCuratorSession struct {
 	session *copilot.Session
 }
 
 func (session copilotCuratorSession) SendAndWait(
-	ctx context.Context, prompt string,
+	ctx context.Context,
+	prompt string,
 ) (string, error) {
 	response, err := session.session.SendAndWait(ctx, copilot.MessageOptions{Prompt: prompt})
 	if err != nil || response == nil {
@@ -237,25 +370,97 @@ func (session copilotCuratorSession) Disconnect() error {
 	return session.session.Disconnect()
 }
 ```
+
+Delete the duplicated adapter. Two files declaring the same package-level types will not compile:
+
+```bash
+rm museum-workshop-app/curator_runtime.go
+```
+
+Replace `museum-workshop-app/main.go`:
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"os"
+	"time"
+)
+
+const probePrompt = "Using only facts supplied by the user, write one sentence of exhibit copy " +
+	"about Apollo 11. If no facts have been supplied, say so instead of inventing any."
+
+func main() {
+	fmt.Println("=== Museum Exhibit Studio ===")
+	fmt.Println("Curator policy (durable system message):")
+	fmt.Println(curatorSystemMessage)
+
+	fmt.Println("\nApproved Apollo 11 facts (task data):")
+	for index, fact := range apollo11Facts {
+		fmt.Printf("%d. %s\n", index+1, fact)
+	}
+
+	fmt.Printf("\nApplication limits: at most %d facts, %d characters each.\n",
+		maximumFactCount, maximumFactLength)
+	fmt.Println("Session tools allowed: none (empty allowlist).")
+
+	if err := probeCurator(); err != nil {
+		fmt.Fprintln(os.Stderr, "Could not reach the curator:", err)
+		os.Exit(1)
+	}
+}
+
+func probeCurator() (err error) {
+	ctx := context.Background()
+	client := newCopilotCuratorClient()
+	if err = client.Start(ctx); err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, client.Stop()) }()
+
+	session, err := client.CreateSession(ctx, createSessionConfiguration(os.Getenv("COPILOT_MODEL")))
+	if err != nil {
+		return err
+	}
+	defer func() { err = errors.Join(err, session.Disconnect()) }()
+
+	replyContext, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	reply, err := session.SendAndWait(replyContext, probePrompt)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\nCurator reply:\n%s\n", reply)
+	return nil
+}
+```
 :::
 
 :::language rust
-At the top of `museum-workshop-app/src/lib.rs`, add these imports:
+The probe runs on an async runtime, so add Tokio to the `[dependencies]` section of
+`museum-workshop-app/Cargo.toml`. The completed reference pins exact versions; these requirements
+match the versions already recorded in your copied `Cargo.lock`:
 
-```rust
-use std::error::Error;
-use std::time::Duration;
-
-use async_trait::async_trait;
-use github_copilot_sdk::types::{MessageOptions, SessionConfig, SystemMessageConfig};
-use github_copilot_sdk::{Client, ClientOptions};
+```toml
+[dependencies]
+async-trait = "=0.1.91"
+github-copilot-sdk = { version = "=1.0.11", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
-Then append this configuration and runtime boundary to the same file:
+In `museum-workshop-app/src/lib.rs`, extend the existing SDK type import with `SystemMessageConfig`:
 
 ```rust
-pub const GENERATION_TIMEOUT: Duration = Duration::from_secs(120);
+use github_copilot_sdk::types::{MessageOptions, SessionConfig, SystemMessageConfig};
+```
 
+Then add the session configuration to `museum-workshop-app/src/lib.rs`, directly below the
+`SYSTEM_MESSAGE` constant:
+
+```rust
 pub fn create_session_configuration(model: Option<&str>) -> SessionConfig {
     let mut config = SessionConfig::default();
     config.client_name = Some("museum-exhibit-studio".to_owned());
@@ -272,140 +477,71 @@ pub fn create_session_configuration(model: Option<&str>) -> SessionConfig {
     );
     config
 }
+```
 
-pub type RuntimeError = Box<dyn Error + Send + Sync>;
+Replace `museum-workshop-app/src/main.rs`. `CopilotCuratorClient` is the adapter already in
+`museum-workshop-app/src/lib.rs`:
 
-#[async_trait]
-pub trait CuratorSession: Send {
-    async fn send_and_wait(
-        &mut self,
-        prompt: String,
-        timeout: Duration,
-    ) -> Result<Option<String>, RuntimeError>;
-    async fn disconnect(&mut self) -> Result<(), RuntimeError>;
-}
+```rust
+use std::time::Duration;
 
-#[async_trait]
-pub trait CuratorClient: Send {
-    async fn start(&mut self) -> Result<(), RuntimeError>;
-    async fn create_session(
-        &mut self,
-        configuration: SessionConfig,
-    ) -> Result<Box<dyn CuratorSession>, RuntimeError>;
-    async fn stop(&mut self) -> Result<(), RuntimeError>;
-}
+use museum_exhibit_studio::{
+    APOLLO_11_FACTS, CopilotCuratorClient, CuratorClient, CuratorSession, MAXIMUM_FACT_COUNT,
+    MAXIMUM_FACT_LENGTH, RuntimeError, SYSTEM_MESSAGE, create_session_configuration,
+};
 
-pub struct CopilotCuratorClient {
-    client: Option<Client>,
-}
+const PROBE_PROMPT: &str = "Using only facts supplied by the user, write one sentence of exhibit \
+copy about Apollo 11. If no facts have been supplied, say so instead of inventing any.";
 
-impl CopilotCuratorClient {
-    pub fn new() -> Self { Self { client: None } }
-}
+fn print_contract() {
+    println!("=== Museum Exhibit Studio ===");
+    println!("Curator policy (durable system message):");
+    println!("{SYSTEM_MESSAGE}");
 
-impl Default for CopilotCuratorClient {
-    fn default() -> Self { Self::new() }
-}
-
-struct CopilotCuratorSession(github_copilot_sdk::session::Session);
-
-#[async_trait]
-impl CuratorSession for CopilotCuratorSession {
-    async fn send_and_wait(
-        &mut self,
-        prompt: String,
-        timeout: Duration,
-    ) -> Result<Option<String>, RuntimeError> {
-        let event = self.0
-            .send_and_wait(MessageOptions::new(prompt).with_wait_timeout(timeout))
-            .await?;
-        Ok(event.and_then(|event| event.data.get("content")
-            .and_then(|content| content.as_str()).map(str::to_owned)))
+    println!("\nApproved Apollo 11 facts (task data):");
+    for (index, fact) in APOLLO_11_FACTS.iter().enumerate() {
+        println!("{}. {fact}", index + 1);
     }
 
-    async fn disconnect(&mut self) -> Result<(), RuntimeError> {
-        self.0.disconnect().await?;
-        Ok(())
-    }
+    println!(
+        "\nApplication limits: at most {MAXIMUM_FACT_COUNT} facts, \
+         {MAXIMUM_FACT_LENGTH} characters each."
+    );
+    println!("Session tools allowed: none (empty allowlist).");
 }
 
-#[async_trait]
-impl CuratorClient for CopilotCuratorClient {
-    async fn start(&mut self) -> Result<(), RuntimeError> {
-        self.client = Some(Client::start(ClientOptions::default()).await?);
-        Ok(())
-    }
+async fn probe_curator() -> Result<(), RuntimeError> {
+    let mut client = CopilotCuratorClient::new();
+    client.start().await?;
+    let mut session = client
+        .create_session(create_session_configuration(
+            std::env::var("COPILOT_MODEL").ok().as_deref(),
+        ))
+        .await?;
+    let reply = session
+        .send_and_wait(PROBE_PROMPT.to_owned(), Duration::from_secs(120))
+        .await;
+    session.disconnect().await?;
+    client.stop().await?;
+    println!("\nCurator reply:\n{}", reply?.unwrap_or_default());
+    Ok(())
+}
 
-    async fn create_session(
-        &mut self,
-        configuration: SessionConfig,
-    ) -> Result<Box<dyn CuratorSession>, RuntimeError> {
-        let client = self.client.as_ref()
-            .ok_or_else(|| std::io::Error::other("The curator client is not started."))?;
-        Ok(Box::new(CopilotCuratorSession(
-            client.create_session(configuration).await?,
-        )))
-    }
-
-    async fn stop(&mut self) -> Result<(), RuntimeError> {
-        if let Some(client) = self.client.take() {
-            client.stop().await?;
-        }
-        Ok(())
+#[tokio::main]
+async fn main() {
+    print_contract();
+    if let Err(error) = probe_curator().await {
+        eprintln!("Could not reach the curator: {error}");
+        std::process::exit(1);
     }
 }
 ```
 :::
 
 :::language java
-Create `museum-workshop-app/src/main/java/workshop/CuratorRuntime.java`:
-
-```java
-package workshop;
-
-import com.github.copilot.CopilotClient;
-import com.github.copilot.CopilotSession;
-import com.github.copilot.rpc.MessageOptions;
-import com.github.copilot.rpc.SessionConfig;
-
-interface CuratorSession {
-    String sendAndWait(String prompt, long timeoutMillis) throws Exception;
-    void disconnect();
-}
-
-interface CuratorClient extends AutoCloseable {
-    void start() throws Exception;
-    CuratorSession createSession(SessionConfig configuration) throws Exception;
-    void stop() throws Exception;
-    @Override void close();
-}
-
-final class CopilotCuratorClient implements CuratorClient {
-    private final CopilotClient client = new CopilotClient();
-
-    public void start() throws Exception { client.start().get(); }
-
-    public CuratorSession createSession(SessionConfig configuration) throws Exception {
-        return new CopilotCuratorSession(client.createSession(configuration).get());
-    }
-
-    public void stop() throws Exception { client.stop().get(); }
-    public void close() { client.close(); }
-
-    private record CopilotCuratorSession(CopilotSession session) implements CuratorSession {
-        public String sendAndWait(String prompt, long timeoutMillis) throws Exception {
-            var response = session.sendAndWait(
-                    new MessageOptions().setPrompt(prompt), timeoutMillis).get();
-            return response == null || response.getData() == null
-                    ? null : response.getData().content();
-        }
-
-        public void disconnect() { session.close(); }
-    }
-}
-```
-
-Create `museum-workshop-app/src/main/java/workshop/MuseumExhibitService.java`:
+Create `museum-workshop-app/src/main/java/workshop/MuseumExhibitService.java`. The reject-all
+permission handler is a second lock on the same door: even if a tool reached this session, every
+request is denied:
 
 ```java
 package workshop;
@@ -414,10 +550,14 @@ import com.github.copilot.SystemMessageMode;
 import com.github.copilot.rpc.PermissionRequestResult;
 import com.github.copilot.rpc.SessionConfig;
 import com.github.copilot.rpc.SystemMessageConfig;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class MuseumExhibitService {
+    private MuseumExhibitService() {
+    }
+
     public static SessionConfig createSessionConfiguration(String model) {
         SessionConfig configuration = new SessionConfig()
                 .setClientName("museum-exhibit-studio")
@@ -437,48 +577,131 @@ public final class MuseumExhibitService {
     }
 }
 ```
+
+Replace `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`.
+`CopilotCuratorClient` is the adapter already in
+`museum-workshop-app/src/main/java/workshop/CuratorRuntime.java`:
+
+```java
+package workshop;
+
+public final class MuseumExhibitStudio {
+    private static final String PROBE_PROMPT =
+            "Using only facts supplied by the user, write one sentence of exhibit copy about "
+                    + "Apollo 11. If no facts have been supplied, say so instead of inventing any.";
+
+    private MuseumExhibitStudio() {
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("=== Museum Exhibit Studio ===");
+        System.out.println("Curator policy (durable system message):");
+        System.out.println(CuratorPrompts.SYSTEM_MESSAGE);
+
+        System.out.println("Approved Apollo 11 facts (task data):");
+        for (int index = 0; index < CuratorPrompts.APOLLO_11_FACTS.size(); index++) {
+            System.out.printf("%d. %s%n", index + 1, CuratorPrompts.APOLLO_11_FACTS.get(index));
+        }
+
+        System.out.printf(
+                "%nApplication limits: at most %d facts, %d characters each.%n",
+                CuratorPrompts.MAXIMUM_FACT_COUNT,
+                CuratorPrompts.MAXIMUM_FACT_LENGTH);
+        System.out.println("Session tools allowed: none (empty allowlist).");
+
+        try (CuratorClient client = new CopilotCuratorClient()) {
+            client.start();
+            CuratorSession session = null;
+            try {
+                session = client.createSession(
+                        MuseumExhibitService.createSessionConfiguration(
+                                System.getenv("COPILOT_MODEL")));
+                String reply = session.sendAndWait(PROBE_PROMPT, 120_000L);
+                System.out.printf("%nCurator reply:%n%s%n", reply);
+            } finally {
+                if (session != null) {
+                    session.disconnect();
+                }
+                client.stop();
+            }
+        }
+    }
+}
+```
 :::
 
 ## Run it
 
-These commands compile configuration and adapter types but do not authenticate or start Copilot.
+Build, then run. The run starts a real Copilot process and needs an authenticated GitHub Copilot
+CLI.
 
 :::language dotnet
 ```bash
 dotnet build museum-workshop-app
+dotnet run --project museum-workshop-app
 ```
 :::
 :::language nodejs
 ```bash
 npm --prefix museum-workshop-app run build
+npm --prefix museum-workshop-app start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/curator_prompts.py museum-workshop-app/museum_exhibit_service.py
+museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/*.py
+museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app test ./...
+go -C museum-workshop-app build -mod=readonly ./...
+go -C museum-workshop-app run .
 ```
 :::
 :::language rust
 ```bash
-cargo check --manifest-path museum-workshop-app/Cargo.toml --locked
+cargo check --manifest-path museum-workshop-app/Cargo.toml
+cargo run --manifest-path museum-workshop-app/Cargo.toml
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml test
+mvn -f museum-workshop-app/pom.xml compile
+mvn -f museum-workshop-app/pom.xml compile exec:java
 ```
 :::
 
-Pass condition: compilation succeeds without starting a model session. If an SDK symbol is missing,
-confirm that the copied manifest still pins 1.0.11 and rerun the preflight restore command.
+After the lesson 1 output, the run adds the allowlist line and a curator reply. Wording varies
+between models and runs; the shape does not:
+
+```text
+Application limits: at most 20 facts, 500 characters each.
+Session tools allowed: none (empty allowlist).
+
+Curator reply:
+No approved facts have been supplied yet, so there is nothing I can write about Apollo 11
+without inventing details.
+```
+
+That answer is the point of the lesson. The curator did not summarize what it remembers about
+Apollo 11, and it had no tool available to go and find anything. If the reply instead recites moon
+landing trivia, the system message is not reaching the session: confirm the mode is `replace` and
+that the configuration function is the one the session was created with.
+
+Troubleshooting this run:
+
+- An authentication error means the GitHub Copilot CLI is not signed in. Sign in, then rerun.
+- A missing SDK symbol means the copied manifest no longer pins 1.0.11. Rerun the preflight restore
+  command for your language.
+- A hang means the model is still working. The run has a two-minute ceiling; lesson 5 moves that
+  ceiling into the application where it can be enforced and reported.
 
 ## Check your understanding
 
-1. Why is an empty SDK allowlist stronger than a prompt instruction?
-2. Why is the system-message mode `replace`?
-3. What do the client/session interfaces let tests replace?
+1. Why is an empty tool allowlist a stronger control than the sentence in the system message that
+   tells the curator not to use tools?
+2. What would remain in the session if the system message used append mode instead of `replace`?
+3. Streaming is off. Which later lesson depends on that, and why?
+
+Continue to [Ground the exhibit in approved facts](museum-03-approved-facts.md).

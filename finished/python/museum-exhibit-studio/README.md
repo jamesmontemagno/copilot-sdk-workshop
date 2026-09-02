@@ -1,7 +1,7 @@
 # Museum Exhibit Studio
 
 This Python sample uses the GitHub Copilot SDK as a focused, non-software-engineering
-agent harness. A museum educator can accept the Apollo 11 fixture or enter another
+agent harness. A museum educator can accept the built-in Apollo 11 facts or enter another
 approved fact set, optionally research it through a constrained Wikipedia MCP session,
 approve sourced additions, then generate visitor-facing copy and inspect deterministic
 checks.

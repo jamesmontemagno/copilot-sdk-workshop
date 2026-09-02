@@ -5,6 +5,9 @@ These starters contain pinned dependencies, a minimal executable, and only the l
 client/session adapters used by later lessons. They do not include curator prompts, exhibit
 validation, service orchestration, Wikipedia research, or finished application behavior.
 
+Copy the starter once during preflight. Every later lesson modifies and runs the same
+`museum-workshop-app`; do not replace it with the completed reference.
+
 | Language | Copy, build, and run |
 |---|---|
 | .NET | `cp -R start-museum/dotnet museum-workshop-app && dotnet build museum-workshop-app && dotnet run --project museum-workshop-app` |

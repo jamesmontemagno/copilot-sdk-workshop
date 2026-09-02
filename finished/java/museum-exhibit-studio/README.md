@@ -1,7 +1,7 @@
 # Museum Exhibit Studio
 
 This Maven CLI sample uses the GitHub Copilot SDK as a focused, non-software-engineering agent
-harness. A museum educator can accept the Apollo 11 fixture or enter another approved fact set,
+harness. A museum educator can accept the built-in Apollo 11 facts or enter another approved fact set,
 optionally research those facts through a tightly allowlisted Wikipedia MCP session, approve
 sourced additions one by one, generate visitor-facing exhibit copy, and inspect deterministic
 structural checks.

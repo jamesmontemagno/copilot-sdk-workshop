@@ -32,7 +32,7 @@ MUSEUM_LESSONS = (
     "museum-02-tool-free-session.md",
     "museum-03-approved-facts.md",
     "museum-04-deterministic-validation.md",
-    "museum-05-lifecycle-tests.md",
+    "museum-05-lifecycle.md",
     "museum-06-run-review.md",
     "museum-07-wikipedia-grounding.md",
 )
@@ -126,38 +126,21 @@ STEP_9_RUN_COMMAND_MARKERS = {
     "rust": "cd workshop-app && cargo run --",
     "java": "cd workshop-app && mvn compile exec:java",
 }
-MUSEUM_COMMAND_MARKERS = {
-    "dotnet": (
-        "dotnet build museum-workshop-app",
-        "dotnet test museum-workshop-app/",
-        "dotnet run --project museum-workshop-app",
-    ),
-    "nodejs": (
-        "npm --prefix museum-workshop-app run build",
-        "npm --prefix museum-workshop-app test",
-        "npm --prefix museum-workshop-app start",
-    ),
-    "python": (
-        "museum-workshop-app/.venv/bin/python",
-        "python3 -m py_compile museum-workshop-app/",
-        "python3 -m unittest",
-        "python -m unittest",
-        "python3 museum-workshop-app/main.py",
-    ),
-    "go": (
-        "go -C museum-workshop-app test",
-        "go -C museum-workshop-app run .",
-    ),
-    "rust": (
-        "cargo check --manifest-path museum-workshop-app/Cargo.toml",
-        "cargo test --manifest-path museum-workshop-app/Cargo.toml",
-        "cargo run --manifest-path museum-workshop-app/Cargo.toml",
-    ),
-    "java": (
-        "mvn -f museum-workshop-app/pom.xml test",
-        "mvn -f museum-workshop-app/pom.xml -Dtest=",
-        "mvn -f museum-workshop-app/pom.xml compile exec:java",
-    ),
+MUSEUM_BUILD_COMMAND_MARKERS = {
+    "dotnet": "dotnet build museum-workshop-app",
+    "nodejs": "npm --prefix museum-workshop-app run build",
+    "python": "-m py_compile",
+    "go": "go -C museum-workshop-app build",
+    "rust": "cargo check",
+    "java": "mvn -f museum-workshop-app/pom.xml compile",
+}
+MUSEUM_RUN_COMMAND_MARKERS = {
+    "dotnet": "dotnet run --project museum-workshop-app",
+    "nodejs": "npm --prefix museum-workshop-app start",
+    "python": "museum-workshop-app/main.py",
+    "go": "go -C museum-workshop-app run .",
+    "rust": "cargo run",
+    "java": "mvn -f museum-workshop-app/pom.xml compile exec:java",
 }
 PROCEDURE_MARKERS = {
     "01-first-session.md": {
@@ -251,7 +234,7 @@ PROCEDURE_MARKERS = {
         "rust": "validate_exhibit",
         "java": "ExhibitValidator.validate",
     },
-    "museum-05-lifecycle-tests.md": {
+    "museum-05-lifecycle.md": {
         "dotnet": "GenerateAsync",
         "nodejs": "async generate(",
         "python": "async def generate(",
@@ -809,7 +792,7 @@ def validate_rendered_language_content(markdown_file: Path) -> None:
             if markdown_file.name == "09-interactive-html-report.md":
                 run_markers = STEP_9_RUN_COMMAND_MARKERS
             elif markdown_file.name.startswith("museum-"):
-                run_markers = MUSEUM_COMMAND_MARKERS
+                run_markers = MUSEUM_RUN_COMMAND_MARKERS
             else:
                 run_markers = RUN_COMMAND_MARKERS
             run_marker = run_markers[selected_language]
@@ -820,6 +803,16 @@ def validate_rendered_language_content(markdown_file: Path) -> None:
                 f"{markdown_file.relative_to(ROOT)} has no {selected_language} "
                 f"run command in its Run it section: {run_marker}",
             )
+            if markdown_file.name.startswith("museum-"):
+                build_marker = MUSEUM_BUILD_COMMAND_MARKERS[selected_language]
+                build_present = build_marker.casefold() in run_section.casefold()
+                if selected_language == "java":
+                    build_present = run_section.casefold().count(build_marker.casefold()) >= 2
+                require(
+                    build_present,
+                    f"{markdown_file.relative_to(ROOT)} has no {selected_language} "
+                    f"build/check command in its Run it section: {build_marker}",
+                )
 
         if markdown_file.name in PROCEDURE_MARKERS:
             procedure_marker = PROCEDURE_MARKERS[markdown_file.name][selected_language]
@@ -999,6 +992,53 @@ def validate_museum_projects() -> None:
         "junit" not in java_pom.casefold() and "surefire" not in java_pom.casefold(),
         "Finished Java museum manifest still includes test-only configuration",
     )
+
+    safety_markers = {
+        "dotnet": (
+            "MaximumFactCount = 20", "MaximumFactLength = 500",
+            "AvailableTools = []", "GenerationTimeout = TimeSpan.FromMinutes(2)",
+            "wikipedia-search", "wikipedia-readArticle", "PermissionDecision.Reject",
+            "MaximumResearchResponseLength", "StopAsync", "ExhibitValidator.Validate",
+        ),
+        "nodejs": (
+            "maximumFactCount = 20", "maximumFactLength = 500",
+            "availableTools: []", "generationTimeoutMs = 120_000",
+            "wikipedia-search", "wikipedia-readArticle", 'kind: "reject"',
+            "maximumResearchResponseBytes", ".disconnect()", "validateExhibit",
+        ),
+        "python": (
+            "MAXIMUM_FACT_COUNT = 20", "MAXIMUM_FACT_LENGTH = 500",
+            '"available_tools": []', "GENERATION_TIMEOUT_SECONDS = 120.0",
+            "wikipedia-search", "wikipedia-readArticle", "PermissionDecisionReject",
+            "MAXIMUM_RESEARCH_RESPONSE_LENGTH", "session.disconnect()", "validate_exhibit",
+        ),
+        "go": (
+            "maximumFactCount", "maximumFactLength",
+            "AvailableTools: []string{}", "generationTimeout = 120 * time.Second",
+            "wikipedia-search", "wikipedia-readArticle", "rejectWikipediaPermission",
+            "maximumResearchResponse", "session.Disconnect()", "validateExhibit",
+        ),
+        "rust": (
+            "MAXIMUM_FACT_COUNT: usize = 20", "MAXIMUM_FACT_LENGTH: usize = 500",
+            "available_tools = Some(Vec::new())", "Duration::from_secs(120)",
+            "wikipedia-search", "wikipedia-readArticle", "PermissionResult::reject",
+            "MAXIMUM_RESEARCH_RESPONSE_BYTES", "session.disconnect()", "validate_exhibit",
+        ),
+        "java": (
+            "MAXIMUM_FACT_COUNT = 20", "MAXIMUM_FACT_LENGTH = 500",
+            ".setAvailableTools(List.of())", "Duration.ofSeconds(120)",
+            "wikipedia-search", "wikipedia-readArticle", "PermissionRequestResult.reject",
+            "MAXIMUM_RESEARCH_RESPONSE", "session.disconnect()", "ExhibitValidator.validate",
+        ),
+    }
+    for language, markers in safety_markers.items():
+        directory = ROOT / "finished" / language / "museum-exhibit-studio"
+        source = project_source(directory)
+        for marker in markers:
+            require(
+                marker in source,
+                f"{directory.relative_to(ROOT)} is missing museum safety control: {marker}",
+            )
 
 
 def validate_python_dependencies() -> None:
@@ -1223,6 +1263,10 @@ def validate_site_behavior() -> None:
             "Lesson viewer must scope navigation to the active workshop")
     require("museum-00-preflight" in navigation,
             "Language navigation must route the museum workshop to its own preflight")
+    require(
+        "'museum-05-lifecycle-tests': 'museum-05-lifecycle'" in step,
+        "Lesson viewer must preserve the legacy museum lifecycle URL",
+    )
     for hook in ("event.key === 'Escape'", "trapNavigationFocus", "toggleAttribute('inert'", "initializeTabs", 'id="lessonStatus"', 'id="progressTrack"'):
         require(hook in step, f"Lesson viewer is missing behavior hook: {hook}")
     for html_file in (DOCS / "index.html", DOCS / "workshop" / "step.html", DOCS / "target-app" / "index.html"):
@@ -1270,7 +1314,7 @@ def validate_documentation() -> None:
         "museum-02-tool-free-session",
         "museum-03-approved-facts",
         "museum-04-deterministic-validation",
-        "museum-05-lifecycle-tests",
+        "museum-05-lifecycle",
         "museum-06-run-review",
         "museum-07-wikipedia-grounding",
     ):
@@ -1282,15 +1326,14 @@ def validate_documentation() -> None:
     wikipedia_lesson = read(WORKSHOP / "museum-07-wikipedia-grounding.md")
     for required_step in (
         "# Wikipedia MCP",
-        "## 1. Choose one Wikipedia MCP server",
-        "## 2. Add a separate research contract",
-        "## 3. Create the research session",
-        "## 4. Implement bounded research",
-        "## 5. Add the approval gate",
-        "## 6. Test with a mock MCP server",
         '"wikipedia-search"',
         '"wikipedia-readArticle"',
-        "The original generation configuration still has an empty tool allowlist.",
+        "empty tool allowlist",
+        "museum-exhibit-studio-research",
+        "wikipedia-mcp@1.0.3",
+        "A deny-by-default permission handler",
+        "Requires an explicit per-addition approval, defaulting to no",
+        "Treat article text as untrusted data.",
     ):
         require(
             required_step in wikipedia_lesson,
@@ -1339,6 +1382,36 @@ def validate_documentation() -> None:
         and "src/test" not in museum_preflight,
         "Museum preflight must not reconstruct projects or create test directories",
     )
+
+    museum_docs = [
+        *(WORKSHOP / lesson for lesson in MUSEUM_LESSONS),
+        *sorted((WORKSHOP / "museum-07-guides").glob("*.md")),
+        ROOT / "start-museum" / "README.md",
+        *(ROOT / "finished" / language / "museum-exhibit-studio" / "README.md"
+          for language in LANGUAGES),
+    ]
+    museum_documentation = "\n".join(read(path) for path in museum_docs)
+    forbidden_museum_patterns = {
+        r"museum-05-lifecycle-tests": "legacy lifecycle filename",
+        r"\bdotnet\s+test\b": ".NET test command",
+        r"\bnpm\s+(?:--prefix\s+\S+\s+)?test\b": "Node test command",
+        r"\b(?:pytest|unittest)\b": "Python test command",
+        r"\bgo\s+(?:-C\s+\S+\s+)?test\b": "Go test command",
+        r"\bcargo\s+test\b": "Rust test command",
+        r"\bmvn\b[^\n`]*\btest\b": "Maven test command",
+        r"(?:^|[/\\])tests?(?:[/\\]|\.|$)": "test file or directory",
+        r"\bfake\s+(?:client|session)\b": "fake runtime",
+        r"\bmock(?:ed)?\s+(?:fixture|client|session|mcp|process|server)\b": "mock runtime",
+        r"\bfixtures?\b": "fixture",
+        r"\bcheckpoints?[/\\]": "old checkpoint path",
+        r"\bsamples?[/\\]": "old sample path",
+        r"(?<![-\w])start[/\\]": "old generic starter path",
+    }
+    for pattern, label in forbidden_museum_patterns.items():
+        require(
+            re.search(pattern, museum_documentation, re.IGNORECASE | re.MULTILINE) is None,
+            f"Museum documentation contains forbidden {label}",
+        )
 
 
 def validate_workflows() -> None:

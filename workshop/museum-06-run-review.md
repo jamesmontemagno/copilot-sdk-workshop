@@ -1,13 +1,25 @@
 # Run and review the exhibit
 
-> **Time:** 15 minutes  
-> **Goal:** Add the CLI, generate with authenticated Copilot, and review every factual claim.
+> **Time:** 10 minutes
+> **Goal:** Turn the demonstration entrypoint into the interactive CLI an educator would actually
+> use, then perform the review that no automated check can perform for you.
 
-The CLI is the final application boundary: it collects approved facts, creates the production SDK
-adapter, reports deterministic checks, and clearly labels what still needs human review.
+Previous: [Own the lifecycle](museum-05-lifecycle.md)
+
+The application now has a policy, a bounded prompt, a deterministic validator, and an enforced
+lifecycle. What it does not have is a person in the loop. This lesson adds two things:
+
+1. **An interactive entrypoint.** The educator sees the approved facts, keeps them or types their
+   own set, and gets the exhibit plus its structural result.
+2. **A review step.** Every claim in the generated narrative is compared against the approved facts
+   by a human, because that is the only control in the whole application that can catch a fabricated
+   detail.
+
+The entrypoint stops printing diagnostics from earlier lessons. Everything it prints is now
+something an educator needs.
 
 :::language dotnet
-Create `museum-workshop-app/Program.cs`:
+Replace `museum-workshop-app/Program.cs`:
 
 ```csharp
 using MuseumExhibitStudio;
@@ -31,7 +43,9 @@ var studio = new MuseumExhibitService(client);
 
 try
 {
-    var result = await studio.GenerateAsync(facts, Environment.GetEnvironmentVariable("COPILOT_MODEL"));
+    var result = await studio.GenerateAsync(
+        facts,
+        Environment.GetEnvironmentVariable("COPILOT_MODEL"));
     Console.WriteLine($"\n{result.Content}\n");
     PrintValidation(result.Validation);
     return 0;
@@ -91,10 +105,13 @@ static void PrintValidation(ExhibitValidation validation)
         "Unsupported claims require human review or a separate evaluator.");
 }
 ```
+
+An empty fact list from `ReadFacts` is not a special case here: `BuildExhibitPrompt` rejects it
+inside `GenerateAsync`, and the catch block reports it before any session is created.
 :::
 
 :::language nodejs
-Create `museum-workshop-app/src/index.ts`:
+Replace `museum-workshop-app/src/index.ts`:
 
 ```typescript
 import { createInterface } from "node:readline/promises";
@@ -112,8 +129,9 @@ try {
 
   const answer = (await terminal.question("\nUse these facts? [Y/n]: ")).trim();
   const facts = answer.toLocaleLowerCase() === "n" ? await readFacts() : apollo11Facts;
-  const studio = new MuseumExhibitService(createCopilotCuratorClient());
-  const result = await studio.generate(facts, process.env.COPILOT_MODEL);
+
+  const result = await new MuseumExhibitService(createCopilotCuratorClient())
+    .generate(facts, process.env.COPILOT_MODEL);
 
   console.log(`\n${result.content}\n`);
   printValidation(result.validation);
@@ -149,10 +167,13 @@ function printValidation(validation: ExhibitValidation): void {
   console.log("\nStructural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.");
 }
 ```
+
+The `finally` block closes the terminal on every path, so a failed run does not leave the shell
+waiting for input.
 :::
 
 :::language python
-Create `museum-workshop-app/main.py`:
+Replace `museum-workshop-app/main.py`:
 
 ```python
 from __future__ import annotations
@@ -215,8 +236,9 @@ async def main() -> int:
 
     use_defaults = input("\nUse these facts? [Y/n]: ").strip()
     facts = read_facts() if use_defaults.casefold() == "n" else list(APOLLO_11_FACTS)
-    studio = MuseumExhibitService(CopilotClient())
+
     try:
+        studio = MuseumExhibitService(CopilotClient())
         result = await studio.generate(facts, os.getenv("COPILOT_MODEL"))
         print(f"\n{result.content}\n")
         print_validation(result.validation)
@@ -232,10 +254,13 @@ async def main() -> int:
 if __name__ == "__main__":
     raise SystemExit(asyncio.run(main()))
 ```
+
+An empty fact list from `read_facts` is not a special case here: `build_exhibit_prompt` rejects it
+inside `generate`, and the `except` block reports it before any session is created.
 :::
 
 :::language go
-Create `museum-workshop-app/main.go`:
+Replace `museum-workshop-app/main.go`:
 
 ```go
 package main
@@ -323,16 +348,20 @@ func printValidation(validation ExhibitValidation) {
 	fmt.Println("\nStructural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.")
 }
 ```
+
+An empty fact list from `readFacts` is not a special case here: `buildExhibitPrompt` rejects it
+inside `Generate`, and `runCLI` reports it before any session is created.
 :::
 
 :::language rust
-Create `museum-workshop-app/src/main.rs`:
+Replace `museum-workshop-app/src/main.rs`:
 
 ```rust
 use std::io::{self, Write};
 
 use museum_exhibit_studio::{
-    APOLLO_11_FACTS, CopilotCuratorClient, ExhibitValidation, generate_exhibit,
+    APOLLO_11_FACTS, CopilotCuratorClient, ExhibitValidation, RuntimeError, build_exhibit_prompt,
+    generate_exhibit, is_timeout_error,
 };
 
 fn read_facts() -> io::Result<Vec<String>> {
@@ -386,8 +415,7 @@ fn print_validation(validation: &ExhibitValidation) {
     );
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn run() -> Result<(), RuntimeError> {
     println!("=== Museum Exhibit Studio ===");
     println!("Approved Apollo 11 facts:");
     for (index, fact) in APOLLO_11_FACTS.iter().enumerate() {
@@ -403,26 +431,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     } else {
         APOLLO_11_FACTS.map(str::to_owned).to_vec()
     };
+    build_exhibit_prompt(&facts)?;
 
     let model = std::env::var("COPILOT_MODEL").ok();
     let mut client = CopilotCuratorClient::new();
-    match generate_exhibit(&mut client, &facts, model.as_deref()).await {
-        Ok(result) => {
-            println!("\n{}\n", result.content);
-            print_validation(&result.validation);
-            Ok(())
-        }
-        Err(error) => {
+    let result = generate_exhibit(&mut client, &facts, model.as_deref()).await?;
+    println!("\n{}\n", result.content);
+    print_validation(&result.validation);
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    if let Err(error) = run().await {
+        if is_timeout_error(error.as_ref()) {
+            eprintln!("The curator did not respond within two minutes. Try again.");
+        } else {
             eprintln!("Could not generate the exhibit: {error}");
-            Err(error)
         }
+        std::process::exit(1);
     }
 }
 ```
+
+`build_exhibit_prompt(&facts)?` runs before the client is created, so an empty or oversized fact
+set fails immediately instead of starting a Copilot process.
 :::
 
 :::language java
-Create `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`:
+Replace `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`:
 
 ```java
 package workshop;
@@ -450,8 +487,8 @@ public final class MuseumExhibitStudio {
                 ? readFacts(input)
                 : CuratorPrompts.APOLLO_11_FACTS;
 
-        try (var client = new CopilotCuratorClient()) {
-            var studio = new MuseumExhibitService(client);
+        try (var generationClient = new CopilotCuratorClient()) {
+            var studio = new MuseumExhibitService(generationClient);
             var result = studio.generate(facts, System.getenv("COPILOT_MODEL"));
             System.out.printf("%n%s%n%n", result.content());
             printValidation(result.validation());
@@ -484,14 +521,19 @@ public final class MuseumExhibitStudio {
                 : "Structural checks found issues:");
         System.out.println("- One level-one title: " + validation.title().present());
         System.out.println("- Narrative section: " + validation.narrative().present());
-        System.out.printf("- Narrative length: %d words (within 100-140: %s)%n",
-                validation.narrative().wordCount(), validation.narrative().withinLimit());
-        System.out.println("- Visitor questions section: " + validation.visitorQuestions().present());
-        System.out.printf("- Numbered questions: %d (exactly three: %s)%n",
+        System.out.printf(
+                "- Narrative length: %d words (within 100-140: %s)%n",
+                validation.narrative().wordCount(),
+                validation.narrative().withinLimit());
+        System.out.println(
+                "- Visitor questions section: " + validation.visitorQuestions().present());
+        System.out.printf(
+                "- Numbered questions: %d (exactly three: %s)%n",
                 validation.visitorQuestions().questionCount(),
                 validation.visitorQuestions().exactlyThree());
-        System.out.println("- Every item is a question: "
-                + validation.visitorQuestions().allItemsAreQuestions());
+        System.out.println(
+                "- Every item is a question: "
+                        + validation.visitorQuestions().allItemsAreQuestions());
         validation.errors().forEach(error -> System.out.println("  - " + error));
         System.out.println("""
 
@@ -515,82 +557,144 @@ public final class MuseumExhibitStudio {
         while (current.getCause() != null) {
             current = current.getCause();
         }
-        return current.getMessage() == null ? current.getClass().getSimpleName() : current.getMessage();
+        return current.getMessage() == null
+                ? current.getClass().getSimpleName()
+                : current.getMessage();
     }
 }
 ```
+
+An empty fact list from `readFacts` is not a special case here: `buildExhibitPrompt` rejects it
+inside `generate`, and the catch block reports it before any session is created.
 :::
 
 ## Run it
 
-Use an authenticated Copilot CLI. Press Enter to accept the five default facts. Set
-`COPILOT_MODEL` first only if you want a specific model.
+Build, then run interactively. Answer `Y` at the first prompt to keep the Apollo 11 facts.
 
 :::language dotnet
 ```bash
+dotnet build museum-workshop-app
 dotnet run --project museum-workshop-app
 ```
 :::
 :::language nodejs
 ```bash
+npm --prefix museum-workshop-app run build
 npm --prefix museum-workshop-app start
 ```
 :::
 :::language python
 ```bash
-PYTHONPATH=museum-workshop-app museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/*.py
+museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
 ```
 :::
 :::language go
 ```bash
+go -C museum-workshop-app build -mod=readonly ./...
 go -C museum-workshop-app run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml --locked
+cargo check --manifest-path museum-workshop-app/Cargo.toml
+cargo run --manifest-path museum-workshop-app/Cargo.toml
 ```
 :::
 :::language java
 ```bash
+mvn -f museum-workshop-app/pom.xml compile
 mvn -f museum-workshop-app/pom.xml compile exec:java
 ```
 :::
 
-Prose varies, but a successful run resembles:
+A complete session looks like this:
 
 ```text
+=== Museum Exhibit Studio ===
+Approved Apollo 11 facts:
+1. Apollo 11 launched July 16, 1969.
+2. It landed on the Moon July 20, 1969.
+3. Neil Armstrong and Buzz Aldrin walked on the Moon.
+4. Michael Collins remained in lunar orbit.
+5. The mission returned to Earth July 24, 1969.
+
+Use these facts? [Y/n]: Y
+
 # Footprints Beyond Earth
 ## Narrative
-<100-140 words based only on the five supplied facts>
+On July 16, 1969, Apollo 11 climbed away from Earth carrying three travelers toward a
+destination no one had ever touched. Four days later, on July 20, the landing craft settled
+onto the Moon. Neil Armstrong and Buzz Aldrin stepped onto that gray, silent ground while
+Michael Collins circled overhead in lunar orbit, alone above a world of craters. On July 24
+the mission came home, returning to Earth with something no expedition had brought back
+before: the memory of standing somewhere else. The journey lasted eight days. What it
+changed has lasted far longer, and it began with a single launch on a summer morning.
 ## Visitor questions
-1. ...?
-2. ...?
-3. ...?
+1. What would you have wanted to see first from lunar orbit?
+2. How does it change the story to know one crew member never landed?
+3. What journey today feels as far away as the Moon did in 1969?
 
 Structural checks passed.
 - One level-one title: true
-...
-Structural checks do not prove factual grounding. Unsupported claims require human review or a separate evaluator.
+- Narrative section: true
+- Narrative length: 118 words (within 100-140: true)
+- Visitor questions section: true
+- Numbered questions: 3 (exactly three: true)
+- Every item is a question: true
+
+Structural checks do not prove factual grounding. Unsupported claims require human review
+or a separate evaluator.
 ```
 
-If authentication fails, run `copilot` once and authenticate before retrying. A two-minute failure
-should print the timeout message and still release the session and client.
+Run it again and answer `n` at the prompt. Enter two or three facts of your own, then a blank line.
+The exhibit follows your facts instead of Apollo 11's, which confirms that the approved facts are
+task data and not part of the durable policy.
+
+Then run it once more, answer `n`, and press Enter immediately. Generation never starts:
+
+```text
+Could not generate the exhibit: Provide at least one approved fact.
+```
 
 ## Manual factual review
 
-Check every noun, date, person, place, sequence, and causal claim:
+Take the narrative from your own run and check it line by line against the five approved facts. The
+example above survives that review: every date, name, and role in it traces back to a supplied fact,
+and the interpretive language ("gray, silent ground", "a summer morning") adds tone rather than
+claims.
 
-1. Is each claim directly supported by one of the five approved facts?
-2. Did the output avoid adding remembered details such as spacecraft names, quotations, landing
-   locations, durations, or "first" claims?
-3. Does hedging avoid turning an unsupported inference into an apparent fact?
-4. Are all five facts represented accurately, without changing dates or crew roles?
-5. Did the run show no tool activity or permission request?
-6. Does declining defaults and entering no facts produce the actionable input error?
+Now look for the failures the validator cannot see. A generated narrative might say:
+
+```text
+Aboard the command module Columbia, Michael Collins circled the Moon while Eagle descended
+with Armstrong and Aldrin, who planted the flag and collected 47 pounds of lunar rock.
+```
+
+Every structural check still passes. But `Columbia`, `Eagle`, the flag, and the mass of returned
+material are nowhere in the approved facts. They may be historically accurate, and that is exactly
+the problem: an unverified claim that happens to be true is indistinguishable, from inside the
+application, from one that is not.
+
+Work through this checklist on your run:
+
+1. Underline every proper noun, number, and date in the narrative.
+2. Match each one to a specific approved fact.
+3. Mark anything unmatched, whether or not you believe it.
+4. Decide, as the educator, to remove the claim or to add it to the approved facts and regenerate.
+5. Check that the three visitor questions ask something rather than assert something.
+
+That is the loop the application is built to support: the model drafts, the code bounds and checks,
+and the human decides. Lesson 7 adds a bounded research stage so that step 4 can be done with cited
+sources instead of memory, while keeping the human approval requirement in place.
 
 ## Check your understanding
 
-1. Which observed behavior came from model guidance, and which from application code?
-2. Why does a structurally valid exhibit still need factual review?
-3. What authorization and publication checks would remain outside the model in production?
+1. The structural result says `Structural checks passed.` and the narrative names the command
+   module. Which of the two statements is wrong, and which control is responsible for catching it?
+2. The educator can type arbitrary facts at the prompt. Which application-level rules still apply to
+   that input, and where do they run?
+3. Why does the CLI print the grounding disclaimer on every run, including successful ones?
+
+Continue to [Wikipedia MCP](museum-07-wikipedia-grounding.md).

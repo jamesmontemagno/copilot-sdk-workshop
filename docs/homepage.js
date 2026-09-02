@@ -44,7 +44,7 @@ System message: replace
 # Journey to the Moon
 ## Narrative
 ## Visitor questions`,
-            guidance: 'Build a non-SDLC curator tool in a 75-minute core workshop.'
+            guidance: 'Build a non-SDLC curator CLI in a 105-minute core workshop.'
         }
     };
 
