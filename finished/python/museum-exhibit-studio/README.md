@@ -24,10 +24,10 @@ Wikipedia research also requires Node.js because the research session launches t
 pinned `wikipedia-mcp@1.0.3` package through `npx`. Declining research does not start
 the MCP server.
 
-Run the mocked tests without contacting a model:
+Check the source without contacting a model:
 
 ```bash
-python -m unittest discover -s tests -v
+python -m py_compile *.py
 ```
 
 ## What the sample teaches

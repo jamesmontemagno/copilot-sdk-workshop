@@ -57,20 +57,16 @@ output, and troubleshooting.
 copilot-sdk-workshop/
 |-- docs/                         GitHub Pages site and controlled target page
 |-- workshop/                     Two complete workshop tracks and optional extensions
-|-- start-accessibility/dotnet/   .NET learner starter with WCAG data and permission helper
+|-- start-accessibility/          Accessibility Reviewer starters in all six languages
+|-- start-museum/                 Museum Exhibit Studio starters in all six languages
 |-- finished/dotnet/
 |   |-- hello-copilot-sdk/        Completed local-tool example in every language
 |   |-- accessibility-report/     Completed .NET local + MCP reporter
 |   `-- museum-exhibit-studio/    Tool-free, grounded museum curator sample
-|-- start-accessibility/nodejs/   Node.js/TypeScript learner starter
 |-- finished/nodejs/              Completed TypeScript projects
-|-- start-accessibility/python/   Python 3.11+ learner starter
 |-- finished/python/              Completed Python projects
-|-- start-accessibility/go/       Go 1.24+ learner starter
 |-- finished/go/                  Completed Go projects
-|-- start-accessibility/rust/     Rust 1.94+ learner starter
 |-- finished/rust/                Completed Rust projects
-|-- start-accessibility/java/     Maven Java 17+ learner starter
 |-- finished/java/                Completed Maven Java projects
 |-- src/BlazorApp/                Source counterpart of the deployed target
 |-- scripts/                      Deterministic content and build validation
@@ -85,8 +81,9 @@ bash scripts/validate-workshop.sh
 
 The command checks lesson structure, internal links, site behavior hooks, and project coverage.
 It then runs browser-independent language-selection tests and restores, builds, or syntax-checks every
-accessibility starter, every finished project, and the Blazor target without authenticating Copilot, launching
-a browser, or sending a prompt.
+accessibility and museum starter, every finished project, and the Blazor target without authenticating
+Copilot, launching a browser, or sending a prompt. Museum application builds do not run model or
+Wikipedia test harnesses.
 
 Pass a language ID to run one smoke-build target:
 
@@ -99,8 +96,8 @@ jobs, so a failure identifies the affected SDK track.
 
 ## Museum Exhibit Studio workshop
 
-Museum Exhibit Studio is available in every workshop language under
-`finished/<language>/museum-exhibit-studio`. Each implementation demonstrates a complete custom
+Museum Exhibit Studio starters are available under `start-museum/<language>`, with completed
+references under `finished/<language>/museum-exhibit-studio`. Each completed implementation demonstrates a complete custom
 system message, a task-specific approved fact list, an empty tool allowlist, and deterministic
 output checks in a non-software-engineering agent harness.
 

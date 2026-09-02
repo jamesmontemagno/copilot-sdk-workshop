@@ -63,6 +63,7 @@ jobs:
           cache: npm
           cache-dependency-path: |
             start-accessibility/nodejs/package-lock.json
+            start-museum/nodejs/package-lock.json
             finished/nodejs/*/package-lock.json
 
       - uses: actions/setup-python@v7
@@ -72,6 +73,7 @@ jobs:
           cache: pip
           cache-dependency-path: |
             start-accessibility/python/requirements.txt
+            start-museum/python/requirements.txt
             finished/python/*/requirements.txt
 
       - uses: actions/setup-go@v7
@@ -80,6 +82,7 @@ jobs:
           go-version: "1.24.x"
           cache-dependency-path: |
             start-accessibility/go/go.sum
+            start-museum/go/go.sum
             finished/go/*/go.sum
 
       - uses: dtolnay/rust-toolchain@stable
@@ -92,6 +95,7 @@ jobs:
         with:
           workspaces: |
             start-accessibility/rust -> ../../.cargo-target
+            start-museum/rust -> ../../.cargo-target
             finished/rust/accessibility-report -> ../../../.cargo-target
             finished/rust/hello-copilot-sdk -> ../../../.cargo-target
             finished/rust/museum-exhibit-studio -> ../../../.cargo-target

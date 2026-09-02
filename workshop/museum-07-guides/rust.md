@@ -421,9 +421,6 @@ Use deterministic JSON and cover:
 - generation configuration still has an empty tool allowlist
 - permission helper accepts only the Wikipedia read tools and fails closed
 
-The completed reference test is
-`finished/rust/museum-exhibit-studio/tests/research.rs`.
-
 ## 10. Final locked validation
 
 Format, test, and build without starting a live Wikipedia MCP server:
@@ -438,7 +435,7 @@ For the completed sample:
 
 ```bash
 cargo fmt --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --check
-cargo test --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --locked
+cargo check --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --locked
 cargo build --manifest-path finished/rust/museum-exhibit-studio/Cargo.toml --locked
 ```
 

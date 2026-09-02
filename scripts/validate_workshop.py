@@ -329,6 +329,8 @@ def entrypoint_path(directory: Path, language: str) -> Path:
         return Path("src/main/java/workshop/AccessibilityGuidance.java")
     if language == "java" and directory.name == "museum-exhibit-studio":
         return Path("src/main/java/workshop/MuseumExhibitStudio.java")
+    if language == "java" and directory.parent.name == "start-museum":
+        return Path("src/main/java/workshop/MuseumExhibitStudio.java")
     return Path(ENTRYPOINTS[language])
 
 
@@ -880,6 +882,7 @@ def validate_layout() -> None:
     for language in LANGUAGES:
         directories = [
             ROOT / "start-accessibility" / language,
+            ROOT / "start-museum" / language,
             *(ROOT / "finished" / language / project for project in (
                 "hello-copilot-sdk",
                 "accessibility-report",
@@ -894,6 +897,7 @@ def validate_layout() -> None:
     for language in ("nodejs", "go", "rust"):
         for directory in [
             ROOT / "start-accessibility" / language,
+            ROOT / "start-museum" / language,
             *(ROOT / "finished" / language / project for project in (
                 "hello-copilot-sdk",
                 "accessibility-report",
@@ -902,11 +906,105 @@ def validate_layout() -> None:
         ]:
             lock = {"nodejs": "package-lock.json", "go": "go.sum", "rust": "Cargo.lock"}[language]
             require((directory / lock).exists(), f"Missing deterministic {language} lock file in {directory.relative_to(ROOT)}")
+    require(
+        (ROOT / "start-museum" / "dotnet" / "packages.lock.json").exists(),
+        "Missing deterministic .NET package lock in start-museum/dotnet",
+    )
+
+
+def validate_museum_projects() -> None:
+    ignored_directories = {
+        ".venv",
+        "__pycache__",
+        "bin",
+        "dist",
+        "node_modules",
+        "obj",
+        "target",
+    }
+
+    def tracked_project_files(directory: Path):
+        return (
+            path
+            for path in directory.rglob("*")
+            if path.is_file()
+            and not ignored_directories.intersection(
+                part.casefold() for part in path.relative_to(directory).parts[:-1]
+            )
+        )
+
+    solution_markers = (
+        "apollo_11",
+        "apollo11",
+        "build_exhibit_prompt",
+        "exhibitvalidator",
+        "exhibit_validator",
+        "museumexhibitservice",
+        "museum_exhibit_service",
+        "wikipedia",
+        "systemmessage",
+        "system_message",
+        "availabletools",
+        "available_tools",
+    )
+    for language in LANGUAGES:
+        starter = ROOT / "start-museum" / language
+        source = project_source(starter).casefold()
+        entrypoint = read(starter / entrypoint_path(starter, language))
+        require(
+            "Museum Exhibit Studio starter" in entrypoint,
+            f"{starter.relative_to(ROOT)} does not identify itself when run",
+        )
+        for marker in solution_markers:
+            require(
+                marker not in source,
+                f"{starter.relative_to(ROOT)} seeds later museum behavior: {marker}",
+            )
+        require(
+            not any(
+                path.is_file()
+                and (
+                    "test" in {part.casefold() for part in path.relative_to(starter).parts[:-1]}
+                    or path.name.casefold().endswith(("_test.go", ".test.ts", "test.java"))
+                )
+                for path in tracked_project_files(starter)
+            ),
+            f"{starter.relative_to(ROOT)} contains a test artifact",
+        )
+
+        finished = ROOT / "finished" / language / "museum-exhibit-studio"
+        finished_source = project_source(finished)
+        require(
+            "#[cfg(test)]" not in finished_source,
+            f"{finished.relative_to(ROOT)} contains inline Rust tests",
+        )
+        require(
+            not any(
+                path.is_file()
+                and (
+                    "test" in {part.casefold() for part in path.relative_to(finished).parts[:-1]}
+                    or path.name.casefold().endswith(("_test.go", ".test.ts", "test.java"))
+                    or path.name.casefold().startswith("test_")
+                    or "mock-wikipedia" in path.name.casefold()
+                )
+                for path in tracked_project_files(finished)
+            ),
+            f"{finished.relative_to(ROOT)} contains a museum test artifact",
+        )
+
+    node_package = json.loads(read(ROOT / "finished" / "nodejs" / "museum-exhibit-studio" / "package.json"))
+    require("test" not in node_package.get("scripts", {}), "Finished Node museum package still defines tests")
+    java_pom = read(ROOT / "finished" / "java" / "museum-exhibit-studio" / "pom.xml")
+    require(
+        "junit" not in java_pom.casefold() and "surefire" not in java_pom.casefold(),
+        "Finished Java museum manifest still includes test-only configuration",
+    )
 
 
 def validate_python_dependencies() -> None:
     directories = [
         ROOT / "start-accessibility" / "python",
+        ROOT / "start-museum" / "python",
         *(ROOT / "finished" / "python" / project for project in (
             "hello-copilot-sdk",
             "accessibility-report",
@@ -1132,7 +1230,12 @@ def validate_site_behavior() -> None:
 
 
 def validate_documentation() -> None:
-    for markdown in [ROOT / "README.md", ROOT / "start-accessibility" / "README.md", *WORKSHOP.glob("*.md")]:
+    for markdown in [
+        ROOT / "README.md",
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+        *WORKSHOP.glob("*.md"),
+    ]:
         validate_markdown_links(markdown)
     published = "\n".join(read(path) for path in [ROOT / "README.md", *WORKSHOP.glob("*.md"), *DOCS.rglob("*.html")])
     for forbidden in ("jamesmontemagno.github.io", "codemillmatt.github.io", "](../start-accessibility/", "](../finished/"):
@@ -1140,7 +1243,12 @@ def validate_documentation() -> None:
     for url in OFFICIAL_SDK_URLS.values():
         require(url in read(ROOT / "README.md"), f"README is missing official SDK link {url}")
     require("https://github.com/github/copilot-sdk/tree/main/cookbook" in read(ROOT / "README.md"), "README is missing the official cookbook link")
-    all_markdown = "\n".join(read(path) for path in [ROOT / "README.md", ROOT / "start-accessibility" / "README.md", *WORKSHOP.glob("*.md")])
+    all_markdown = "\n".join(read(path) for path in [
+        ROOT / "README.md",
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+        *WORKSHOP.glob("*.md"),
+    ])
     require("go run ./finished/" not in all_markdown and "go run finished/" not in all_markdown,
             "Documentation runs Go modules from the repository root instead of their module directory")
     starters = read(ROOT / "start-accessibility" / "README.md")
@@ -1220,6 +1328,17 @@ def validate_documentation() -> None:
         "rm -rf museum-workshop-app" not in museum_preflight,
         "Museum preflight must fail safely instead of deleting an existing learner project",
     )
+    for language in LANGUAGES:
+        require(
+            f"cp -R start-museum/{language} museum-workshop-app" in museum_preflight,
+            f"Museum preflight must copy the {language} starter",
+        )
+    require(
+        "cp finished/" not in museum_preflight
+        and "mkdir -p museum-workshop-app/tests" not in museum_preflight
+        and "src/test" not in museum_preflight,
+        "Museum preflight must not reconstruct projects or create test directories",
+    )
 
 
 def validate_workflows() -> None:
@@ -1272,6 +1391,7 @@ for lesson in LESSONS:
             if lesson not in {"00-preflight.md", "museum-00-preflight.md"}:
                 require(section in read(lesson_path), f"{lesson} is missing required section: {section}")
 validate_layout()
+validate_museum_projects()
 validate_python_dependencies()
 validate_security_invariants()
 validate_playwright_output_configuration()

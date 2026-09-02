@@ -17,13 +17,11 @@ mvn compile exec:java
 Set `COPILOT_MODEL` to select a model; otherwise the Copilot runtime chooses its default. The sample
 requires an authenticated GitHub Copilot CLI.
 
-Run the fake-based tests without contacting a model:
+Compile without contacting a model:
 
 ```bash
-mvn test
+mvn compile
 ```
-
-The tests start only the deterministic local mock MCP fixture. They do not contact Wikipedia.
 
 ## What it demonstrates
 

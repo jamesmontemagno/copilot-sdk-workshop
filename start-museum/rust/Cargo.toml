@@ -1,0 +1,9 @@
+[package]
+name = "museum-exhibit-studio-starter"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.94"
+
+[dependencies]
+async-trait = "=0.1.91"
+github-copilot-sdk = { version = "=1.0.11", features = ["derive"] }
