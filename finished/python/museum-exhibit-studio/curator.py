@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 from typing import Any
 
-from copilot import CopilotSession, MCPStdioServerConfig
+from copilot import CopilotSession, MCPStdioServerConfig, define_tool
 from copilot.rpc import PermissionDecision, PermissionDecisionApproveOnce, PermissionDecisionReject
 from copilot.session_events import (
     AssistantMessageData,
@@ -23,6 +23,7 @@ RESEARCH_TIMEOUT_SECONDS = 90
 MAXIMUM_FACT_COUNT = 20
 MAXIMUM_FACT_LENGTH = 500
 EXHIBIT_FILE_NAME = "exhibit.html"
+APPROVED_FACT_LOOKUP_NAME = "approved_fact_lookup"
 WIKIPEDIA_TOOLS = ["wikipedia-search", "wikipedia-readArticle"]
 
 apollo11_facts = (
@@ -163,6 +164,24 @@ def bound_facts(facts: Iterable[str]) -> list[str]:
     if any(len(fact) > MAXIMUM_FACT_LENGTH for fact in bounded):
         raise ValueError("Each approved fact must be 500 characters or fewer.")
     return bounded
+
+
+# The application owns the approved facts. This tool is the only way the curator can read them.
+def create_approved_fact_lookup(facts: Iterable[str]):
+    approved_facts = bound_facts(facts)
+
+    @define_tool(
+        name=APPROVED_FACT_LOOKUP_NAME,
+        description=(
+            "Returns the complete list of educator-approved facts this application holds "
+            "for the current exhibit."
+        ),
+        skip_permission=True,
+    )
+    def approved_fact_lookup() -> list[str]:
+        return list(approved_facts)
+
+    return approved_fact_lookup
 
 
 async def stream_exhibit(

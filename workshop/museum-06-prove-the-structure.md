@@ -38,8 +38,8 @@ Open `museum-workshop-app/Program.cs`. Capture the returned exhibit and print th
 ```csharp
     Console.WriteLine();
     var exhibit = await RunSessionAsync(
-        GenerationConfig(),
-        BuildExhibitPrompt(approvedFacts),
+        GenerationConfig(approvedFacts),
+        BuildExhibitPrompt(),
         CuratorStreamer.GenerationTimeout);
 
     Console.WriteLine();
@@ -59,8 +59,8 @@ import, then capture the returned exhibit and print the report:
 ```typescript
     console.log();
     const exhibit = await runSession(
-      generationConfig(),
-      buildExhibitPrompt(approvedFacts),
+      generationConfig(approvedFacts),
+      buildExhibitPrompt(),
       generationTimeoutMs,
     );
 
@@ -77,8 +77,8 @@ import, then capture the returned exhibit and print the report:
     try:
         print()
         exhibit = await run_session(
-            generation_config(),
-            build_exhibit_prompt(facts),
+            generation_config(facts),
+            build_exhibit_prompt(),
             GENERATION_TIMEOUT_SECONDS,
         )
 
@@ -93,7 +93,7 @@ Open `museum-workshop-app/main.go`. Capture the returned exhibit and print the r
 
 ```go
 	fmt.Println()
-	exhibit, err := runSession(ctx, generationConfig(workingDirectory), exhibitPrompt, GenerationTimeout)
+	exhibit, err := runSession(ctx, exhibitConfig, buildExhibitPrompt(), GenerationTimeout)
 	if err != nil {
 		return err
 	}
@@ -114,8 +114,8 @@ import, then capture the returned exhibit and print the report:
 ```rust
     println!();
     let exhibit = run_session(
-        generation_config(),
-        build_exhibit_prompt(&facts)?,
+        generation_config(&facts)?,
+        build_exhibit_prompt(),
         GENERATION_TIMEOUT,
     )
     .await?;
@@ -134,8 +134,8 @@ exhibit and print the report:
 ```java
             System.out.println();
             String exhibit = runSession(
-                    generationConfig(),
-                    buildExhibitPrompt(facts),
+                    generationConfig(facts),
+                    buildExhibitPrompt(),
                     CuratorStreamer.GENERATION_TIMEOUT);
 
             System.out.println();

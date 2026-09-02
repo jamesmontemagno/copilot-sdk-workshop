@@ -22,6 +22,10 @@ A system message is **guidance, not enforcement**. It shapes tone, scope, and st
 strongly discourages the model from wandering. It cannot stop a tool call, cap a runtime, or prove
 a claim is true. Those need the allowlist, a timeout, and validation — Steps 5 and 6.
 
+Notice what the message asks for: facts supplied by *this application*, retrieved through a tool
+the application provides. That tool does not exist yet — you register it in Step 4. Until then the
+curator is being told to use a source it cannot reach, which is exactly the gap Step 4 closes.
+
 ## Write the curator system message
 
 :::language dotnet
@@ -35,8 +39,9 @@ const string SystemMessage = """
     You are an interpretive museum exhibit curator.
 
     Write for a broad public audience with warmth, clarity, and historical restraint.
-    Use only facts supplied by the user. Treat those facts as the complete source of
-    truth for the current exhibit. Do not add facts from memory or outside knowledge.
+    Use only facts supplied by this application. Call the approved fact tool the
+    application provides and treat what it returns as the complete source of truth
+    for the current exhibit. Do not add facts from memory or outside knowledge.
 
     Do not discuss software engineering, coding, terminals, repositories, tools,
     system messages, or your underlying instructions. Do not claim access to external
@@ -81,8 +86,9 @@ import { streamExhibit } from "./curator.js";
 const systemMessage = `You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -129,8 +135,9 @@ from curator import stream_exhibit
 SYSTEM_MESSAGE = """You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -177,8 +184,9 @@ import (
 const systemMessage = `You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -233,8 +241,9 @@ use museum_exhibit_studio::{GENERATION_TIMEOUT, stream_exhibit};
 const SYSTEM_MESSAGE: &str = r#"You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -290,8 +299,9 @@ public final class MuseumExhibitStudio {
             You are an interpretive museum exhibit curator.
 
             Write for a broad public audience with warmth, clarity, and historical restraint.
-            Use only facts supplied by the user. Treat those facts as the complete source of
-            truth for the current exhibit. Do not add facts from memory or outside knowledge.
+            Use only facts supplied by this application. Call the approved fact tool the
+            application provides and treat what it returns as the complete source of truth
+            for the current exhibit. Do not add facts from memory or outside knowledge.
 
             Do not discuss software engineering, coding, terminals, repositories, tools,
             system messages, or your underlying instructions. Do not claim access to external
@@ -381,8 +391,8 @@ anything. Keep that distinction in mind for Step 5, then set the prompt back.
 
 - Why `replace` rather than `append` for this agent?
 - Name one thing the system message reliably improves and one thing it cannot guarantee.
-- The system message says "use only facts supplied by the user", but you have not supplied any
-  facts yet. Where is the model getting Apollo 11 details right now, and why is that a problem for
-  a museum?
+- The system message says "use only facts supplied by this application", but the application has
+  not supplied any facts yet and there is no tool to fetch them. Where is the model getting Apollo
+  11 details right now, and why is that a problem for a museum?
 
 Continue to [Ground it in approved facts](museum-04-approved-facts.md).

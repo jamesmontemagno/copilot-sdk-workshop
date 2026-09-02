@@ -28,7 +28,8 @@ go build -mod=readonly ./...
 
 ## What the sample teaches
 
-Generation uses a replacement system message, an empty tool allowlist, bounded approved facts, event
+Generation uses a replacement system message, an allowlist naming exactly one application-owned
+tool (`approved_fact_lookup`, which returns the bounded approved facts), event
 streaming, and a 120-second timeout. Optional Wikipedia research runs in a separate 90-second
 session with only scoped search and article-read tools plus a deny-by-default permission handler.
 Research is shown as background for the human curator only: it searches, reads, and cites consulted

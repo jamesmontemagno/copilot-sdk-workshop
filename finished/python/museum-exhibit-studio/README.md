@@ -36,7 +36,9 @@ python -m py_compile *.py
 
 ## What the sample teaches
 
-Generation uses an empty tool allowlist, bounded approved facts, a replace-mode
+Generation allowlists exactly one application-owned tool,
+`approved_fact_lookup`, which returns the bounded approved facts. It also uses a
+replace-mode
 curator system message, streaming, a 120-second timeout, and deterministic
 structural validation. Imported modules have no side effects; `main.py` only
 runs behind the `if __name__ == "__main__"` guard.
@@ -64,7 +66,7 @@ boundaries. Generated claims still require human review or a separate evaluator.
 2. Confirm the exhibit has one title, a 100-140-word narrative, and three
    visitor questions.
 3. Inspect the validation summary and grounding disclaimer.
-4. Decline research and confirm no MCP tool events appear.
+4. Decline research and confirm the only tool event is `approved_fact_lookup`.
 5. Opt into research and confirm sources print after the exhibit, not inside it.
 6. Opt into `exhibit.html` and confirm only that file is written.
 

@@ -10,6 +10,7 @@ from typing import Any
 from copilot import CopilotClient
 
 from curator import (
+    APPROVED_FACT_LOOKUP_NAME,
     FACT_SETS,
     GENERATION_TIMEOUT_SECONDS,
     RESEARCH_TIMEOUT_SECONDS,
@@ -17,6 +18,7 @@ from curator import (
     ask_line,
     ask_yes_no,
     bound_facts,
+    create_approved_fact_lookup,
     exhibit_write_permission,
     extract_sources,
     format_validation,
@@ -30,8 +32,9 @@ from curator import (
 SYSTEM_MESSAGE = """You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -50,12 +53,11 @@ sources. End your reply with a "## Sources" section listing each consulted artic
 "- <article title>: <canonical Wikipedia URL>"."""
 
 
-def build_exhibit_prompt(facts: Iterable[str]) -> str:
-    approved_facts = bound_facts(facts)
-    fact_list = "\n".join(f"- {fact}" for fact in approved_facts)
-    return f"""Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+def build_exhibit_prompt() -> str:
+    return f"""Create visitor-facing exhibit text about this application's approved subject.
 
-{fact_list}
+Call {APPROVED_FACT_LOOKUP_NAME} first. Use only the facts it returns, and treat them as
+the complete source of truth for this exhibit.
 
 Return exactly this structure:
 
@@ -68,8 +70,7 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools."""
+conclusion, software discussion, or facts the tool did not return."""
 
 
 def build_research_prompt(facts: Iterable[str]) -> str:
@@ -110,10 +111,11 @@ def selected_model() -> str | None:
     return model.strip() if model and model.strip() else None
 
 
-def generation_config() -> dict[str, Any]:
+def generation_config(approved_facts: Iterable[str]) -> dict[str, Any]:
     config: dict[str, Any] = {
         "client_name": "museum-exhibit-studio",
-        "available_tools": [],
+        "tools": [create_approved_fact_lookup(approved_facts)],
+        "available_tools": [APPROVED_FACT_LOOKUP_NAME],
         "streaming": True,
         "system_message": {"mode": "replace", "content": SYSTEM_MESSAGE},
     }
@@ -205,8 +207,8 @@ async def main() -> int:
     try:
         print()
         exhibit = await run_session(
-            generation_config(),
-            build_exhibit_prompt(facts),
+            generation_config(facts),
+            build_exhibit_prompt(),
             GENERATION_TIMEOUT_SECONDS,
         )
 

@@ -173,12 +173,13 @@ On Windows, replace `cp -R` with `Copy-Item -Recurse`.
 | Control | What it can do |
 |---|---|
 | System message | Guide role, tone, scope, and output shape |
-| Empty tool allowlist | Prevent tool invocation |
-| Application code | Enforce limits, timeout, validation, and cleanup |
+| Tool allowlist | Decide exactly which tools exist for a session |
+| Application code | Own the data behind a tool, and enforce limits, timeout, validation, and cleanup |
 | Human review | Decide whether every historical claim is supported |
 
-The supplied facts are the only approved source. Model memory is not verified museum knowledge, and
-prompt guidance is not an authorization boundary: only the allowlist and the permission handler
-decide what the session may actually do.
+The educator's approved facts are the only approved source, and the curator reaches them through
+one application-owned tool. Model memory is not verified museum knowledge, and prompt guidance is
+not an authorization boundary: only the allowlist and the permission handler decide what the
+session may actually do.
 
 Continue to [Your first curator session](museum-01-first-curator-session.md).

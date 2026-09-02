@@ -3,15 +3,17 @@
 Choose the directory for your workshop language, then copy it to `museum-workshop-app`.
 These starters contain pinned dependencies, a minimal executable, and one pre-built curator
 helper module. The helpers hold the plumbing you never have to write: the approved fact sets and
-their bounds, a streaming printer, deterministic exhibit validation, the scoped Wikipedia MCP
+their bounds, the pre-built `approved_fact_lookup` local tool that hands those facts to the
+curator, a streaming printer, deterministic exhibit validation, the scoped Wikipedia MCP
 server and its deny-by-default permission handler, the single-file `exhibit.html` write
 permission, and small terminal prompts. You never edit the helpers.
 
 The starters do **not** include the curator system message, the exhibit prompt, session
-configuration, or any orchestration. You write those during the lessons: one session, then
-streaming, then the curator voice, the approved-fact prompt builder, one session runner that owns
-the guardrails, the validation report, scoped Wikipedia research, and an optional `exhibit.html`
-page. Start at [`workshop/museum-00-preflight.md`](../workshop/museum-00-preflight.md).
+configuration, tool registration, or any orchestration. You write those during the lessons: one
+session, then streaming, then the curator voice, the fact tool registration and its prompt, one
+session runner that owns the guardrails, the validation report, scoped Wikipedia research, and an
+optional `exhibit.html` page. Each starter entrypoint carries comments marking exactly where each
+step's code goes. Start at [`workshop/museum-00-preflight.md`](../workshop/museum-00-preflight.md).
 
 | Language | Helper module | Copy, build, and run |
 |---|---|---|

@@ -7,26 +7,50 @@
 Until now the curator has been writing from model memory. That is unacceptable for a museum: an
 exhibit label is an institutional claim, and "the model knew it" is not a source.
 
-In this step the educator supplies the facts. You add a prompt builder that puts those approved
-facts into the request, bounds them first, and demands an exact output structure. You also let the
-educator pick one of three approved fact sets or type their own.
+In this step the educator supplies the facts and the **application** hands them to the curator
+through a tool it owns. You register the pre-built `approved_fact_lookup` tool, make it the one
+tool the model may call, and write a prompt that orders the curator to call it before writing a
+word. You also let the educator pick one of three approved fact sets or type their own.
 
-## Application-owned policy versus task data
+## Why the facts belong behind a tool, not inside the prompt
 
-You now have both halves of the contract in front of you:
+You could paste the fact list into the prompt text. Many applications do. But then the facts are
+just more words in a request the model is free to read loosely, and every run carries the whole
+catalog whether the model needs it or not.
 
-- The **system message** is policy. It rarely changes and it belongs to the application.
-- The **prompt** is task data. It changes every run and carries the educator's facts.
+A **local tool** is different. It runs inside your process, your code decides what it returns, and
+the transcript records the moment the model asked for it. `approved_fact_lookup` is that tool. It
+takes no arguments and returns the bounded approved fact list, so two runs on the same fact set ask
+the same question and get the same answer — grounding stays deterministic.
 
-The helpers already own the fact catalog and the bounds. `boundFacts` trims every fact, drops
-blanks, and rejects the batch when it is empty, longer than 20 facts, or contains a fact over 500
-characters. Bounds are not politeness: an unbounded fact list is an unbounded prompt, and an
-unbounded prompt is unpredictable cost, latency, and attack surface. Call it before every send.
+The helpers already own the tool and the bounds. `boundFacts` trims every fact, drops blanks, and
+rejects the batch when it is empty, longer than 20 facts, or contains a fact over 500 characters.
+The tool factory applies those bounds to whatever it is given, so the model can never be handed an
+unbounded list. Bounds are not politeness: an unbounded fact list is unpredictable cost, latency,
+and attack surface.
 
-The helpers also own the terminal prompts, so there is exactly one reader of standard input in the
-application. Your prompt builder is the only new logic.
+`skip permission` is set on this tool because it only reads application-owned data that the
+educator just approved on screen. The external Wikipedia process in Step 7 gets a permission
+boundary instead.
 
-## Add the fact-driven prompt
+## Two lists, two different jobs
+
+Registering a tool takes two settings, and confusing them is the most common mistake in this
+workshop:
+
+- **`tools`** carries the *implementation*. This is where the runtime learns that a function called
+  `approved_fact_lookup` exists and how to execute it.
+- **`availableTools`** is the *allowlist*. It names which tools the model is permitted to call in
+  this session. A tool that is registered but not allowlisted cannot be called.
+
+You need both. Step 5 returns to the allowlist and shows what it prevents.
+
+The prompt is the third piece, and it is the weakest one: it *asks* the model to call the tool. It
+does not make the call happen, and it cannot stop a call. Keep the explicit "call
+`approved_fact_lookup` first" instruction — at this stage you want the tool call to be reliable so
+you can see it.
+
+## Register the tool and build the prompt
 
 :::language dotnet
 Open `museum-workshop-app/Program.cs`. Widen nothing at the top — you already have
@@ -67,6 +91,8 @@ await using var session = await client.CreateSessionAsync(new SessionConfig
 {
     ClientName = "museum-exhibit-studio",
     Streaming = true,
+    Tools = [CuratorFacts.CreateApprovedFactLookup(approvedFacts)],
+    AvailableTools = [CuratorFacts.ApprovedFactLookupName],
     SystemMessage = new SystemMessageConfig
     {
         Mode = SystemMessageMode.Replace,
@@ -74,7 +100,7 @@ await using var session = await client.CreateSessionAsync(new SessionConfig
     }
 });
 
-await CuratorStreamer.StreamExhibitAsync(session, BuildExhibitPrompt(approvedFacts));
+await CuratorStreamer.StreamExhibitAsync(session, BuildExhibitPrompt());
 
 await client.StopAsync();
 CuratorTerminal.CloseTerminal();
@@ -92,15 +118,13 @@ CuratorFactSet ReadFactSetSelection()
     return CuratorFacts.FactSets[0];
 }
 
-static string BuildExhibitPrompt(IEnumerable<string?> approvedFacts)
+static string BuildExhibitPrompt()
 {
-    var facts = CuratorFacts.BoundFacts(approvedFacts);
-    var factList = string.Join(Environment.NewLine, facts.Select(fact => $"- {fact}"));
-
     return $"""
-        Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+        Create visitor-facing exhibit text about this application's approved subject.
 
-        {factList}
+        Call {CuratorFacts.ApprovedFactLookupName} first. Use only the facts it returns, and
+        treat them as the complete source of truth for this exhibit.
 
         Return exactly this structure:
 
@@ -113,14 +137,14 @@ static string BuildExhibitPrompt(IEnumerable<string?> approvedFacts)
         3. <question>
 
         Write exactly three distinct visitor reflection questions. Do not add a preface,
-        conclusion, software discussion, or facts not supplied above. Do not inspect the
-        filesystem or use tools.
+        conclusion, software discussion, or facts the tool did not return.
         """;
 }
 ```
 
-Local functions come after the top-level statements. `BuildExhibitPrompt` calls `BoundFacts` again
-even though `main` already bounded the list, so the bound holds no matter who calls the builder.
+Local functions come after the top-level statements. `BuildExhibitPrompt` takes no facts at all now
+— it names the tool instead. `CreateApprovedFactLookup` calls `BoundFacts` internally, so the bound
+holds no matter who builds the tool.
 :::
 
 :::language nodejs
@@ -128,10 +152,12 @@ Open `museum-workshop-app/src/index.ts` and widen the helper import:
 
 ```typescript
 import {
+  approvedFactLookupName,
   askLine,
   askYesNo,
   boundFacts,
   closeTerminal,
+  createApprovedFactLookup,
   factSets,
   readFacts,
   streamExhibit,
@@ -141,12 +167,11 @@ import {
 Add the prompt builder and the fact-set chooser below the system message:
 
 ```typescript
-function buildExhibitPrompt(approvedFacts: Iterable<string>): string {
-  const facts = boundFacts(approvedFacts);
+function buildExhibitPrompt(): string {
+  return `Create visitor-facing exhibit text about this application's approved subject.
 
-  return `Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
-
-${facts.map((fact) => `- ${fact}`).join("\n")}
+Call ${approvedFactLookupName} first. Use only the facts it returns, and treat them as the
+complete source of truth for this exhibit.
 
 Return exactly this structure:
 
@@ -159,8 +184,7 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools.`;
+conclusion, software discussion, or facts the tool did not return.`;
 }
 
 async function chooseFactSet(): Promise<(typeof factSets)[number]> {
@@ -198,10 +222,12 @@ async function main(): Promise<void> {
   const session = await client.createSession({
     clientName: "museum-exhibit-studio",
     streaming: true,
+    tools: [createApprovedFactLookup(approvedFacts)],
+    availableTools: [approvedFactLookupName],
     systemMessage: { mode: "replace", content: systemMessage },
   });
 
-  await streamExhibit(session, buildExhibitPrompt(approvedFacts));
+  await streamExhibit(session, buildExhibitPrompt());
 
   await session.disconnect();
   await client.stop();
@@ -209,8 +235,9 @@ async function main(): Promise<void> {
 }
 ```
 
-`buildExhibitPrompt` calls `boundFacts` again even though `main` already bounded the list, so the
-bound holds no matter who calls the builder.
+`buildExhibitPrompt` takes no facts at all now — it names the tool instead.
+`createApprovedFactLookup` calls `boundFacts` internally, so the bound holds no matter who builds
+the tool.
 :::
 
 :::language python
@@ -218,10 +245,12 @@ Open `museum-workshop-app/main.py` and widen the helper import:
 
 ```python
 from curator import (
+    APPROVED_FACT_LOOKUP_NAME,
     FACT_SETS,
     ask_line,
     ask_yes_no,
     bound_facts,
+    create_approved_fact_lookup,
     read_facts,
     stream_exhibit,
 )
@@ -230,12 +259,11 @@ from curator import (
 Add the prompt builder below `SYSTEM_MESSAGE`:
 
 ```python
-def build_exhibit_prompt(facts: Iterable[str]) -> str:
-    approved_facts = bound_facts(facts)
-    fact_list = "\n".join(f"- {fact}" for fact in approved_facts)
-    return f"""Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+def build_exhibit_prompt() -> str:
+    return f"""Create visitor-facing exhibit text about this application's approved subject.
 
-{fact_list}
+Call {APPROVED_FACT_LOOKUP_NAME} first. Use only the facts it returns, and treat them as
+the complete source of truth for this exhibit.
 
 Return exactly this structure:
 
@@ -248,12 +276,10 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools."""
+conclusion, software discussion, or facts the tool did not return."""
 ```
 
-Add `from collections.abc import Iterable` to the imports at the top of the file, then replace
-`main`:
+Replace `main`:
 
 ```python
 async def main() -> None:
@@ -280,33 +306,29 @@ async def main() -> None:
         async with await client.create_session(
             client_name="museum-exhibit-studio",
             streaming=True,
+            tools=[create_approved_fact_lookup(facts)],
+            available_tools=[APPROVED_FACT_LOOKUP_NAME],
             system_message={"mode": "replace", "content": SYSTEM_MESSAGE},
         ) as session:
-            await stream_exhibit(session, build_exhibit_prompt(facts))
+            await stream_exhibit(session, build_exhibit_prompt())
 ```
 
-`build_exhibit_prompt` calls `bound_facts` again even though `main` already bounded the list, so the
-bound holds no matter who calls the builder.
+`build_exhibit_prompt` takes no facts at all now — it names the tool instead.
+`create_approved_fact_lookup` calls `bound_facts` internally, so the bound holds no matter who
+builds the tool.
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Add `"strconv"` and `"strings"` to the import block, then add
-the prompt builder below the system message:
+Open `museum-workshop-app/main.go`. Add `"strconv"` to the import block, then add the prompt builder
+below the system message:
 
 ```go
-func buildExhibitPrompt(approvedFacts []string) (string, error) {
-	facts, err := BoundFacts(approvedFacts)
-	if err != nil {
-		return "", err
-	}
+func buildExhibitPrompt() string {
+	return fmt.Sprintf(`Create visitor-facing exhibit text about this application's approved subject.
 
-	var factList strings.Builder
-	for _, fact := range facts {
-		fmt.Fprintf(&factList, "- %s\n", fact)
-	}
-	return fmt.Sprintf(`Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+Call %s first. Use only the facts it returns, and treat them as the complete
+source of truth for this exhibit.
 
-%s
 Return exactly this structure:
 
 # <an engaging exhibit title>
@@ -318,8 +340,7 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools.`, factList.String()), nil
+conclusion, software discussion, or facts the tool did not return.`, ApprovedFactLookupName)
 }
 ```
 
@@ -355,7 +376,7 @@ func main() {
 		panic(err)
 	}
 
-	prompt, err := buildExhibitPrompt(facts)
+	lookup, err := ApprovedFactLookup(facts)
 	if err != nil {
 		panic(err)
 	}
@@ -369,8 +390,10 @@ func main() {
 	defer func() { _ = client.Stop() }()
 
 	session, err := client.CreateSession(ctx, &copilot.SessionConfig{
-		ClientName: "museum-exhibit-studio",
-		Streaming:  copilot.Bool(true),
+		ClientName:     "museum-exhibit-studio",
+		Streaming:      copilot.Bool(true),
+		Tools:          []copilot.Tool{lookup},
+		AvailableTools: []string{ApprovedFactLookupName},
 		SystemMessage: &copilot.SystemMessageConfig{
 			Mode:    "replace",
 			Content: systemMessage,
@@ -381,14 +404,14 @@ func main() {
 	}
 	defer func() { _ = session.Disconnect() }()
 
-	if _, err := StreamExhibit(session, prompt, GenerationTimeout); err != nil {
+	if _, err := StreamExhibit(session, buildExhibitPrompt(), GenerationTimeout); err != nil {
 		panic(err)
 	}
 }
 ```
 
-`buildExhibitPrompt` calls `BoundFacts` again even though `main` already bounded the list, so the
-bound holds no matter who calls the builder.
+`buildExhibitPrompt` takes no facts at all now — it names the tool instead. `ApprovedFactLookup`
+calls `BoundFacts` internally, so the bound holds no matter who builds the tool.
 :::
 
 :::language rust
@@ -396,29 +419,20 @@ Open `museum-workshop-app/src/main.rs` and widen the crate import:
 
 ```rust
 use museum_exhibit_studio::{
-    FactBoundsError, GENERATION_TIMEOUT, ask_line, ask_yes_no, bound_facts, fact_sets, read_facts,
-    stream_exhibit,
+    APPROVED_FACT_LOOKUP_NAME, GENERATION_TIMEOUT, approved_fact_lookup, ask_line, ask_yes_no,
+    bound_facts, fact_sets, read_facts, stream_exhibit,
 };
 ```
 
 Add the prompt builder below `SYSTEM_MESSAGE`:
 
 ```rust
-fn build_exhibit_prompt<I, S>(approved_facts: I) -> Result<String, FactBoundsError>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<str>,
-{
-    let facts = bound_facts(approved_facts)?;
-    let fact_list = facts
-        .iter()
-        .map(|fact| format!("- {fact}"))
-        .collect::<Vec<_>>()
-        .join("\n");
-    Ok(format!(
-        r#"Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+fn build_exhibit_prompt() -> String {
+    format!(
+        r#"Create visitor-facing exhibit text about this application's approved subject.
 
-{fact_list}
+Call {APPROVED_FACT_LOOKUP_NAME} first. Use only the facts it returns, and treat them as
+the complete source of truth for this exhibit.
 
 Return exactly this structure:
 
@@ -431,9 +445,8 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools."#
-    ))
+conclusion, software discussion, or facts the tool did not return."#
+    )
 }
 ```
 
@@ -478,6 +491,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = SessionConfig::default();
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.streaming = Some(true);
+    config.tools = Some(vec![approved_fact_lookup(&facts)?]);
+    config.available_tools = Some(vec![APPROVED_FACT_LOOKUP_NAME.to_owned()]);
     config.system_message = Some(
         SystemMessageConfig::new()
             .with_mode("replace")
@@ -485,7 +500,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
     let session = client.create_session(config).await?;
 
-    stream_exhibit(&session, build_exhibit_prompt(&facts)?, GENERATION_TIMEOUT).await?;
+    stream_exhibit(&session, build_exhibit_prompt(), GENERATION_TIMEOUT).await?;
 
     session.disconnect().await?;
     client.stop().await?;
@@ -493,8 +508,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-`build_exhibit_prompt` calls `bound_facts` again even though `main` already bounded the list, so the
-bound holds no matter who calls the builder.
+`build_exhibit_prompt` takes no facts at all now — it names the tool instead.
+`approved_fact_lookup` calls `bound_facts` internally, so the bound holds no matter who builds the
+tool.
 :::
 
 :::language java
@@ -502,13 +518,12 @@ Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Add
 `import java.util.List;` to the imports, then add the prompt builder to the class:
 
 ```java
-    public static String buildExhibitPrompt(Iterable<String> approvedFacts) {
-        List<String> facts = CuratorFacts.boundFacts(approvedFacts);
-        String factList = String.join("\n", facts.stream().map(fact -> "- " + fact).toList());
+    public static String buildExhibitPrompt() {
         return """
-                Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+                Create visitor-facing exhibit text about this application's approved subject.
 
-                %s
+                Call %s first. Use only the facts it returns, and treat them as the
+                complete source of truth for this exhibit.
 
                 Return exactly this structure:
 
@@ -521,9 +536,8 @@ Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Add
                 3. <question>
 
                 Write exactly three distinct visitor reflection questions. Do not add a preface,
-                conclusion, software discussion, or facts not supplied above. Do not inspect the
-                filesystem or use tools.
-                """.formatted(factList);
+                conclusion, software discussion, or facts the tool did not return.
+                """.formatted(CuratorFacts.APPROVED_FACT_LOOKUP_NAME);
     }
 
     private static CuratorFacts.FactSet selectFactSet(String input) {
@@ -571,11 +585,13 @@ Replace `main`:
             var session = client.createSession(new SessionConfig()
                     .setClientName("museum-exhibit-studio")
                     .setStreaming(true)
+                    .setTools(List.of(CuratorFacts.approvedFactLookup(facts)))
+                    .setAvailableTools(List.of(CuratorFacts.APPROVED_FACT_LOOKUP_NAME))
                     .setSystemMessage(new SystemMessageConfig()
                             .setMode(SystemMessageMode.REPLACE)
                             .setContent(SYSTEM_MESSAGE))).get();
             try {
-                CuratorStreamer.streamExhibit(session, buildExhibitPrompt(facts));
+                CuratorStreamer.streamExhibit(session, buildExhibitPrompt());
             } finally {
                 session.close();
                 client.stop().get();
@@ -586,8 +602,8 @@ Replace `main`:
     }
 ```
 
-`buildExhibitPrompt` calls `boundFacts` again even though `main` already bounded the list, so the
-bound holds no matter who calls the builder.
+`buildExhibitPrompt` takes no facts at all now — it names the tool instead. `approvedFactLookup`
+calls `boundFacts` internally, so the bound holds no matter who builds the tool.
 :::
 
 ## Run it
@@ -623,7 +639,8 @@ mvn -f museum-workshop-app/pom.xml compile exec:java
 ```
 :::
 
-The application now interviews you before it writes anything:
+The application now interviews you before it writes anything, and the curator visibly fetches its
+facts before it writes a word:
 
 ```text
 === Museum Exhibit Studio ===
@@ -642,6 +659,9 @@ Choose a fact set [1-3, default 1]: 2
 
 Use these facts? [Y/n]: y
 
+[tool:start] approved_fact_lookup
+[tool:done] success=true
+
 # A Reef the Size of a Country
 ## Narrative
 Off the Queensland coast, more than two thousand nine hundred reefs...
@@ -649,18 +669,33 @@ Off the Queensland coast, more than two thousand nine hundred reefs...
 1. ...
 ```
 
-Choose set 2 or 3 and the exhibit changes subject completely — the fact list is doing the work, not
-the model's memory. Then answer `n` at the confirmation, type two or three facts of your own, and
-submit a blank line: the curator writes about your subject instead.
+The `[tool:start] approved_fact_lookup` line is the whole point of this step. The curator did not
+recall the reef — it asked your application for the facts, and your application answered.
+
+## Prove the tool is doing the work
+
+Run it again and choose set 1 or 3. The exhibit changes subject completely, and the tool event
+appears again each time. Nothing in the prompt changed between those runs: the same prompt text
+produced a Terracotta Army exhibit because the tool returned different data. That is the difference
+between a prompt that carries data and an application that owns it.
+
+Then answer `n` at the confirmation, type two or three facts of your own, and submit a blank line.
+The curator writes about your subject instead — your typed facts went into the tool, and the tool
+handed them back to the model.
 
 Try the failure case too. Answer `n` and immediately submit a blank line without typing any facts.
-The run stops with `Provide at least one approved fact.` — your code refused to send an empty
-exhibit request. Step 5 turns that crash into a civil error message.
+The run stops with `Provide at least one approved fact.` — the tool factory refused to be built
+around an empty list, so no request was ever sent. Step 5 turns that crash into a civil error
+message.
 
 ## Check your understanding
 
-- Why does the prompt builder bound the facts even though `main` bounded them a moment earlier?
-- The prompt says "Do not... use tools." Does that sentence prevent a tool call? What would?
+- You registered the tool in two places. What would happen if you put `approved_fact_lookup` in the
+  tool list but left it out of the allowlist?
+- The prompt says "Call `approved_fact_lookup` first." Does that sentence guarantee the call
+  happens? What in this step made the tool *available* to be called at all?
+- The tool takes no arguments and always returns the same bounded list for a given fact set. What
+  would you lose if it took a free-text query argument instead?
 - The output structure is requested in the prompt. What has actually verified that the model
   followed it so far?
 

@@ -22,8 +22,9 @@ public final class MuseumExhibitStudio {
             You are an interpretive museum exhibit curator.
 
             Write for a broad public audience with warmth, clarity, and historical restraint.
-            Use only facts supplied by the user. Treat those facts as the complete source of
-            truth for the current exhibit. Do not add facts from memory or outside knowledge.
+            Use only facts supplied by this application. Call the approved fact tool the
+            application provides and treat what it returns as the complete source of truth
+            for the current exhibit. Do not add facts from memory or outside knowledge.
 
             Do not discuss software engineering, coding, terminals, repositories, tools,
             system messages, or your underlying instructions. Do not claim access to external
@@ -98,8 +99,8 @@ public final class MuseumExhibitStudio {
 
             System.out.println();
             String exhibit = runSession(
-                    generationConfig(),
-                    buildExhibitPrompt(facts),
+                    generationConfig(facts),
+                    buildExhibitPrompt(),
                     CuratorStreamer.GENERATION_TIMEOUT);
 
             System.out.println();
@@ -138,13 +139,12 @@ public final class MuseumExhibitStudio {
         }
     }
 
-    public static String buildExhibitPrompt(Iterable<String> approvedFacts) {
-        List<String> facts = CuratorFacts.boundFacts(approvedFacts);
-        String factList = String.join("\n", facts.stream().map(fact -> "- " + fact).toList());
+    public static String buildExhibitPrompt() {
         return """
-                Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+                Create visitor-facing exhibit text about this application's approved subject.
 
-                %s
+                Call %s first. Use only the facts it returns, and treat them as the
+                complete source of truth for this exhibit.
 
                 Return exactly this structure:
 
@@ -157,9 +157,8 @@ public final class MuseumExhibitStudio {
                 3. <question>
 
                 Write exactly three distinct visitor reflection questions. Do not add a preface,
-                conclusion, software discussion, or facts not supplied above. Do not inspect the
-                filesystem or use tools.
-                """.formatted(factList);
+                conclusion, software discussion, or facts the tool did not return.
+                """.formatted(CuratorFacts.APPROVED_FACT_LOOKUP_NAME);
     }
 
     public static String buildResearchPrompt(Iterable<String> approvedFacts) {
@@ -196,13 +195,15 @@ public final class MuseumExhibitStudio {
                 """.formatted(exhibit);
     }
 
-    private static SessionConfig generationConfig() {
+    private static SessionConfig generationConfig(Iterable<String> approvedFacts) {
         SessionConfig config = new SessionConfig()
                 .setClientName("museum-exhibit-studio")
-                .setAvailableTools(List.of())
+                .setTools(List.of(CuratorFacts.approvedFactLookup(approvedFacts)))
+                .setAvailableTools(List.of(CuratorFacts.APPROVED_FACT_LOOKUP_NAME))
                 .setStreaming(true)
                 .setOnPermissionRequest((request, invocation) -> CompletableFuture.completedFuture(
-                        PermissionRequestResult.reject("This session does not permit tools.")))
+                        PermissionRequestResult.reject(
+                                "This session permits only the application's approved fact tool.")))
                 .setSystemMessage(new SystemMessageConfig()
                         .setMode(SystemMessageMode.REPLACE)
                         .setContent(SYSTEM_MESSAGE));

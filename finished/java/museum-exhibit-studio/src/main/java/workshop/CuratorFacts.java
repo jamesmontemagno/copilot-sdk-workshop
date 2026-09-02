@@ -1,5 +1,7 @@
 package workshop;
 
+import com.github.copilot.rpc.ToolDefinition;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,6 +9,7 @@ import java.util.Objects;
 public final class CuratorFacts {
     public static final int MAXIMUM_FACT_COUNT = 20;
     public static final int MAXIMUM_FACT_LENGTH = 500;
+    public static final String APPROVED_FACT_LOOKUP_NAME = "approved_fact_lookup";
 
     public static final List<String> apollo11Facts = List.of(
             "Apollo 11 launched July 16, 1969.",
@@ -59,6 +62,34 @@ public final class CuratorFacts {
             throw new IllegalArgumentException("Each approved fact must be 500 characters or fewer.");
         }
         return List.copyOf(bounded);
+    }
+
+    // The application owns the approved facts. This tool is the only way the curator can read them.
+    public static ToolDefinition approvedFactLookup(Iterable<String> facts) {
+        return ToolDefinition.from(
+                APPROVED_FACT_LOOKUP_NAME,
+                "Returns the complete list of educator-approved facts this application holds "
+                        + "for the current exhibit.",
+                new ApprovedFactReader(facts)::read).skipPermission(true);
+    }
+
+    private static final class ApprovedFactReader {
+        private final List<String> approvedFacts;
+
+        private ApprovedFactReader(Iterable<String> facts) {
+            this.approvedFacts = boundFacts(facts);
+        }
+
+        private String read() {
+            StringBuilder builder = new StringBuilder();
+            for (String fact : approvedFacts) {
+                if (builder.length() > 0) {
+                    builder.append('\n');
+                }
+                builder.append("- ").append(fact);
+            }
+            return builder.toString();
+        }
     }
 
     public record FactSet(String key, String label, List<String> facts) {

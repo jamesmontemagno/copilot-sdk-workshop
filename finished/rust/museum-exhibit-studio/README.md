@@ -18,7 +18,7 @@ cargo check --locked --manifest-path finished/rust/museum-exhibit-studio/Cargo.t
 
 ## What the sample teaches
 
-The generation session uses a replacement curator system message, validates approved facts, streams with a 120-second timeout, exposes an empty tool allowlist, rejects blank output, and prints deterministic structural validation.
+The generation session uses a replacement curator system message, validates approved facts, streams with a 120-second timeout, allowlists exactly one application-owned tool (`approved_fact_lookup`, which returns the bounded approved facts), rejects blank output, and prints deterministic structural validation.
 
 Optional Wikipedia research is separate: it exposes only scoped `search` and `readArticle` MCP tools, uses a deny-by-default permission handler, asks for prose notes plus cited sources, and never merges research into the approved facts.
 

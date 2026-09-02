@@ -1,3 +1,6 @@
+using GitHub.Copilot;
+using Microsoft.Extensions.AI;
+
 namespace MuseumExhibitStudio.Helpers;
 
 public sealed record CuratorFactSet(string Key, string Label, IReadOnlyList<string> Facts);
@@ -6,6 +9,8 @@ public static class CuratorFacts
 {
     public const int MaximumFactCount = 20;
     public const int MaximumFactLength = 500;
+
+    public const string ApprovedFactLookupName = "approved_fact_lookup";
 
     public static IReadOnlyList<string> Apollo11Facts { get; } =
     [
@@ -67,5 +72,21 @@ public static class CuratorFacts
         }
 
         return boundedFacts;
+    }
+
+    // The application owns the approved facts. This tool is the only way the curator can read them.
+    public static AIFunction CreateApprovedFactLookup(IEnumerable<string?> facts)
+    {
+        var approvedFacts = BoundFacts(facts);
+
+        return CopilotTool.DefineTool(
+            () => Task.FromResult(approvedFacts),
+            toolOptions: new CopilotToolOptions { SkipPermission = true },
+            factoryOptions: new AIFunctionFactoryOptions
+            {
+                Name = ApprovedFactLookupName,
+                Description =
+                    "Returns the complete list of educator-approved facts this application holds for the current exhibit."
+            });
     }
 }

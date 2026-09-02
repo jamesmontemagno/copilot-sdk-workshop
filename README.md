@@ -12,7 +12,7 @@ Across the workshops, you'll:
 
 1. Create a Copilot client and conversation session.
 2. Separate durable agent policy from task-specific data.
-3. Choose between local tools, MCP tools, and a deliberately tool-free session.
+3. Choose between local tools, MCP tools, and a tightly scoped single-tool allowlist.
 4. Enforce capability, input, timeout, validation, and lifecycle boundaries in application code.
 5. Explain what the model can infer and what the application must prove.
 
@@ -62,7 +62,7 @@ copilot-sdk-workshop/
 |-- finished/dotnet/
 |   |-- hello-copilot-sdk/        Completed local-tool example in every language
 |   |-- accessibility-report/     Completed .NET local + MCP reporter
-|   `-- museum-exhibit-studio/    Tool-free, grounded museum curator sample
+|   `-- museum-exhibit-studio/    Grounded museum curator sample, one application-owned tool
 |-- finished/nodejs/              Completed TypeScript projects
 |-- finished/python/              Completed Python projects
 |-- finished/go/                  Completed Go projects

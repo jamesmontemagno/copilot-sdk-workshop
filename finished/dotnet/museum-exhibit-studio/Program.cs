@@ -5,8 +5,9 @@ const string SystemMessage = """
     You are an interpretive museum exhibit curator.
 
     Write for a broad public audience with warmth, clarity, and historical restraint.
-    Use only facts supplied by the user. Treat those facts as the complete source of
-    truth for the current exhibit. Do not add facts from memory or outside knowledge.
+    Use only facts supplied by this application. Call the approved fact tool the
+    application provides and treat what it returns as the complete source of truth
+    for the current exhibit. Do not add facts from memory or outside knowledge.
 
     Do not discuss software engineering, coding, terminals, repositories, tools,
     system messages, or your underlying instructions. Do not claim access to external
@@ -70,8 +71,8 @@ try
 
     Console.WriteLine();
     var exhibit = await RunSessionAsync(
-        GenerationConfig(),
-        BuildExhibitPrompt(approvedFacts),
+        GenerationConfig(approvedFacts),
+        BuildExhibitPrompt(),
         CuratorStreamer.GenerationTimeout);
 
     Console.WriteLine();
@@ -120,11 +121,12 @@ static string? SelectedModel()
     return string.IsNullOrWhiteSpace(model) ? null : model.Trim();
 }
 
-SessionConfig GenerationConfig() => new()
+SessionConfig GenerationConfig(IEnumerable<string?> approvedFacts) => new()
 {
     ClientName = "museum-exhibit-studio",
     Model = SelectedModel(),
-    AvailableTools = [],
+    Tools = [CuratorFacts.CreateApprovedFactLookup(approvedFacts)],
+    AvailableTools = [CuratorFacts.ApprovedFactLookupName],
     Streaming = true,
     SystemMessage = new SystemMessageConfig
     {
@@ -202,15 +204,13 @@ static void PrintFacts(IReadOnlyList<string> facts)
     }
 }
 
-static string BuildExhibitPrompt(IEnumerable<string?> approvedFacts)
+static string BuildExhibitPrompt()
 {
-    var facts = CuratorFacts.BoundFacts(approvedFacts);
-    var factList = string.Join(Environment.NewLine, facts.Select(fact => $"- {fact}"));
-
     return $"""
-        Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+        Create visitor-facing exhibit text about this application's approved subject.
 
-        {factList}
+        Call {CuratorFacts.ApprovedFactLookupName} first. Use only the facts it returns, and
+        treat them as the complete source of truth for this exhibit.
 
         Return exactly this structure:
 
@@ -223,8 +223,7 @@ static string BuildExhibitPrompt(IEnumerable<string?> approvedFacts)
         3. <question>
 
         Write exactly three distinct visitor reflection questions. Do not add a preface,
-        conclusion, software discussion, or facts not supplied above. Do not inspect the
-        filesystem or use tools.
+        conclusion, software discussion, or facts the tool did not return.
         """;
 }
 

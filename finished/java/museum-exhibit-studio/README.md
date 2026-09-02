@@ -24,7 +24,7 @@ The learner-authored `MuseumExhibitStudio` entrypoint builds sessions directly w
 
 Prompt guidance is not an authorization boundary, so the application also:
 
-- keeps generation tool-free with an empty available-tools list and a reject-all permission handler;
+- limits generation to exactly one application-owned tool, `approved_fact_lookup`, which returns the bounded approved facts, backed by a reject-all permission handler for everything else;
 - limits research to the configured Wikipedia MCP server and `wikipedia-search` / `wikipedia-readArticle` through a deny-by-default permission handler;
 - treats Wikipedia output as background notes only, extracts cited sources from a trailing `## Sources` section, and never merges research into the approved facts;
 - bounds input to 20 facts of at most 500 characters each before every model send;

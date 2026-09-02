@@ -15,8 +15,9 @@ import (
 const systemMessage = `You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -34,19 +35,12 @@ write exhibit copy, do not restate the supplied facts as your own findings, and 
 sources. End your reply with a "## Sources" section listing each consulted article as
 "- <article title>: <canonical Wikipedia URL>".`
 
-func buildExhibitPrompt(approvedFacts []string) (string, error) {
-	facts, err := BoundFacts(approvedFacts)
-	if err != nil {
-		return "", err
-	}
+func buildExhibitPrompt() string {
+	return fmt.Sprintf(`Create visitor-facing exhibit text about this application's approved subject.
 
-	var factList strings.Builder
-	for _, fact := range facts {
-		fmt.Fprintf(&factList, "- %s\n", fact)
-	}
-	return fmt.Sprintf(`Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
+Call %s first. Use only the facts it returns, and treat them as the complete
+source of truth for this exhibit.
 
-%s
 Return exactly this structure:
 
 # <an engaging exhibit title>
@@ -58,8 +52,7 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools.`, factList.String()), nil
+conclusion, software discussion, or facts the tool did not return.`, ApprovedFactLookupName)
 }
 
 func buildResearchPrompt(approvedFacts []string) (string, error) {
@@ -106,18 +99,24 @@ func selectedModel() string {
 	return strings.TrimSpace(os.Getenv("COPILOT_MODEL"))
 }
 
-func generationConfig(workingDirectory string) *copilot.SessionConfig {
+func generationConfig(workingDirectory string, approvedFacts []string) (*copilot.SessionConfig, error) {
+	lookup, err := ApprovedFactLookup(approvedFacts)
+	if err != nil {
+		return nil, err
+	}
+
 	return &copilot.SessionConfig{
 		ClientName:     "museum-exhibit-studio",
 		Model:          selectedModel(),
-		AvailableTools: []string{},
+		Tools:          []copilot.Tool{lookup},
+		AvailableTools: []string{ApprovedFactLookupName},
 		Streaming:      copilot.Bool(true),
 		SystemMessage: &copilot.SystemMessageConfig{
 			Mode:    "replace",
 			Content: systemMessage,
 		},
 		WorkingDirectory: workingDirectory,
-	}
+	}, nil
 }
 
 func researchConfig(workingDirectory string) *copilot.SessionConfig {
@@ -236,13 +235,13 @@ func run() error {
 		}
 	}
 
-	exhibitPrompt, err := buildExhibitPrompt(facts)
+	exhibitConfig, err := generationConfig(workingDirectory, facts)
 	if err != nil {
 		return err
 	}
 
 	fmt.Println()
-	exhibit, err := runSession(ctx, generationConfig(workingDirectory), exhibitPrompt, GenerationTimeout)
+	exhibit, err := runSession(ctx, exhibitConfig, buildExhibitPrompt(), GenerationTimeout)
 	if err != nil {
 		return err
 	}

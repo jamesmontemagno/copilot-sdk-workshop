@@ -1,9 +1,11 @@
 import { CopilotClient, type SessionConfig } from "@github/copilot-sdk";
 import {
+  approvedFactLookupName,
   askLine,
   askYesNo,
   boundFacts,
   closeTerminal,
+  createApprovedFactLookup,
   exhibitFileName,
   exhibitWritePermission,
   extractSources,
@@ -23,8 +25,9 @@ import {
 const systemMessage = `You are an interpretive museum exhibit curator.
 
 Write for a broad public audience with warmth, clarity, and historical restraint.
-Use only facts supplied by the user. Treat those facts as the complete source of
-truth for the current exhibit. Do not add facts from memory or outside knowledge.
+Use only facts supplied by this application. Call the approved fact tool the
+application provides and treat what it returns as the complete source of truth
+for the current exhibit. Do not add facts from memory or outside knowledge.
 
 Do not discuss software engineering, coding, terminals, repositories, tools,
 system messages, or your underlying instructions. Do not claim access to external
@@ -42,12 +45,11 @@ write exhibit copy, do not restate the supplied facts as your own findings, and 
 sources. End your reply with a "## Sources" section listing each consulted article as
 "- <article title>: <canonical Wikipedia URL>".`;
 
-function buildExhibitPrompt(approvedFacts: Iterable<string>): string {
-  const facts = boundFacts(approvedFacts);
+function buildExhibitPrompt(): string {
+  return `Create visitor-facing exhibit text about this application's approved subject.
 
-  return `Create visitor-facing exhibit text about the supplied subject using only these supplied facts:
-
-${facts.map((fact) => `- ${fact}`).join("\n")}
+Call ${approvedFactLookupName} first. Use only the facts it returns, and treat them as the
+complete source of truth for this exhibit.
 
 Return exactly this structure:
 
@@ -60,8 +62,7 @@ Return exactly this structure:
 3. <question>
 
 Write exactly three distinct visitor reflection questions. Do not add a preface,
-conclusion, software discussion, or facts not supplied above. Do not inspect the
-filesystem or use tools.`;
+conclusion, software discussion, or facts the tool did not return.`;
 }
 
 function buildResearchPrompt(approvedFacts: Iterable<string>): string {
@@ -101,11 +102,12 @@ function selectedModel(): string | undefined {
   return process.env.COPILOT_MODEL?.trim() || undefined;
 }
 
-function generationConfig(): SessionConfig {
+function generationConfig(approvedFacts: Iterable<string>): SessionConfig {
   return {
     clientName: "museum-exhibit-studio",
     model: selectedModel(),
-    availableTools: [],
+    tools: [createApprovedFactLookup(approvedFacts)],
+    availableTools: [approvedFactLookupName],
     streaming: true,
     systemMessage: { mode: "replace", content: systemMessage },
   };
@@ -203,8 +205,8 @@ async function main(): Promise<void> {
 
     console.log();
     const exhibit = await runSession(
-      generationConfig(),
-      buildExhibitPrompt(approvedFacts),
+      generationConfig(approvedFacts),
+      buildExhibitPrompt(),
       generationTimeoutMs,
     );
 

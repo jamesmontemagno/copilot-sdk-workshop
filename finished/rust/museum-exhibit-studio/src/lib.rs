@@ -13,10 +13,12 @@ use std::time::Duration;
 use async_trait::async_trait;
 use github_copilot_sdk::handler::{PermissionHandler, PermissionResult};
 use github_copilot_sdk::session::Session;
+use github_copilot_sdk::tool::ToolHandler;
 use github_copilot_sdk::types::{
     McpServerConfig, McpStdioServerConfig, MessageOptions, PermissionRequestData,
-    PermissionRequestKind, RequestId, SessionEvent, SessionId,
+    PermissionRequestKind, RequestId, SessionEvent, SessionId, Tool, ToolInvocation,
 };
+use github_copilot_sdk::{Error as SdkError, ToolResult};
 
 pub const MAXIMUM_FACT_COUNT: usize = 20;
 pub const MAXIMUM_FACT_LENGTH: usize = 500;
@@ -24,6 +26,7 @@ pub const GENERATION_TIMEOUT: Duration = Duration::from_secs(120);
 pub const RESEARCH_TIMEOUT: Duration = Duration::from_secs(90);
 pub const WIKIPEDIA_TOOLS: [&str; 2] = ["wikipedia-search", "wikipedia-readArticle"];
 pub const EXHIBIT_FILE_NAME: &str = "exhibit.html";
+pub const APPROVED_FACT_LOOKUP_NAME: &str = "approved_fact_lookup";
 
 pub const APOLLO_11_FACTS: [&str; 5] = [
     "Apollo 11 launched July 16, 1969.",
@@ -120,6 +123,37 @@ where
     }
 
     Ok(facts)
+}
+
+struct ApprovedFactLookup {
+    facts: Vec<String>,
+}
+
+#[async_trait]
+impl ToolHandler for ApprovedFactLookup {
+    async fn call(&self, _invocation: ToolInvocation) -> Result<ToolResult, SdkError> {
+        Ok(ToolResult::Text(
+            serde_json::to_string(&self.facts).expect("approved facts serialize"),
+        ))
+    }
+}
+
+/// The application owns the approved facts. This tool is the only way the curator can read them.
+pub fn approved_fact_lookup<I, S>(facts: I) -> Result<Tool, FactBoundsError>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<str>,
+{
+    let facts = bound_facts(facts)?;
+    Ok(Tool::new(APPROVED_FACT_LOOKUP_NAME)
+        .with_description(
+            "Returns the complete list of educator-approved facts this application holds for the current exhibit.",
+        )
+        .with_parameters(
+            serde_json::json!({"type": "object", "properties": {}, "additionalProperties": false}),
+        )
+        .with_skip_permission(true)
+        .with_handler(Arc::new(ApprovedFactLookup { facts })))
 }
 
 pub type RuntimeError = Box<dyn Error + Send + Sync>;

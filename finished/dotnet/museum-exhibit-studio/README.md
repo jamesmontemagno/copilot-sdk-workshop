@@ -26,9 +26,11 @@ dotnet build finished/dotnet/museum-exhibit-studio
 
 ## What the sample teaches
 
-The generation session uses an empty tool allowlist and a replace-mode system message so the model
-can only write exhibit text from the approved facts. `CuratorFacts.BoundFacts` trims and validates
-facts before every generation or research send, and `CuratorStreamer.StreamExhibitAsync` streams
+The generation session allowlists exactly one application-owned tool,
+`approved_fact_lookup`, and uses a replace-mode system message, so the model can only write exhibit
+text from facts this application handed it. `CuratorFacts.CreateApprovedFactLookup` bounds those
+facts before the model can ever see them, `CuratorFacts.BoundFacts` trims and validates facts before
+every generation or research send, and `CuratorStreamer.StreamExhibitAsync` streams
 model output with explicit timeouts.
 
 Optional Wikipedia research is intentionally lightweight: a separate session exposes only scoped
