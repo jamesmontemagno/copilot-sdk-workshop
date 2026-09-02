@@ -45,3 +45,10 @@ mvn compile exec:java -Dexec.args="--allow-local-demo-write"
 ```
 
 That fallback is limited by the app to the `write` permission kind while only `builtin:apply_patch` is available, but it cannot enforce the output path. Do not use the fallback for production, shared, or untrusted worktrees.
+
+This is the application a learner ends up with after the museum lessons, not a separate reference
+architecture. The entrypoint keeps one small session runner that starts the client, creates the
+session, enforces the timeout, rejects blank output, and cleans up on every path; the research,
+generation, and optional HTML steps reuse it with different session configurations. Follow the
+track from
+[`workshop/museum-00-preflight.md`](https://github.com/jamesmontemagno/copilot-sdk-workshop/blob/main/workshop/museum-00-preflight.md).

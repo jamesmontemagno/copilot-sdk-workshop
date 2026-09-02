@@ -23,3 +23,10 @@ The generation session uses a replacement curator system message, validates appr
 Optional Wikipedia research is separate: it exposes only scoped `search` and `readArticle` MCP tools, uses a deny-by-default permission handler, asks for prose notes plus cited sources, and never merges research into the approved facts.
 
 Optional HTML generation uses `builtin:apply_patch` with a single-file permission handler that can write only `exhibit.html` in the application working directory.
+
+This is the application a learner ends up with after the museum lessons, not a separate reference
+architecture. The entrypoint keeps one small session runner that starts the client, creates the
+session, enforces the timeout, rejects blank output, and cleans up on every path; the research,
+generation, and optional HTML steps reuse it with different session configurations. Follow the
+track from
+[`workshop/museum-00-preflight.md`](https://github.com/jamesmontemagno/copilot-sdk-workshop/blob/main/workshop/museum-00-preflight.md).

@@ -28,13 +28,14 @@ SDLC_LESSONS = (
 )
 MUSEUM_LESSONS = (
     "museum-00-preflight.md",
-    "museum-01-curator-role.md",
-    "museum-02-tool-free-session.md",
-    "museum-03-approved-facts.md",
-    "museum-04-deterministic-validation.md",
-    "museum-05-lifecycle-tests.md",
-    "museum-06-run-review.md",
-    "museum-07-wikipedia-grounding.md",
+    "museum-01-first-curator-session.md",
+    "museum-02-stream-the-curator.md",
+    "museum-03-curator-voice.md",
+    "museum-04-approved-facts.md",
+    "museum-05-guardrails.md",
+    "museum-06-prove-the-structure.md",
+    "museum-07-wikipedia-research.md",
+    "museum-08-interactive-exhibit-page.md",
 )
 LESSONS = SDLC_LESSONS + MUSEUM_LESSONS
 OFFICIAL_SDK_URLS = {
@@ -128,37 +129,53 @@ STEP_9_RUN_COMMAND_MARKERS = {
 }
 MUSEUM_COMMAND_MARKERS = {
     "dotnet": (
-        "dotnet build museum-workshop-app",
-        "dotnet test museum-workshop-app/",
         "dotnet run --project museum-workshop-app",
+        "cd museum-workshop-app && dotnet run",
     ),
     "nodejs": (
-        "npm --prefix museum-workshop-app run build",
-        "npm --prefix museum-workshop-app test",
         "npm --prefix museum-workshop-app start",
     ),
     "python": (
-        "museum-workshop-app/.venv/bin/python",
-        "python3 -m py_compile museum-workshop-app/",
-        "python3 -m unittest",
-        "python -m unittest",
-        "python3 museum-workshop-app/main.py",
+        "museum-workshop-app/.venv/bin/python museum-workshop-app/main.py",
+        "cd museum-workshop-app && .venv/bin/python main.py",
     ),
     "go": (
-        "go -C museum-workshop-app test",
         "go -C museum-workshop-app run .",
     ),
     "rust": (
-        "cargo check --manifest-path museum-workshop-app/Cargo.toml",
-        "cargo test --manifest-path museum-workshop-app/Cargo.toml",
         "cargo run --manifest-path museum-workshop-app/Cargo.toml",
+        "cd museum-workshop-app && cargo run",
     ),
     "java": (
-        "mvn -f museum-workshop-app/pom.xml test",
-        "mvn -f museum-workshop-app/pom.xml -Dtest=",
         "mvn -f museum-workshop-app/pom.xml compile exec:java",
+        "cd museum-workshop-app && mvn compile exec:java",
     ),
 }
+MUSEUM_FORBIDDEN_LESSON_MARKERS = (
+    "museum-07-guides",
+    "dotnet test museum-workshop-app",
+    "npm --prefix museum-workshop-app test",
+    "go -C museum-workshop-app test",
+    "cargo test --manifest-path museum-workshop-app",
+    "mvn -f museum-workshop-app/pom.xml test",
+    "python -m unittest",
+    "unittest",
+    "mock-wikipedia",
+    "museum-workshop-app/tests",
+    "src/test/java",
+    "checkpoints/",
+    "samples/",
+    "ICuratorClient",
+    "ICuratorSession",
+    "CopilotCuratorClient",
+    "createCopilotCuratorClient",
+    "MuseumExhibitService",
+    "CuratorRuntime",
+    "ExhibitValidator",
+    "selectApprovedFacts",
+    "parseResearchResult",
+    "ProposedAddition",
+)
 PROCEDURE_MARKERS = {
     "01-first-session.md": {
         "dotnet": "SendAndWaitAsync",
@@ -219,23 +236,31 @@ PROCEDURE_MARKERS = {
         "rust": "builtin:apply_patch",
         "java": "builtin:apply_patch",
     },
-    "museum-01-curator-role.md": {
-        "dotnet": "public const string SystemMessage",
-        "nodejs": "export const systemMessage",
+    "museum-01-first-curator-session.md": {
+        "dotnet": "SendAndWaitAsync",
+        "nodejs": "sendAndWait",
+        "python": "create_session",
+        "go": "copilot.NewClient",
+        "rust": "Client::start",
+        "java": "new CopilotClient",
+    },
+    "museum-02-stream-the-curator.md": {
+        "dotnet": "CuratorStreamer.StreamExhibitAsync",
+        "nodejs": "streamExhibit(",
+        "python": "stream_exhibit(",
+        "go": "StreamExhibit(",
+        "rust": "stream_exhibit(",
+        "java": "CuratorStreamer.streamExhibit",
+    },
+    "museum-03-curator-voice.md": {
+        "dotnet": "const string SystemMessage",
+        "nodejs": "const systemMessage",
         "python": "SYSTEM_MESSAGE =",
-        "go": "curatorSystemMessage =",
-        "rust": "pub const SYSTEM_MESSAGE",
+        "go": "const systemMessage",
+        "rust": "const SYSTEM_MESSAGE",
         "java": "public static final String SYSTEM_MESSAGE",
     },
-    "museum-02-tool-free-session.md": {
-        "dotnet": "AvailableTools = []",
-        "nodejs": "availableTools: []",
-        "python": '"available_tools": []',
-        "go": "AvailableTools: []string{}",
-        "rust": "config.available_tools = Some(Vec::new())",
-        "java": ".setAvailableTools(List.of())",
-    },
-    "museum-03-approved-facts.md": {
+    "museum-04-approved-facts.md": {
         "dotnet": "BuildExhibitPrompt",
         "nodejs": "buildExhibitPrompt",
         "python": "build_exhibit_prompt",
@@ -243,29 +268,37 @@ PROCEDURE_MARKERS = {
         "rust": "build_exhibit_prompt",
         "java": "buildExhibitPrompt",
     },
-    "museum-04-deterministic-validation.md": {
-        "dotnet": "ExhibitValidator.Validate",
-        "nodejs": "validateExhibit",
-        "python": "validate_exhibit",
-        "go": "validateExhibit",
-        "rust": "validate_exhibit",
-        "java": "ExhibitValidator.validate",
+    "museum-05-guardrails.md": {
+        "dotnet": "static async Task<string> RunSessionAsync",
+        "nodejs": "async function runSession",
+        "python": "async def run_session",
+        "go": "func runSession(",
+        "rust": "async fn run_session",
+        "java": "private static String runSession",
     },
-    "museum-05-lifecycle-tests.md": {
-        "dotnet": "GenerateAsync",
-        "nodejs": "async generate(",
-        "python": "async def generate(",
-        "go": "func (service museumExhibitService) Generate(",
-        "rust": "pub async fn generate_exhibit(",
-        "java": "GeneratedExhibit generate(",
+    "museum-06-prove-the-structure.md": {
+        "dotnet": "CuratorValidation.FormatValidation",
+        "nodejs": "formatValidation(validateExhibit(",
+        "python": "format_validation(validate_exhibit(",
+        "go": "FormatValidation(ValidateExhibit(",
+        "rust": "format_validation(&validate_exhibit(",
+        "java": "CuratorValidation.formatValidation",
     },
-    "museum-06-run-review.md": {
-        "dotnet": "new CopilotCuratorClient()",
-        "nodejs": "createCopilotCuratorClient()",
-        "python": "MuseumExhibitService(CopilotClient())",
-        "go": "newCopilotCuratorClient()",
-        "rust": "CopilotCuratorClient::new()",
-        "java": "new CopilotCuratorClient()",
+    "museum-07-wikipedia-research.md": {
+        "dotnet": "CuratorSafety.WikipediaPermissionHandler()",
+        "nodejs": "wikipediaPermissionHandler()",
+        "python": "wikipedia_permission_handler()",
+        "go": "WikipediaPermissionHandler()",
+        "rust": "wikipedia_permission_handler()",
+        "java": "CuratorSafety.wikipediaPermissionHandler()",
+    },
+    "museum-08-interactive-exhibit-page.md": {
+        "dotnet": "builtin:apply_patch",
+        "nodejs": "builtin:apply_patch",
+        "python": "builtin:apply_patch",
+        "go": "builtin:apply_patch",
+        "rust": "builtin:apply_patch",
+        "java": "builtin:apply_patch",
     },
 }
 UNSCOPED_TRACK_MARKERS = (
@@ -1384,31 +1417,53 @@ def validate_documentation() -> None:
     for step_id in (
         "09-interactive-html-report",
         "museum-00-preflight",
-        "museum-01-curator-role",
-        "museum-02-tool-free-session",
-        "museum-03-approved-facts",
-        "museum-04-deterministic-validation",
-        "museum-05-lifecycle-tests",
-        "museum-06-run-review",
-        "museum-07-wikipedia-grounding",
+        "museum-01-first-curator-session",
+        "museum-02-stream-the-curator",
+        "museum-03-curator-voice",
+        "museum-04-approved-facts",
+        "museum-05-guardrails",
+        "museum-06-prove-the-structure",
+        "museum-07-wikipedia-research",
+        "museum-08-interactive-exhibit-page",
     ):
         require(
             f"id: '{step_id}'" in lesson_viewer,
             f"Lesson viewer navigation is missing {step_id}",
         )
+    for retired_step_id in (
+        "museum-01-curator-role",
+        "museum-02-tool-free-session",
+        "museum-05-lifecycle-tests",
+        "museum-06-run-review",
+        "museum-07-wikipedia-grounding",
+    ):
+        require(
+            f"id: '{retired_step_id}'" not in lesson_viewer,
+            f"Lesson viewer still registers the retired museum step {retired_step_id}",
+        )
+        require(
+            f"'{retired_step_id}':" in lesson_viewer,
+            f"Lesson viewer must keep a legacy redirect for {retired_step_id}",
+        )
+    require(
+        "'museum-03-approved-facts': 'museum-04-approved-facts'" in lesson_viewer
+        and "'museum-04-deterministic-validation': 'museum-06-prove-the-structure'" in lesson_viewer
+        and "'museum-05-lifecycle-tests': 'museum-05-guardrails'" in lesson_viewer
+        and "'museum-07-wikipedia-grounding': 'museum-07-wikipedia-research'" in lesson_viewer,
+        "Legacy museum step URLs must map onto the redesigned lessons",
+    )
 
-    wikipedia_lesson = read(WORKSHOP / "museum-07-wikipedia-grounding.md")
+    wikipedia_lesson = read(WORKSHOP / "museum-07-wikipedia-research.md")
     for required_step in (
-        "# Wikipedia MCP",
-        "## 1. Choose one Wikipedia MCP server",
-        "## 2. Add a separate research contract",
-        "## 3. Create the research session",
-        "## 4. Implement bounded research",
-        "## 5. Add the approval gate",
-        "## 6. Test with a mock MCP server",
-        '"wikipedia-search"',
-        '"wikipedia-readArticle"',
-        "The original generation configuration still has an empty tool allowlist.",
+        "# Step 7: Research with Wikipedia MCP",
+        "## Two sessions, two capability profiles",
+        "## Add the research session",
+        "wikipedia-search",
+        "wikipedia-readArticle",
+        "deny-by-default",
+        "Research notes are never merged into the approved facts.",
+        "The session that writes the exhibit keeps its empty tool allowlist.",
+        "Consulted Wikipedia sources:",
     ):
         require(
             required_step in wikipedia_lesson,
@@ -1419,17 +1474,58 @@ def validate_documentation() -> None:
         "Wikipedia MCP must be a required museum workshop step",
     )
     require(
-        "id: 'museum-07-wikipedia-grounding'" in lesson_viewer
-        and "title: 'Wikipedia MCP',\n                navTitle: 'Wikipedia MCP'" in lesson_viewer
-        and "kind: 'core',\n                number: 7,\n                time: '30 min'" in lesson_viewer,
-        "Wikipedia MCP must be registered as required 30-minute museum step 7",
+        "id: 'museum-07-wikipedia-research'" in lesson_viewer
+        and "title: 'Research with Wikipedia MCP',\n                navTitle: 'Wikipedia research'" in lesson_viewer
+        and "kind: 'core',\n                number: 7,\n                time: '20 min'" in lesson_viewer,
+        "Wikipedia MCP must be registered as required 20-minute museum step 7",
     )
+
+    html_lesson = read(WORKSHOP / "museum-08-interactive-exhibit-page.md")
+    for required_step in (
+        "builtin:apply_patch",
+        "exhibit.html",
+        "accessible text filter",
+        "keyboard focus",
+    ):
+        require(
+            required_step in html_lesson,
+            f"Optional exhibit page lesson is missing required guidance: {required_step}",
+        )
+    require(
+        "id: 'museum-08-interactive-exhibit-page'" in lesson_viewer
+        and "kind: 'optional',\n                number: 8,\n                time: '15 min'" in lesson_viewer,
+        "The interactive exhibit page must be registered as optional 15-minute museum step 8",
+    )
+
     landing_page = read(DOCS / "index.html")
     require(
-        "Non-SDLC tool · 105 minutes" in landing_page
-        and "105 minutes for Museum Exhibit Studio" in read(ROOT / "README.md"),
-        "Museum workshop duration must include all 105 timed minutes",
+        "Non-SDLC tool · 90 minutes" in landing_page
+        and "90 minutes for Museum Exhibit Studio" in read(ROOT / "README.md"),
+        "Museum workshop duration must match the seven timed core steps",
     )
+
+    museum_lessons = {name: read(WORKSHOP / name) for name in MUSEUM_LESSONS}
+    combined_museum = "\n".join(museum_lessons.values())
+    for forbidden in MUSEUM_FORBIDDEN_LESSON_MARKERS:
+        require(
+            forbidden.casefold() not in combined_museum.casefold(),
+            f"Museum lessons still reference retired workshop content: {forbidden}",
+        )
+    require(
+        not re.search(r"(?<![-\w])start/", combined_museum),
+        "Museum lessons must copy starters from start-museum/, not a bare start/ path",
+    )
+    require(
+        not (WORKSHOP / "museum-07-guides").exists(),
+        "workshop/museum-07-guides must be deleted; lessons now carry the per-language code",
+    )
+    for name, text in museum_lessons.items():
+        if name == "museum-00-preflight.md":
+            continue
+        require(
+            "museum-workshop-app" in text,
+            f"{name} must build the single museum-workshop-app project",
+        )
 
     museum_preflight = read(WORKSHOP / "museum-00-preflight.md")
     for clean_clone_step in (
@@ -1453,9 +1549,12 @@ def validate_documentation() -> None:
         )
     require(
         "cp finished/" not in museum_preflight
-        and "mkdir -p museum-workshop-app/tests" not in museum_preflight
-        and "src/test" not in museum_preflight,
+        and "mkdir -p museum-workshop-app/tests" not in museum_preflight,
         "Museum preflight must not reconstruct projects or create test directories",
+    )
+    require(
+        "Museum Exhibit Studio starter" in museum_preflight,
+        "Museum preflight must state the starter identity output learners should see",
     )
 
 
