@@ -20,6 +20,14 @@ and installs yours, so the curator is not a coding assistant wearing a museum ha
 when you want to extend the default persona; use `replace` when the default persona is wrong for
 the job. For a museum curator it is wrong.
 
+There is a third mode. `customize` overrides individual sections of the SDK-managed prompt — tone,
+guidelines, code change rules, and others — while preserving the rest, so you can change specific
+parts without restating the whole thing. Reach for it when the default prompt is mostly right and
+only a few sections are not. In the default `append` mode the SDK auto-injects environment context,
+tool instructions, and security guardrails, and the CLI persona stays; `replace` hands you full
+control and gives those sections up, which is why the message you are about to write has to state
+its own scope and limits explicitly.
+
 A system message is **guidance, not enforcement**. It shapes tone, scope, and structure, and it
 strongly discourages the model from wandering. It cannot stop a tool call, cap a runtime, or prove
 a claim is true. Those need the allowlist, a timeout, and validation — Steps 5 and 6.

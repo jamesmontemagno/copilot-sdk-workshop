@@ -1978,6 +1978,46 @@ def validate_learn_more_sections() -> None:
             )
 
 
+SYSTEM_MESSAGE_MODE_EXPLAINER_LESSONS = ("01-first-session.md", "museum-03-curator-voice.md")
+SYSTEM_MESSAGE_MODES = ("`append`", "`replace`", "`customize`")
+PERMISSION_DECISION_EXPLAINER_LESSONS = ("04-mcp-safety.md", "museum-07-wikipedia-research.md")
+PERMISSION_DECISION_KINDS = (
+    "`approve-once`",
+    "`reject`",
+    "`user-not-available`",
+    "`no-result`",
+)
+
+
+def validate_configuration_explainers() -> None:
+    # Two things a learner never sees in the code are still decisions the application made: the
+    # system message mode the session runs under, and which decision a permission handler returns.
+    # Each track explains both exactly once, and those paragraphs are prose with no compiled
+    # counterpart, so nothing else would notice them disappearing. Assert the mode and decision
+    # names rather than any sentence, and assert them per rendered language so an explainer cannot
+    # end up inside one language block and leave the other five tracks without it.
+    for lesson_name in SYSTEM_MESSAGE_MODE_EXPLAINER_LESSONS:
+        for language in LANGUAGES:
+            rendered = render_language_markdown(WORKSHOP / lesson_name, language)
+            for mode in SYSTEM_MESSAGE_MODES:
+                require(
+                    mode in rendered,
+                    f"workshop/{lesson_name} ({language}) must name the {mode} system message "
+                    "mode; the lesson explains which of the three modes the session runs under",
+                )
+
+    for lesson_name in PERMISSION_DECISION_EXPLAINER_LESSONS:
+        for language in LANGUAGES:
+            rendered = render_language_markdown(WORKSHOP / lesson_name, language)
+            for kind in PERMISSION_DECISION_KINDS:
+                require(
+                    kind in rendered,
+                    f"workshop/{lesson_name} ({language}) must name the {kind} permission "
+                    "decision; this is where the learner first writes a real decision instead of "
+                    "a blanket approve-all handler",
+                )
+
+
 def validate_workflows() -> None:
     required_setup = (
         ("actions/setup-dotnet@v6", "dotnet-version: 10.0.x"),
@@ -2039,6 +2079,7 @@ validate_editor_open_guidance()
 validate_museum_permission_handlers()
 validate_museum_rust_error_types()
 validate_learn_more_sections()
+validate_configuration_explainers()
 validate_workflows()
 
 if errors:

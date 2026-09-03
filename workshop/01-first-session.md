@@ -350,6 +350,17 @@ public final class AccessibilityReport {
 answer. The try-with-resources block closes the client when `main` exits.
 :::
 
+This session sets a permission handler and nothing else, so it runs with the SDK's default persona.
+The knob you did not turn is the
+[system message](https://github.com/github/copilot-sdk/blob/main/docs/getting-started.md#customize-the-system-message),
+which has three modes. `append` is the default: your content is added after the SDK-managed prompt,
+and the default CLI persona is preserved along with the environment context, tool instructions, and
+security guardrails the SDK injects. `replace` swaps the entire prompt for your content.
+`customize` overrides individual sections — tone, guidelines, code change rules, and others — while
+preserving the rest. This workshop stays on the default, so every answer you see comes from the
+standard persona. Reach for the other two modes when an application needs a voice or a scope of its
+own.
+
 ## Run it
 
 :::language dotnet
