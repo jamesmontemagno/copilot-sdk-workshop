@@ -1742,6 +1742,59 @@ def validate_documentation() -> None:
     )
 
 
+def validate_editor_open_guidance() -> None:
+    # Both tracks hand the learner exactly one starter directory and expect them to live in it for
+    # the whole workshop. Every per-language render has to name that folder and show `code .` next
+    # to it, so the "open this folder in your editor" step cannot quietly vanish from one block.
+    fence = "```bash\ncode .\n```"
+    for lesson_name, starter_root in (
+        ("00-preflight.md", "start-accessibility"),
+        ("museum-00-preflight.md", "start-museum"),
+    ):
+        for language in LANGUAGES:
+            rendered = render_language_markdown(WORKSHOP / lesson_name, language)
+            starter_directory = f"{starter_root}/{language}"
+            change_directory = rendered.find(f"cd {starter_directory}")
+            require(
+                change_directory >= 0,
+                f"workshop/{lesson_name} ({language}) must change into {starter_directory}",
+            )
+            if change_directory < 0:
+                continue
+            guidance = rendered[change_directory:]
+            fence_position = guidance.find(fence)
+            require(
+                fence_position >= 0,
+                f"workshop/{lesson_name} ({language}) must show `code .` after changing into "
+                f"{starter_directory} so the learner opens that folder in an editor",
+            )
+            if fence_position < 0:
+                continue
+            neighborhood = guidance[
+                max(0, fence_position - 400) : fence_position + len(fence) + 400
+            ]
+            require(
+                starter_directory in neighborhood,
+                f"workshop/{lesson_name} ({language}) must name {starter_directory} as the folder "
+                "its `code .` command opens",
+            )
+            require(
+                "editor" in neighborhood.casefold(),
+                f"workshop/{lesson_name} ({language}) must tell the learner to open "
+                f"{starter_directory} in an editor, not only run `code .`",
+            )
+    for starter_readme in (
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+    ):
+        readme_text = read(starter_readme)
+        require(
+            "code ." in readme_text and "editor" in readme_text.casefold(),
+            f"{starter_readme.relative_to(ROOT)} must tell learners to open the starter directory "
+            "in an editor",
+        )
+
+
 def validate_workflows() -> None:
     required_setup = (
         ("actions/setup-dotnet@v6", "dotnet-version: 10.0.x"),
@@ -1799,6 +1852,7 @@ validate_playwright_output_configuration()
 validate_project_behavior()
 validate_site_behavior()
 validate_documentation()
+validate_editor_open_guidance()
 validate_workflows()
 
 if errors:

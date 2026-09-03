@@ -1,12 +1,13 @@
 # Museum Exhibit Studio starters
 
-Choose the directory for your workshop language and work directly inside it.
-These starters contain pinned dependencies, a minimal executable, and one pre-built curator
-helper module. The helpers hold the plumbing you never have to write: the approved fact sets and
-their bounds, the pre-built `approved_fact_lookup` local tool that hands those facts to the
-curator, a streaming printer, deterministic exhibit validation, the scoped Wikipedia MCP
-server and its deny-by-default permission handler, the single-file `exhibit.html` write
-permission, and small terminal prompts. You never edit the helpers.
+Choose the directory for your workshop language and work directly inside it. After you change into
+it, open that same folder in your editor (`code .` from inside it, or any other editor's open-folder
+command) and keep your terminal there. These starters contain pinned dependencies, a minimal
+executable, and one pre-built curator helper module. The helpers hold the plumbing you never have
+to write: the approved fact sets and their bounds, the pre-built `approved_fact_lookup` local tool
+that hands those facts to the curator, a streaming printer, deterministic exhibit validation, the
+scoped Wikipedia MCP server and its deny-by-default permission handler, the single-file
+`exhibit.html` write permission, and small terminal prompts. You never edit the helpers.
 
 The starters do **not** include the curator system message, the exhibit prompt, session
 configuration, tool registration, or any orchestration. You write those during the lessons: one

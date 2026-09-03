@@ -1,10 +1,12 @@
 # Workshop starters
 
 Choose the directory for the language selected on the workshop homepage, then work directly inside
-it. There is no copy step. Starters are intentionally minimal scaffolds. The application-owned Web
-Content Accessibility Guidelines (WCAG) catalog and scoped permission/snapshot-reader helpers may be
-present for later lessons, but their executable entrypoints do not wire a Copilot client, session,
-streaming flow, local tool, MCP server, or report until the corresponding step.
+it. There is no copy step. Change into that directory, open the same folder in your editor (`code .`
+from inside it, or any other editor's open-folder command), and stay there for every command.
+Starters are intentionally minimal scaffolds. The application-owned Web Content Accessibility
+Guidelines (WCAG) catalog and scoped permission/snapshot-reader helpers may be present for later
+lessons, but their executable entrypoints do not wire a Copilot client, session, streaming flow,
+local tool, MCP server, or report until the corresponding step.
 
 | Language | Prerequisite | Change directory and verify |
 |---|---|---|
