@@ -9,7 +9,9 @@ import "fmt"
 // Everything below is yours to write, one lesson at a time.
 //
 // Step 1  First curator session .......... create the client with copilot.NewClient, create a
-//                                          session, send a prompt, print the reply, then
+//                                          session with OnPermissionRequest:
+//                                          copilot.PermissionHandler.ApproveAll so requests get an
+//                                          answer, send a prompt, print the reply, then
 //                                          disconnect and stop.
 // Step 2  Stream the curator ............. swap the blocking send for StreamExhibit so tokens and
 //                                          [tool:start] / [tool:done] events print live.
@@ -21,8 +23,9 @@ import "fmt"
 //                                          []string{ApprovedFactLookupName}; the prompt tells the
 //                                          curator to call approved_fact_lookup first.
 // Step 5  Set the guardrails ............. add generationConfig() and the single runSession()
-//                                          lifecycle function: one-tool allowlist, generation
-//                                          timeout, blank-output rejection, cleanup via defer.
+//                                          lifecycle function: one-tool allowlist, the Step 1
+//                                          permission handler carried forward, generation timeout,
+//                                          blank-output rejection, cleanup via defer.
 //                                          Steps 6-8 reuse runSession and add nothing to it.
 // Step 6  Prove the structure ............ call FormatValidation(ValidateExhibit(exhibit)).
 // Step 7  Wikipedia research ............. add researchConfig() with WikipediaServer() plus

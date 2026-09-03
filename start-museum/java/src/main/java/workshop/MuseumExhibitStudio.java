@@ -6,8 +6,10 @@ package workshop;
 // they are the application-owned half of the workshop, and they must stay identical to the
 // finished app's copy. Everything below is yours to write, one lesson at a time.
 //
-// Step 1  First curator session .......... create the CopilotClient, create a session, send a
-//                                          prompt, print the reply, then close and stop.
+// Step 1  First curator session .......... create the CopilotClient, create a session with
+//                                          .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
+//                                          so requests get an answer, send a prompt, print the
+//                                          reply, then close and stop.
 // Step 2  Stream the curator ............. swap the blocking send for CuratorStreamer.streamExhibit
 //                                          so tokens and [tool:start] / [tool:done] events print
 //                                          live.
@@ -21,10 +23,11 @@ package workshop;
 //                                          CuratorFacts.APPROVED_FACT_LOOKUP_NAME)); the prompt
 //                                          tells the curator to call approved_fact_lookup first.
 // Step 5  Set the guardrails ............. add generationConfig() and the single runSession()
-//                                          lifecycle function: one-tool allowlist, generation
-//                                          timeout, blank-output rejection, cleanup in nested
-//                                          `finally` blocks. Steps 6-8 reuse runSession and add
-//                                          nothing to it.
+//                                          lifecycle function: one-tool allowlist, the Step 1
+//                                          permission handler carried forward, generation timeout,
+//                                          blank-output rejection, cleanup in nested `finally`
+//                                          blocks. Steps 6-8 reuse runSession and add nothing
+//                                          to it.
 // Step 6  Prove the structure ............ call CuratorValidation.formatValidation(
 //                                              CuratorValidation.validateExhibit(exhibit)).
 // Step 7  Wikipedia research ............. add researchConfig() with CuratorSafety.wikipediaServer()

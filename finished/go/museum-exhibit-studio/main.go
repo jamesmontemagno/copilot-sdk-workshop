@@ -106,11 +106,12 @@ func generationConfig(workingDirectory string, approvedFacts []string) (*copilot
 	}
 
 	return &copilot.SessionConfig{
-		ClientName:     "museum-exhibit-studio",
-		Model:          selectedModel(),
-		Tools:          []copilot.Tool{lookup},
-		AvailableTools: []string{ApprovedFactLookupName},
-		Streaming:      copilot.Bool(true),
+		ClientName:          "museum-exhibit-studio",
+		Model:               selectedModel(),
+		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
+		Tools:               []copilot.Tool{lookup},
+		AvailableTools:      []string{ApprovedFactLookupName},
+		Streaming:           copilot.Bool(true),
 		SystemMessage: &copilot.SystemMessageConfig{
 			Mode:    "replace",
 			Content: systemMessage,

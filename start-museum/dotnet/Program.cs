@@ -4,8 +4,10 @@
 // application-owned half of the workshop, and they must stay identical to the finished app's copy.
 // Everything below is yours to write, one lesson at a time.
 //
-// Step 1  First curator session .......... create the CopilotClient, create a session, send a
-//                                          prompt, print the reply, then dispose and stop.
+// Step 1  First curator session .......... create the CopilotClient, create a session with
+//                                          OnPermissionRequest = PermissionHandler.ApproveAll so
+//                                          requests get an answer, send a prompt, print the reply,
+//                                          then dispose and stop.
 // Step 2  Stream the curator ............. swap the blocking send for
 //                                          CuratorStreamer.StreamExhibitAsync so tokens and
 //                                          [tool:start] / [tool:done] events print live.
@@ -18,8 +20,9 @@
 //                                          [CuratorFacts.ApprovedFactLookupName]; the prompt tells
 //                                          the curator to call approved_fact_lookup first.
 // Step 5  Set the guardrails ............. add GenerationConfig() and the single RunSessionAsync()
-//                                          lifecycle function: one-tool allowlist, generation
-//                                          timeout, blank-output rejection, cleanup in `finally`.
+//                                          lifecycle function: one-tool allowlist, the Step 1
+//                                          permission handler carried forward, generation timeout,
+//                                          blank-output rejection, cleanup in `finally`.
 //                                          Steps 6-8 reuse RunSessionAsync and add nothing to it.
 // Step 6  Prove the structure ............ call
 //                                          CuratorValidation.FormatValidation(

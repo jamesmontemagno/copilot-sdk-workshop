@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
+use github_copilot_sdk::permission;
 use github_copilot_sdk::types::{SessionConfig, SystemMessageConfig};
 use github_copilot_sdk::{Client, ClientOptions, IndexMap};
 use museum_exhibit_studio::{
@@ -109,7 +110,7 @@ fn selected_model() -> Option<String> {
 }
 
 fn generation_config(approved_facts: &[String]) -> Result<SessionConfig, FactBoundsError> {
-    let mut config = SessionConfig::default();
+    let mut config = SessionConfig::default().with_permission_handler(permission::approve_all());
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.model = selected_model();
     config.tools = Some(vec![approved_fact_lookup(approved_facts)?]);

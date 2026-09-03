@@ -1,4 +1,4 @@
-import { CopilotClient, type SessionConfig } from "@github/copilot-sdk";
+import { approveAll, CopilotClient, type SessionConfig } from "@github/copilot-sdk";
 import {
   approvedFactLookupName,
   askLine,
@@ -106,6 +106,7 @@ function generationConfig(approvedFacts: Iterable<string>): SessionConfig {
   return {
     clientName: "museum-exhibit-studio",
     model: selectedModel(),
+    onPermissionRequest: approveAll,
     tools: [createApprovedFactLookup(approvedFacts)],
     availableTools: [approvedFactLookupName],
     streaming: true,

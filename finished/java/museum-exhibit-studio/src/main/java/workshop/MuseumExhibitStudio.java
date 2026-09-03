@@ -198,12 +198,10 @@ public final class MuseumExhibitStudio {
     private static SessionConfig generationConfig(Iterable<String> approvedFacts) {
         SessionConfig config = new SessionConfig()
                 .setClientName("museum-exhibit-studio")
+                .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
                 .setTools(List.of(CuratorFacts.approvedFactLookup(approvedFacts)))
                 .setAvailableTools(List.of(CuratorFacts.APPROVED_FACT_LOOKUP_NAME))
                 .setStreaming(true)
-                .setOnPermissionRequest((request, invocation) -> CompletableFuture.completedFuture(
-                        PermissionRequestResult.reject(
-                                "This session permits only the application's approved fact tool.")))
                 .setSystemMessage(new SystemMessageConfig()
                         .setMode(SystemMessageMode.REPLACE)
                         .setContent(SYSTEM_MESSAGE));

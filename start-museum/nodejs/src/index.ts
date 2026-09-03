@@ -4,8 +4,10 @@
 // application-owned half of the workshop, and it must stay identical to the finished app's copy.
 // Everything below is yours to write, one lesson at a time.
 //
-// Step 1  First curator session .......... create the CopilotClient, create a session, send a
-//                                          prompt, print the reply, then disconnect and stop.
+// Step 1  First curator session .......... create the CopilotClient, create a session with
+//                                          onPermissionRequest: approveAll so requests get an
+//                                          answer, send a prompt, print the reply, then
+//                                          disconnect and stop.
 // Step 2  Stream the curator ............. swap the blocking send for streamExhibit() so tokens
 //                                          and [tool:start] / [tool:done] events print live.
 // Step 3  Curator voice .................. add `const systemMessage = ...` here and pass it as
@@ -16,8 +18,9 @@
 //                                          availableTools: [approvedFactLookupName]; the prompt
 //                                          tells the curator to call approved_fact_lookup first.
 // Step 5  Set the guardrails ............. add generationConfig() and the single runSession()
-//                                          lifecycle function: one-tool allowlist, generation
-//                                          timeout, blank-output rejection, cleanup in `finally`.
+//                                          lifecycle function: one-tool allowlist, the Step 1
+//                                          permission handler carried forward, generation timeout,
+//                                          blank-output rejection, cleanup in `finally`.
 //                                          Steps 6-8 reuse runSession() and add nothing to it.
 // Step 6  Prove the structure ............ call formatValidation(validateExhibit(exhibit)).
 // Step 7  Wikipedia research ............. add researchConfig() with the scoped Wikipedia MCP
