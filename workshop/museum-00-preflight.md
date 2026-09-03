@@ -71,17 +71,8 @@ dotnet run --no-build
 Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in Helpers/.`
 
-You work in `start-museum/dotnet` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-museum/dotnet`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-museum/dotnet` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Your helper module is `Helpers/Curator*.cs` in the `MuseumExhibitStudio.Helpers` namespace. You
 will write every lesson change in `Program.cs`.
@@ -101,17 +92,8 @@ npm start
 Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in src/curator.ts.`
 
-You work in `start-museum/nodejs` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-museum/nodejs`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-museum/nodejs` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Your helper module is `src/curator.ts`. You will write every lesson change in `src/index.ts`.
 :::
@@ -132,17 +114,8 @@ On Windows, the interpreter lives at `.venv/Scripts/python.exe`.
 Pass condition: the source compiles and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in curator.py.`
 
-You work in `start-museum/python` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-museum/python`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-museum/python` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Your helper module is `curator.py`. You will write every lesson change in `main.py`.
 :::
@@ -160,17 +133,8 @@ go run .
 Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in curator.go.`
 
-You work in `start-museum/go` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-museum/go`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-museum/go` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Your helper module is `curator.go`, in the same `main` package. You will write every lesson
 change in `main.go`.
@@ -190,17 +154,8 @@ Pass condition: Cargo leaves `Cargo.lock` unchanged and the program prints
 `=== Museum Exhibit Studio starter ===` followed by
 `Pre-built curator helpers are ready in src/lib.rs.`
 
-You work in `start-museum/rust` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-museum/rust`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-museum/rust` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Your helper module is the `museum_exhibit_studio` library crate in `src/lib.rs`. You will write
 every lesson change in `src/main.rs`.
@@ -219,17 +174,8 @@ mvn exec:java
 Pass condition: Maven succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in src/main/java/workshop/.`
 
-You work in `start-museum/java` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-museum/java`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-museum/java` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Your helper module is `src/main/java/workshop/Curator*.java`. You will write every lesson change
 in `src/main/java/workshop/MuseumExhibitStudio.java`.
