@@ -467,3 +467,17 @@ Complete references:
 
 If the runtime is unavailable, install the Copilot CLI; do not replace Maven with JBang or Gradle.
 :::
+
+## Learn more
+
+The workshop application runs on your machine. These pages cover what changes when the same design
+moves somewhere else.
+
+- [Backend services](https://github.com/github/copilot-sdk/blob/main/docs/setup/backend-services.md):
+  running the SDK server-side against a headless CLI instead of a local one.
+- [Scaling and multi-tenancy](https://github.com/github/copilot-sdk/blob/main/docs/setup/scaling.md):
+  horizontal scaling and the isolation patterns that keep one user's session out of another's.
+- [OpenTelemetry instrumentation](https://github.com/github/copilot-sdk/blob/main/docs/observability/opentelemetry.md):
+  tracing tool calls and turns once the agent runs where you cannot watch the terminal.
+- [Microsoft Agent Framework integration](https://github.com/github/copilot-sdk/blob/main/docs/integrations/microsoft-agent-framework.md):
+  placing a Copilot session inside a larger multi-agent workflow.

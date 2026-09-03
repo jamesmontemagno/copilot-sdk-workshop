@@ -10,9 +10,10 @@ session configuration and prints the completed assistant message returned by `se
 
 ## How streaming changes the experience
 
-**Streaming** does not change the answer. It changes when an application that subscribes to the
-event stream receives it. Instead of waiting for one completed message, the session emits events
-throughout the turn:
+[**Streaming**](https://github.com/github/copilot-sdk/blob/main/docs/features/streaming-events.md)
+does not change the answer. It changes when an application that subscribes to the event stream
+receives it. Instead of waiting for one completed message, the session emits events throughout the
+turn:
 
 - Assistant message delta events contain each new piece of response text.
 - The completed assistant message event contains the full message.
@@ -953,5 +954,14 @@ Use a completed-response send for background work or simple request/response cod
 need progressive output or intermediate events.
 
 </details>
+
+## Learn more
+
+- [Steering and queueing](https://github.com/github/copilot-sdk/blob/main/docs/features/steering-and-queueing.md):
+  sending another message while a turn is still running, either to redirect it or to queue work.
+- [Session limits](https://github.com/github/copilot-sdk/blob/main/docs/features/session-limits.md):
+  putting an AI Credits budget on a session before it starts producing tokens.
+- [Usage and billing metrics](https://github.com/github/copilot-sdk/blob/main/docs/features/usage-and-billing.md):
+  reading token counts, context-window use, and cost from the same event stream.
 
 Continue to [Step 3: Add application-owned knowledge](03-local-tool.md).

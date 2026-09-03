@@ -11,8 +11,9 @@ prompt, and print the response.
 ## Meet the GitHub Copilot SDK and runtime
 
 The **GitHub Copilot SDK** is the .NET API your application uses to run Copilot as an agent. The
-**Copilot runtime** receives prompts, calls models, and manages tools. `CopilotClient` connects your
-C# code to that runtime.
+[**Copilot runtime**](https://github.com/github/copilot-sdk/blob/main/docs/features/agent-loop.md)
+receives prompts, calls models, and manages tools. `CopilotClient` connects your C# code to that
+runtime.
 
 A `CopilotSession` represents one continuing conversation. It holds the messages and tool results
 that make up the conversation's context. Keep one client alive for the application, then create a
@@ -30,8 +31,9 @@ At this point, the console app is simply `CopilotClient -> CopilotSession -> mod
 ## Meet the GitHub Copilot SDK and runtime
 
 The **GitHub Copilot SDK** is the Node.js API your application uses to run Copilot as an agent. The
-**Copilot runtime** receives prompts, calls models, and manages tools. `CopilotClient` connects your
-TypeScript code to that runtime.
+[**Copilot runtime**](https://github.com/github/copilot-sdk/blob/main/docs/features/agent-loop.md)
+receives prompts, calls models, and manages tools. `CopilotClient` connects your TypeScript code to
+that runtime.
 
 A session from `createSession` represents one continuing conversation. It holds the messages and
 tool results that make up the conversation's context. Keep one client alive for the application,
@@ -49,8 +51,9 @@ At this point, the console app is simply `CopilotClient -> session -> model resp
 ## Meet the GitHub Copilot SDK and runtime
 
 The **GitHub Copilot SDK** is the Python API your application uses to run Copilot as an agent. The
-**Copilot runtime** receives prompts, calls models, and manages tools. `CopilotClient` connects your
-Python code to that runtime.
+[**Copilot runtime**](https://github.com/github/copilot-sdk/blob/main/docs/features/agent-loop.md)
+receives prompts, calls models, and manages tools. `CopilotClient` connects your Python code to
+that runtime.
 
 A session from `create_session` represents one continuing conversation. It holds the messages and
 tool results that make up the conversation's context. Keep one client alive for the application,
@@ -68,8 +71,9 @@ At this point, the console app is simply `CopilotClient -> session -> model resp
 ## Meet the GitHub Copilot SDK and runtime
 
 The **GitHub Copilot SDK** is the Go API your application uses to run Copilot as an agent. The
-**Copilot runtime** receives prompts, calls models, and manages tools. `copilot.NewClient` connects
-your Go code to that runtime.
+[**Copilot runtime**](https://github.com/github/copilot-sdk/blob/main/docs/features/agent-loop.md)
+receives prompts, calls models, and manages tools. `copilot.NewClient` connects your Go code to
+that runtime.
 
 A session from `CreateSession` represents one continuing conversation. It holds the messages and
 tool results that make up the conversation's context. Keep one client alive for the application,
@@ -87,8 +91,9 @@ At this point, the console app is simply `Client -> Session -> model response`.
 ## Meet the GitHub Copilot SDK and runtime
 
 The **GitHub Copilot SDK** is the Rust API your application uses to run Copilot as an agent. The
-**Copilot runtime** receives prompts, calls models, and manages tools. `Client` connects your Rust
-code to that runtime.
+[**Copilot runtime**](https://github.com/github/copilot-sdk/blob/main/docs/features/agent-loop.md)
+receives prompts, calls models, and manages tools. `Client` connects your Rust code to that
+runtime.
 
 A session from `create_session` represents one continuing conversation. It holds the messages and
 tool results that make up the conversation's context. Keep one client alive for the application,
@@ -106,8 +111,9 @@ At this point, the console app is simply `Client -> session -> model response`.
 ## Meet the GitHub Copilot SDK and runtime
 
 The **GitHub Copilot SDK** is the Java API your application uses to run Copilot as an agent. The
-**Copilot runtime** receives prompts, calls models, and manages tools. `CopilotClient` connects your
-Java code to that runtime.
+[**Copilot runtime**](https://github.com/github/copilot-sdk/blob/main/docs/features/agent-loop.md)
+receives prompts, calls models, and manages tools. `CopilotClient` connects your Java code to that
+runtime.
 
 A session from `createSession` represents one continuing conversation. It holds the messages and
 tool results that make up the conversation's context. Keep one client alive for the application,
@@ -720,5 +726,16 @@ public final class AccessibilityReport {
 ```
 </details>
 :::
+
+## Learn more
+
+- [Build your first Copilot-powered app](https://docs.github.com/en/copilot/how-tos/copilot-sdk/getting-started):
+  GitHub's tutorial for the same first client, session, and prompt.
+- [Session resume and persistence](https://github.com/github/copilot-sdk/blob/main/docs/features/session-persistence.md):
+  how a session's conversation state is kept, and how to resume it after a restart.
+- [Context clearing](https://github.com/github/copilot-sdk/blob/main/docs/features/context-management.md):
+  replacing the conversation inside a session without creating a new one.
+- [Authentication](https://github.com/github/copilot-sdk/blob/main/docs/auth/README.md):
+  the credentials a client can use once you move past `copilot login`.
 
 Continue to [Step 2: Stream a response](02-streaming.md).

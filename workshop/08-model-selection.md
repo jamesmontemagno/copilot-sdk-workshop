@@ -10,6 +10,11 @@ session.
 
 ## How model selection works
 
+A **model** is the specific large language model the runtime sends each turn to. The
+[models available through GitHub Copilot](https://docs.github.com/en/copilot/reference/ai-models/supported-models)
+change over time and differ by account, so an application asks the runtime which ones it may use
+instead of hard-coding a name.
+
 :::language dotnet
 The Copilot runtime may expose more than one model. `ListModelsAsync` returns the models available
 for the current account. `SessionConfig.Model` selects one when you create a session.
@@ -672,6 +677,15 @@ Model selection is configuration rather than a core agent concept. Leaving it un
 you to a useful Copilot response sooner and keeps the first lesson focused on clients and sessions.
 
 </details>
+
+## Learn more
+
+- [Bring your own key](https://github.com/github/copilot-sdk/blob/main/docs/auth/byok.md):
+  pointing a session at your own OpenAI, Azure, or Anthropic credentials and models.
+- [SDK and CLI compatibility](https://github.com/github/copilot-sdk/blob/main/docs/troubleshooting/compatibility.md):
+  which options each SDK exposes, including model listing and system messages.
+- [Azure managed identity](https://github.com/github/copilot-sdk/blob/main/docs/setup/azure-managed-identity.md):
+  reaching Microsoft Foundry models without storing a key in the application.
 
 Continue to [Optional: Generate an interactive HTML report](09-interactive-html-report.md), or return
 to [Step 7: Run and explain the application](07-run-explain.md).

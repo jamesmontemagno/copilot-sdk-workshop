@@ -1562,4 +1562,13 @@ public final class AccessibilityReport {
 </details>
 :::
 
+## Learn more
+
+- [Custom agents](https://github.com/github/copilot-sdk/blob/main/docs/features/custom-agents.md):
+  giving a specialized sub-agent its own prompt and its own narrower set of tools.
+- [Fleet mode](https://github.com/github/copilot-sdk/blob/main/docs/features/fleet-mode.md):
+  dispatching sub-agents in parallel when the work genuinely divides.
+- [Hooks overview](https://github.com/github/copilot-sdk/blob/main/docs/hooks/hooks-overview.md):
+  where each hook sits in a turn, which is where to add checks that span several tool calls.
+
 Continue to [Step 6: Produce a structured report](06-structured-report.md).

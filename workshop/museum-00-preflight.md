@@ -195,4 +195,48 @@ one application-owned tool. Model memory is not verified museum knowledge, and p
 not an authorization boundary: only the allowlist and the permission handler decide what the
 session may actually do.
 
+## Learn more
+
+The SDK behind the curator is documented outside this workshop. These pages are worth having open
+alongside it.
+
+- [GitHub Copilot SDK how-tos](https://docs.github.com/en/copilot/how-tos/copilot-sdk): GitHub's
+  own SDK documentation, including the prerequisites this preflight covers.
+- [Copilot SDK documentation map](https://github.com/github/copilot-sdk/blob/main/docs/README.md):
+  the index for setup, authentication, features, and troubleshooting.
+- [Default setup: the bundled CLI](https://github.com/github/copilot-sdk/blob/main/docs/setup/bundled-cli.md):
+  how the SDK locates and starts the Copilot CLI, and how to point it at a different binary.
+- [Debugging guide](https://github.com/github/copilot-sdk/blob/main/docs/troubleshooting/debugging.md):
+  the first place to look when a run fails before it produces any output.
+
+:::language dotnet
+- [.NET SDK reference](https://github.com/github/copilot-sdk/blob/main/dotnet/README.md):
+  package installation and a minimal example for the .NET SDK.
+:::
+
+:::language nodejs
+- [Node.js SDK reference](https://github.com/github/copilot-sdk/blob/main/nodejs/README.md):
+  package installation and a minimal example for the Node.js SDK.
+:::
+
+:::language python
+- [Python SDK reference](https://github.com/github/copilot-sdk/blob/main/python/README.md):
+  package installation and a minimal example for the Python SDK.
+:::
+
+:::language go
+- [Go SDK reference](https://github.com/github/copilot-sdk/blob/main/go/README.md):
+  module installation and a minimal example for the Go SDK.
+:::
+
+:::language rust
+- [Rust SDK reference](https://github.com/github/copilot-sdk/blob/main/rust/README.md):
+  crate installation and a minimal example for the Rust SDK.
+:::
+
+:::language java
+- [Java SDK reference](https://github.com/github/copilot-sdk/blob/main/java/README.md):
+  dependency coordinates and a minimal example for the Java SDK.
+:::
+
 Continue to [Your first curator session](museum-01-first-curator-session.md).

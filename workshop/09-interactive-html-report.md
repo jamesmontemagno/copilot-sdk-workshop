@@ -567,4 +567,13 @@ payload fields, so it must remain limited to a controlled local target.
 
 </details>
 
+## Learn more
+
+- [Pre-tool-use hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/pre-tool-use.md):
+  approving, denying, or rewriting a tool call before it runs, in code rather than in a prompt.
+- [Hooks reference](https://github.com/github/copilot-sdk/blob/main/docs/hooks/README.md):
+  every hook the SDK exposes, and the input each one receives.
+- [Local CLI setup](https://github.com/github/copilot-sdk/blob/main/docs/setup/local-cli.md):
+  controlling which CLI the SDK starts, which decides where a written file lands.
+
 Return to [Step 7: Run and explain the application](07-run-explain.md).

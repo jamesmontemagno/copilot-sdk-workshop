@@ -836,4 +836,13 @@ Put the real timeout back before you continue.
 - Blank output raises an error instead of printing an empty exhibit. Why is a loud failure the safer
   default here?
 
+## Learn more
+
+- [Session lifecycle hooks](https://github.com/github/copilot-sdk/blob/main/docs/hooks/session-lifecycle.md):
+  running your own code when a session starts and ends, alongside the cleanup you just wrote.
+- [Hook error handling](https://github.com/github/copilot-sdk/blob/main/docs/hooks/error-handling.md):
+  turning a failure inside a turn into a decision instead of a stack trace.
+- [Session limits](https://github.com/github/copilot-sdk/blob/main/docs/features/session-limits.md):
+  a budget guardrail that sits beside the timeout, capping what one session may spend.
+
 Continue to [Prove the structure](museum-06-prove-the-structure.md).
