@@ -25,7 +25,7 @@ up catalog guidance before it writes the HTML artifact.
 :::language dotnet
 ## Scope the .NET write permission
 
-Replace `CreateForTarget` in `workshop-app/Helpers/WorkshopPermissionHandler.cs`. The helper now
+Replace `CreateForTarget` in `Helpers/WorkshopPermissionHandler.cs`. The helper now
 also receives the application directory and permits only the one normalized report path:
 
 ```csharp
@@ -70,7 +70,7 @@ AvailableTools =
 ],
 ```
 
-Replace the body of `CreateReportPrompt` in `workshop-app/Helpers/Prompts.cs`:
+Replace the body of `CreateReportPrompt` in `Helpers/Prompts.cs`:
 
 ```csharp
 public static string CreateReportPrompt(Uri targetUri) => $"""
@@ -98,7 +98,7 @@ public static string CreateReportPrompt(Uri targetUri) => $"""
 :::language nodejs
 ## Scope the Node.js write permission
 
-In `workshop-app/src/workshop.ts`, replace `permissionForTarget` with a version that preserves
+In `src/workshop.ts`, replace `permissionForTarget` with a version that preserves
 exact navigation and adds only the normalized report path:
 
 ```typescript
@@ -119,7 +119,7 @@ export function permissionForTarget(target: URL, workingDirectory: string): Perm
 }
 ```
 
-In `workshop-app/src/report.ts`, pass the working directory to the handler and append the built-in
+In `src/report.ts`, pass the working directory to the handler and append the built-in
 tool to `availableTools`:
 
 ```typescript
@@ -132,7 +132,7 @@ availableTools: [
 ],
 ```
 
-Replace `reportPrompt` in `workshop-app/src/workshop.ts`:
+Replace `reportPrompt` in `src/workshop.ts`:
 
 ```typescript
 export function reportPrompt(target: URL): string {
@@ -159,7 +159,7 @@ Created accessibility-report.html`;
 :::language python
 ## Scope the Python write permission
 
-In `workshop-app/workshop.py`, replace `permission_for_target` with this path-aware version:
+In `workshop.py`, replace `permission_for_target` with this path-aware version:
 
 ```python
 def permission_for_target(target: str, working_directory: str):
@@ -179,7 +179,7 @@ def permission_for_target(target: str, working_directory: str):
     return handler
 ```
 
-In `workshop-app/report.py`, pass the current directory to the permission handler and append the
+In `report.py`, pass the current directory to the permission handler and append the
 source-qualified built-in tool:
 
 ```python
@@ -192,7 +192,7 @@ available_tools=[
 ],
 ```
 
-Replace `report_prompt` in `workshop-app/workshop.py`:
+Replace `report_prompt` in `workshop.py`:
 
 ```python
 def report_prompt(target: str) -> str:
@@ -218,7 +218,7 @@ Created accessibility-report.html"""
 :::language go
 ## Scope the Go write permission
 
-Replace `permissionForTarget` in `workshop-app/main.go`. The write branch resolves relative file
+Replace `permissionForTarget` in `main.go`. The write branch resolves relative file
 names against the application working directory, so a sibling or parent path is rejected:
 
 ```go
@@ -364,8 +364,7 @@ Created accessibility-report.html"#
 :::language java
 ## Scope the Java write permission
 
-In `workshop-app/src/main/java/workshop/AccessibilityReport.java`, add this helper beside
-`isExactNavigation`:
+In `src/main/java/workshop/AccessibilityReport.java`, add this helper beside `isExactNavigation`:
 
 ```java
 private static boolean isReportWrite(Map<String, Object> request, Path workingDirectory) {
@@ -497,32 +496,32 @@ private static String reportPrompt(URI target) {
 
 :::language dotnet
 ```bash
-cd workshop-app && dotnet run
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix workshop-app start -- "{{TARGET_APP_URL}}"
+npm start -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language python
 ```bash
-cd workshop-app && python main.py "{{TARGET_APP_URL}}"
+python main.py "{{TARGET_APP_URL}}"
 ```
 :::
 :::language go
 ```bash
-go -C workshop-app run . "{{TARGET_APP_URL}}"
+go run . "{{TARGET_APP_URL}}"
 ```
 :::
 :::language rust
 ```bash
-cd workshop-app && cargo run -- "{{TARGET_APP_URL}}"
+cargo run -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language java
 ```bash
-cd workshop-app && mvn compile exec:java -Dexec.args="--allow-local-demo-mcp --allow-local-demo-write {{TARGET_APP_URL}}"
+mvn compile exec:java -Dexec.args="--allow-local-demo-mcp --allow-local-demo-write {{TARGET_APP_URL}}"
 ```
 :::
 
@@ -533,7 +532,7 @@ Use the workshop target:
 ```
 
 The tool transcript should include the existing navigation, snapshot, and catalog calls plus an
-`apply_patch` write. Open `workshop-app/accessibility-report.html` in a browser. Type a word from a
+`apply_patch` write. Open `accessibility-report.html` in a browser. Type a word from a
 finding, WCAG criterion, or evidence line into the filter and confirm the visible cards and result
 count update.
 
@@ -549,7 +548,7 @@ count update.
 
 </details>
 
-> **The extension is complete when:** `workshop-app/accessibility-report.html` opens locally and
+> **The extension is complete when:** `accessibility-report.html` opens locally and
 > filters evidence-grounded findings. With the default exact handler, the session approves no other
 > file path; the Java local-demo write fallback deliberately cannot make that guarantee.
 

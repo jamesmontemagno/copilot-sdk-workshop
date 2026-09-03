@@ -28,7 +28,7 @@ a moment ago, so treat it the way you treated Wikipedia articles in Step 7.
 ## Add the HTML session
 
 :::language dotnet
-Open `museum-workshop-app/Program.cs`. Add the HTML configuration and prompt builder:
+Open `Program.cs`. Add the HTML configuration and prompt builder:
 
 ```csharp
 SessionConfig HtmlConfig(string workingDirectory) => new()
@@ -86,7 +86,7 @@ Offer the page at the end of the run, after the sources:
 :::
 
 :::language nodejs
-Open `museum-workshop-app/src/index.ts`. Add `exhibitFileName` and `exhibitWritePermission` to the
+Open `src/index.ts`. Add `exhibitFileName` and `exhibitWritePermission` to the
 helper import, then add the HTML configuration and prompt builder:
 
 ```typescript
@@ -136,7 +136,7 @@ Offer the page at the end of the run, after the sources:
 :::
 
 :::language python
-Open `museum-workshop-app/main.py`. Add `exhibit_write_permission` to the helper import and
+Open `main.py`. Add `exhibit_write_permission` to the helper import and
 `from pathlib import Path` to the top, then add the HTML configuration and prompt builder:
 
 ```python
@@ -188,7 +188,7 @@ Offer the page at the end of the run, after the sources:
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Add the HTML configuration and prompt builder:
+Open `main.go`. Add the HTML configuration and prompt builder:
 
 ```go
 func htmlConfig(workingDirectory string) *copilot.SessionConfig {
@@ -238,7 +238,7 @@ Offer the page at the end of `run`, after the sources:
 :::
 
 :::language rust
-Open `museum-workshop-app/src/main.rs`. Add `EXHIBIT_FILE_NAME` and `exhibit_write_permission` to
+Open `src/main.rs`. Add `EXHIBIT_FILE_NAME` and `exhibit_write_permission` to
 the crate import and `use std::path::PathBuf;` to the top, then add the HTML configuration and
 prompt builder:
 
@@ -293,7 +293,7 @@ Offer the page at the end of `run`, after the sources:
 :::
 
 :::language java
-Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Add these imports:
+Open `src/main/java/workshop/MuseumExhibitStudio.java`. Add these imports:
 
 ```java
 import com.github.copilot.rpc.PermissionHandler;
@@ -384,37 +384,37 @@ Read the flag at the top of `main`, warn loudly when it is on, and offer the pag
 
 :::language dotnet
 ```bash
-cd museum-workshop-app && dotnet run
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-cd museum-workshop-app && .venv/bin/python main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cd museum-workshop-app && cargo run
+cargo run
 ```
 :::
 :::language java
 ```bash
-cd museum-workshop-app && mvn compile exec:java
+mvn compile exec:java
 ```
 :::
 
 The write lands in the working directory the program is started from, so run it from inside
-`museum-workshop-app` for this step. Answer `y` at the last question:
+your starter directory for this step. Answer `y` at the last question:
 
 ```text
 Generate an interactive exhibit.html? [y/N]: y
@@ -425,7 +425,7 @@ Created exhibit.html
 Wrote exhibit.html. Open it in a browser to review the exhibit.
 ```
 
-Open `museum-workshop-app/exhibit.html`. You should see the exhibit title, the narrative, the three
+Open `exhibit.html`. You should see the exhibit title, the narrative, the three
 questions with a working filter and a live count, and the human-review caveat. Tab through the page:
 focus should be clearly visible on the filter and any interactive elements.
 
@@ -449,7 +449,7 @@ changed that outcome. Put the prompt back.
 - Your application now has three sessions with three different capability profiles. Describe each in
   one sentence, and say why they are not one session with the union of their permissions.
 
-You have finished Museum Exhibit Studio. Your `museum-workshop-app` now matches
+You have finished Museum Exhibit Studio. Your starter project now matches
 `finished/<language>/museum-exhibit-studio`: an educator picks approved facts, optionally researches
 them under a narrow allowlist, and gets grounded, structurally checked exhibit copy plus a
 publishable page — with every capability decided by your code rather than by a prompt.

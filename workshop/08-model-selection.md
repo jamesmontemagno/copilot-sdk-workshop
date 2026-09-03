@@ -76,7 +76,7 @@ Model selection configures `SessionConfig`. It does not replace the client or ei
 :::language dotnet
 ## Add a model picker
 
-Create `workshop-app/Helpers/ModelSelector.cs`:
+Create `Helpers/ModelSelector.cs`:
 
 ```csharp
 using GitHub.Copilot;
@@ -136,7 +136,7 @@ Do not remove the rest of the Step 6 session configuration.
 :::language nodejs
 ## Add a model picker
 
-Create `workshop-app/src/model-selector.ts`:
+Create `src/model-selector.ts`:
 
 ```typescript
 import type { CopilotClient } from "@github/copilot-sdk";
@@ -172,7 +172,7 @@ export async function selectModel(client: CopilotClient): Promise<string | undef
 }
 ```
 
-In `workshop-app/src/report.ts`, import the helper and call it after `client.start()`:
+In `src/report.ts`, import the helper and call it after `client.start()`:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -231,7 +231,7 @@ Keep every existing tool, MCP, and permission setting from Step 6. Only add `mod
 :::language python
 ## Add a model picker
 
-Create `workshop-app/model_selector.py`:
+Create `model_selector.py`:
 
 ```python
 from __future__ import annotations
@@ -262,7 +262,7 @@ async def select_model(client: CopilotClient) -> str | None:
     return selected.id
 ```
 
-In `workshop-app/report.py`, import the helper and pass `model=` into `create_session` without
+In `report.py`, import the helper and pass `model=` into `create_session` without
 removing the Step 6 tool configuration:
 
 ```python
@@ -349,14 +349,13 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-Keep launching through `python workshop-app/main.py` so the existing entrypoint still imports
-`report.main`.
+Keep launching through `python main.py` so the existing entrypoint still imports `report.main`.
 :::
 
 :::language go
 ## Add a model picker
 
-Add this helper near the top of `workshop-app/main.go` (or in a sibling file in the same package):
+Add this helper near the top of `main.go` (or in a sibling file in the same package):
 
 ```go
 func selectModel(ctx context.Context, client *copilot.Client) (string, error) {
@@ -429,7 +428,7 @@ Keep every existing tool, MCP, and permission setting from Step 6. Only add `Mod
 :::language rust
 ## Add a model picker
 
-Add this helper in `workshop-app/src/main.rs`:
+Add this helper in `src/main.rs`:
 
 ```rust
 async fn select_model(client: &Client) -> Result<Option<String>, Box<dyn std::error::Error>> {
@@ -507,7 +506,7 @@ Keep every existing tool, MCP, and permission setting from Step 6. Only add `con
 :::language java
 ## Add a model picker
 
-Create `workshop-app/src/main/java/workshop/ModelSelector.java`:
+Create `src/main/java/workshop/ModelSelector.java`:
 
 ```java
 package workshop;
@@ -559,7 +558,7 @@ public final class ModelSelector {
 }
 ```
 
-In `workshop-app/src/main/java/workshop/AccessibilityReport.java`, after `client.start().get()`,
+In `src/main/java/workshop/AccessibilityReport.java`, after `client.start().get()`,
 select a model and call `SessionConfig.setModel(selectedId)`:
 
 ```java
@@ -617,32 +616,32 @@ approves only the `mcp` kind and cannot prove the target URL.
 
 :::language dotnet
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix workshop-app start -- "{{TARGET_APP_URL}}"
+npm start -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language python
 ```bash
-python workshop-app/main.py "{{TARGET_APP_URL}}"
+python main.py "{{TARGET_APP_URL}}"
 ```
 :::
 :::language go
 ```bash
-go -C workshop-app run . "{{TARGET_APP_URL}}"
+go run . "{{TARGET_APP_URL}}"
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml -- "{{TARGET_APP_URL}}"
+cargo run -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language java
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
+mvn compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
 ```
 :::
 Enter the workshop target URL, then choose a model, and confirm the same scoped tools still run.

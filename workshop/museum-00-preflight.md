@@ -11,8 +11,8 @@ Museum Exhibit Studio turns educator-approved facts into visitor-ready exhibit c
 approved facts -> bounded prompt -> curator session -> structural checks -> human review
 ```
 
-You build one growing console application called `museum-workshop-app`. Each step adds one idea and
-ends with a real run, so the curator comes together in front of you:
+You build one growing console application in place, inside `start-museum/<language>`. Each
+step adds one idea and ends with a real run, so the curator comes together in front of you:
 
 | Step | You add | You see |
 |---|---|---|
@@ -31,142 +31,137 @@ with its deny-by-default permission handler, the single-file `exhibit.html` writ
 small terminal prompts. **You never edit the helper module.** You write the session setup, the two
 system messages, the prompt builders, one session runner, and `main`.
 
-You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal at the
-repository root. Start from the minimal project under `start-museum/<language>`, not the finished
-app. The completed project under `finished/<language>/museum-exhibit-studio` is optional reference
-material only.
+You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal. You work
+directly in the minimal project under `start-museum/<language>`, not the finished app. The completed
+project under `finished/<language>/museum-exhibit-studio` is optional reference material only.
 
-## Clone a clean workshop repository
-
-Start from a parent directory where `copilot-sdk-workshop` does not already exist:
+## Clone the workshop repository
 
 ```bash
 git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git
 cd copilot-sdk-workshop
 ```
 
-Confirm that the terminal is at the repository root, the clone has no local changes, and no learner
-project exists yet:
+Confirm the terminal is at the repository root before you change into a starter:
 
 ```bash
 test "$(git rev-parse --show-toplevel)" = "$PWD"
-test -z "$(git status --short)"
-test ! -e museum-workshop-app
 ```
 
-All three commands must exit successfully without output. If one fails, stop and use a fresh clone
-instead of deleting or overwriting an existing project. Keep this terminal at the repository root
-for every command in the museum workshop.
+The command must exit successfully without output.
+
+You build the museum application **in place**, inside the starter directory for your language.
+There is no copy step. That means you are editing tracked repository files, so your work shows up in
+`git status` as modified files. That is expected and correct. If you want to start over from a clean
+starter, run `git checkout -- .` from the repository root to discard your edits.
+
+Change into your language's starter directory now and stay there for every command in the museum
+workshop.
 
 :::language dotnet
-Copy the .NET starter, then restore, build, and run its local entrypoint:
+Change into the .NET starter, then restore, build, and run its local entrypoint:
 
 ```bash
-cp -R start-museum/dotnet museum-workshop-app
-dotnet restore museum-workshop-app
-dotnet build museum-workshop-app --no-restore
-dotnet run --project museum-workshop-app --no-build
+cd start-museum/dotnet
+dotnet restore
+dotnet build --no-restore
+dotnet run --no-build
 ```
 
 Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in Helpers/.`
 
-Your helper module is `museum-workshop-app/Helpers/Curator*.cs` in the
-`MuseumExhibitStudio.Helpers` namespace. You will write every lesson change in
-`museum-workshop-app/Program.cs`.
+Your helper module is `Helpers/Curator*.cs` in the `MuseumExhibitStudio.Helpers` namespace. You
+will write every lesson change in `Program.cs`.
 :::
 
 :::language nodejs
-Copy the Node.js starter. Its lockfile preserves SDK 1.0.11 and
+Change into the Node.js starter. Its lockfile preserves SDK 1.0.11 and
 the compatible `@github/copilot` 1.0.80 platform package:
 
 ```bash
-cp -R start-museum/nodejs museum-workshop-app
-npm --prefix museum-workshop-app ci --ignore-scripts --no-audit --fund=false
-npm --prefix museum-workshop-app run build
-npm --prefix museum-workshop-app start
+cd start-museum/nodejs
+npm ci --ignore-scripts --no-audit --fund=false
+npm run build
+npm start
 ```
 
 Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in src/curator.ts.`
 
-Your helper module is `museum-workshop-app/src/curator.ts`. You will write every lesson change in
-`museum-workshop-app/src/index.ts`.
+Your helper module is `src/curator.ts`. You will write every lesson change in `src/index.ts`.
 :::
 
 :::language python
-Copy the Python starter, create an isolated virtual environment, and install SDK 1.0.11:
+Change into the Python starter, create an isolated virtual environment, and install SDK 1.0.11:
 
 ```bash
-cp -R start-museum/python museum-workshop-app
-python3 -m venv museum-workshop-app/.venv
-museum-workshop-app/.venv/bin/python -m pip install -r museum-workshop-app/requirements.txt
-museum-workshop-app/.venv/bin/python -m py_compile museum-workshop-app/*.py
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+cd start-museum/python
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m py_compile *.py
+.venv/bin/python main.py
 ```
 
-On Windows, the interpreter lives at `museum-workshop-app/.venv/Scripts/python.exe`.
+On Windows, the interpreter lives at `.venv/Scripts/python.exe`.
 
 Pass condition: the source compiles and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in curator.py.`
 
-Your helper module is `museum-workshop-app/curator.py`. You will write every lesson change in
-`museum-workshop-app/main.py`.
+Your helper module is `curator.py`. You will write every lesson change in `main.py`.
 :::
 
 :::language go
-Copy the Go starter, download the locked SDK 1.0.11 dependency, and build it:
+Change into the Go starter, download the locked SDK 1.0.11 dependency, and build it:
 
 ```bash
-cp -R start-museum/go museum-workshop-app
-go -C museum-workshop-app mod download
-go -C museum-workshop-app build -mod=readonly ./...
-go -C museum-workshop-app run .
+cd start-museum/go
+go mod download
+go build -mod=readonly ./...
+go run .
 ```
 
 Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in curator.go.`
 
-Your helper module is `museum-workshop-app/curator.go`, in the same `main` package. You will write
-every lesson change in `museum-workshop-app/main.go`.
+Your helper module is `curator.go`, in the same `main` package. You will write every lesson
+change in `main.go`.
 :::
 
 :::language rust
-Copy the Rust starter, fetch locked dependencies, and check it:
+Change into the Rust starter, fetch locked dependencies, and check it:
 
 ```bash
-cp -R start-museum/rust museum-workshop-app
-cargo fetch --manifest-path museum-workshop-app/Cargo.toml --locked
-cargo check --manifest-path museum-workshop-app/Cargo.toml --locked
-cargo run --manifest-path museum-workshop-app/Cargo.toml --locked
+cd start-museum/rust
+cargo fetch --locked
+cargo check --locked
+cargo run --locked
 ```
 
 Pass condition: Cargo leaves `Cargo.lock` unchanged and the program prints
 `=== Museum Exhibit Studio starter ===` followed by
 `Pre-built curator helpers are ready in src/lib.rs.`
 
-Your helper module is the `museum_exhibit_studio` library crate in `museum-workshop-app/src/lib.rs`.
-You will write every lesson change in `museum-workshop-app/src/main.rs`.
+Your helper module is the `museum_exhibit_studio` library crate in `src/lib.rs`. You will write
+every lesson change in `src/main.rs`.
 :::
 
 :::language java
-Copy the Maven starter, resolve SDK 1.0.11, compile, and run it:
+Change into the Maven starter, resolve SDK 1.0.11, compile, and run it:
 
 ```bash
-cp -R start-museum/java museum-workshop-app
-mvn -f museum-workshop-app/pom.xml dependency:go-offline
-mvn -f museum-workshop-app/pom.xml compile
-mvn -f museum-workshop-app/pom.xml exec:java
+cd start-museum/java
+mvn dependency:go-offline
+mvn compile
+mvn exec:java
 ```
 
 Pass condition: Maven succeeds and the program prints `=== Museum Exhibit Studio starter ===`
 followed by `Pre-built curator helpers are ready in src/main/java/workshop/.`
 
-Your helper module is `museum-workshop-app/src/main/java/workshop/Curator*.java`. You will write
-every lesson change in `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`.
+Your helper module is `src/main/java/workshop/Curator*.java`. You will write every lesson change
+in `src/main/java/workshop/MuseumExhibitStudio.java`.
 :::
-
-On Windows, replace `cp -R` with `Copy-Item -Recurse`.
 
 ## Establish the trust boundary
 

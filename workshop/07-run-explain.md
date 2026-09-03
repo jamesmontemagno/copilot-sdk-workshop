@@ -186,32 +186,32 @@ application you built.
 
 :::language dotnet
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix workshop-app start -- "{{TARGET_APP_URL}}"
+npm start -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language python
 ```bash
-python workshop-app/main.py "{{TARGET_APP_URL}}"
+python main.py "{{TARGET_APP_URL}}"
 ```
 :::
 :::language go
 ```bash
-go -C workshop-app run . "{{TARGET_APP_URL}}"
+go run . "{{TARGET_APP_URL}}"
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml -- "{{TARGET_APP_URL}}"
+cargo run -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language java
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
+mvn compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
 ```
 
 > **Java local-demo warning:** This explicit flag is a temporary workaround for

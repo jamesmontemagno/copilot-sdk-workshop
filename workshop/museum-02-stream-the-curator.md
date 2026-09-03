@@ -25,7 +25,7 @@ text to inspect after the stream ends.
 ## Swap the blocking call for the streamer
 
 :::language dotnet
-Replace the entire contents of `museum-workshop-app/Program.cs`:
+Replace the entire contents of `Program.cs`:
 
 ```csharp
 using GitHub.Copilot;
@@ -56,7 +56,7 @@ edit it.
 :::
 
 :::language nodejs
-Replace the entire contents of `museum-workshop-app/src/index.ts`:
+Replace the entire contents of `src/index.ts`:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -90,7 +90,7 @@ Two changes: `streaming: true` on the session config, and `streamExhibit` in pla
 :::
 
 :::language python
-Replace the entire contents of `museum-workshop-app/main.py`:
+Replace the entire contents of `main.py`:
 
 ```python
 import asyncio
@@ -125,7 +125,7 @@ The whole event listener from Step 1 collapses into one call. `stream_exhibit` l
 :::
 
 :::language go
-Replace the entire contents of `museum-workshop-app/main.go`:
+Replace the entire contents of `main.go`:
 
 ```go
 package main
@@ -173,7 +173,7 @@ and you never edit that file.
 :::
 
 :::language rust
-Replace the entire contents of `museum-workshop-app/src/main.rs`:
+Replace the entire contents of `src/main.rs`:
 
 ```rust
 use github_copilot_sdk::types::SessionConfig;
@@ -210,8 +210,7 @@ Both `stream_exhibit` and `GENERATION_TIMEOUT` come from the `museum_exhibit_stu
 :::
 
 :::language java
-Replace the entire contents of
-`museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`:
+Replace the entire contents of `src/main/java/workshop/MuseumExhibitStudio.java`:
 
 ```java
 package workshop;
@@ -253,32 +252,32 @@ edit it.
 
 :::language dotnet
 ```bash
-dotnet run --project museum-workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 

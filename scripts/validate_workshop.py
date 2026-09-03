@@ -64,104 +64,124 @@ ENTRYPOINTS = {
 }
 LESSON_TRACK_MARKERS = {
     "dotnet": (
-        "workshop-app/Program.cs",
-        "workshop-app/Helpers/",
+        "Program.cs",
+        "Helpers/",
         "dotnet run",
         "```csharp",
         "finished/dotnet/",
     ),
     "nodejs": (
-        "workshop-app/src/index.ts",
-        "workshop-app/src/workshop.ts",
-        "npm --prefix workshop-app",
+        "src/index.ts",
+        "src/workshop.ts",
+        "npm start",
         "```typescript",
         "finished/nodejs/",
     ),
     "python": (
-        "workshop-app/main.py",
-        "workshop-app/workshop.py",
-        "python workshop-app/main.py",
+        "main.py",
+        "workshop.py",
+        "python main.py",
         "```python",
         "finished/python/",
     ),
     "go": (
-        "workshop-app/main.go",
-        "go -C workshop-app",
+        "main.go",
+        "go run .",
         "```go",
         "finished/go/",
     ),
     "rust": (
-        "workshop-app/src/main.rs",
-        "cargo run --manifest-path workshop-app/Cargo.toml",
+        "src/main.rs",
+        "cargo run",
         "```rust",
         "finished/rust/",
     ),
     "java": (
-        "workshop-app/src/main/java/",
-        "mvn -f workshop-app/pom.xml",
+        "src/main/java/",
+        "mvn compile",
         "```java",
         "finished/java/",
     ),
 }
 STEP_3_TRACK_MARKERS = {
-    "dotnet": ("AccessibilityRuleCatalog.cs", "CopilotTool.DefineTool", "dotnet run --project workshop-app"),
-    "nodejs": ("src/workshop.ts", 'defineTool("accessibility_rule_lookup"', "npm --prefix workshop-app start"),
-    "python": ("workshop.py", '@define_tool(', "python workshop-app/main.py"),
-    "go": ("main.go", "copilot.DefineTool(", "go -C workshop-app run ."),
-    "rust": ("src/main.rs", 'Tool::new("accessibility_rule_lookup")', "cargo run --manifest-path workshop-app/Cargo.toml"),
-    "java": ("AccessibilityReport.java", "ToolDefinition.from(", "mvn -f workshop-app/pom.xml compile exec:java"),
+    "dotnet": ("AccessibilityRuleCatalog.cs", "CopilotTool.DefineTool", "dotnet run"),
+    "nodejs": ("src/workshop.ts", 'defineTool("accessibility_rule_lookup"', "npm start"),
+    "python": ("workshop.py", '@define_tool(', "python main.py"),
+    "go": ("main.go", "copilot.DefineTool(", "go run ."),
+    "rust": ("src/main.rs", 'Tool::new("accessibility_rule_lookup")', "cargo run"),
+    "java": ("AccessibilityReport.java", "ToolDefinition.from(", "mvn compile exec:java"),
 }
+# Every command runs from inside the starter directory the learner already sits in.
+# No lesson may reintroduce a copied sibling project.
 RUN_COMMAND_MARKERS = {
-    "dotnet": "dotnet run --project workshop-app",
-    "nodejs": "npm --prefix workshop-app start",
-    "python": "python workshop-app/main.py",
-    "go": "go -C workshop-app run .",
-    "rust": "cargo run --manifest-path workshop-app/Cargo.toml",
-    "java": "mvn -f workshop-app/pom.xml compile exec:java",
+    "dotnet": "dotnet run",
+    "nodejs": "npm start",
+    "python": "python main.py",
+    "go": "go run .",
+    "rust": "cargo run",
+    "java": "mvn compile exec:java",
 }
 STEP_9_RUN_COMMAND_MARKERS = {
-    "dotnet": "cd workshop-app && dotnet run",
-    "nodejs": "npm --prefix workshop-app start",
-    "python": "cd workshop-app && python main.py",
-    "go": "go -C workshop-app run .",
-    "rust": "cd workshop-app && cargo run --",
-    "java": "cd workshop-app && mvn compile exec:java",
+    "dotnet": "dotnet run",
+    "nodejs": "npm start",
+    "python": "python main.py",
+    "go": "go run .",
+    "rust": "cargo run --",
+    "java": "mvn compile exec:java",
 }
 MUSEUM_COMMAND_MARKERS = {
     "dotnet": (
-        "dotnet run --project museum-workshop-app",
-        "cd museum-workshop-app && dotnet run",
+        "dotnet run",
     ),
     "nodejs": (
-        "npm --prefix museum-workshop-app start",
+        "npm start",
     ),
     "python": (
-        "museum-workshop-app/.venv/bin/python museum-workshop-app/main.py",
-        "cd museum-workshop-app && .venv/bin/python main.py",
+        ".venv/bin/python main.py",
     ),
     "go": (
-        "go -C museum-workshop-app run .",
+        "go run .",
     ),
     "rust": (
-        "cargo run --manifest-path museum-workshop-app/Cargo.toml",
-        "cd museum-workshop-app && cargo run",
+        "cargo run",
     ),
     "java": (
-        "mvn -f museum-workshop-app/pom.xml compile exec:java",
-        "cd museum-workshop-app && mvn compile exec:java",
+        "mvn compile exec:java",
     ),
 }
+MUSEUM_ENTRYPOINTS = {
+    "dotnet": "Program.cs",
+    "nodejs": "src/index.ts",
+    "python": "main.py",
+    "go": "main.go",
+    "rust": "src/main.rs",
+    "java": "src/main/java/workshop/MuseumExhibitStudio.java",
+}
+# The learner grows one project in place. Nothing may scaffold or copy a second one.
+SECOND_PROJECT_MARKERS = (
+    "cp -R start-",
+    "Copy-Item -Recurse start-",
+    "dotnet new console",
+    "cargo new ",
+    "go mod init",
+    "npm init ",
+    "mvn archetype:generate",
+)
+IN_PLACE_FORBIDDEN_MARKERS = (
+    "workshop-app",
+    "museum-workshop-app",
+)
 MUSEUM_FORBIDDEN_LESSON_MARKERS = (
     "museum-07-guides",
-    "dotnet test museum-workshop-app",
-    "npm --prefix museum-workshop-app test",
-    "go -C museum-workshop-app test",
-    "cargo test --manifest-path museum-workshop-app",
-    "mvn -f museum-workshop-app/pom.xml test",
+    "dotnet test",
+    "npm test",
+    "go test",
+    "cargo test",
+    "mvn test",
     "python -m unittest",
     "unittest",
     "mock-wikipedia",
-    "museum-workshop-app/tests",
+    "tests/",
     "src/test/java",
     "checkpoints/",
     "samples/",
@@ -198,8 +218,8 @@ PROCEDURE_MARKERS = {
     },
     "04-mcp-safety.md": {
         "dotnet": "McpStdioServerConfig",
-        "nodejs": "workshop-app/src/index.ts",
-        "python": "workshop-app/main.py",
+        "nodejs": "src/index.ts",
+        "python": "main.py",
         "go": "MCPStdioServerConfig",
             "rust": 'tools: Some(vec!["browser_navigate"',
             "java": '.setTools(List.of("browser_navigate"))',
@@ -302,15 +322,15 @@ PROCEDURE_MARKERS = {
     },
 }
 UNSCOPED_TRACK_MARKERS = (
-    "workshop-app/Program.cs",
-    "workshop-app/Helpers/",
-    "workshop-app/src/index.ts",
-    "workshop-app/src/workshop.ts",
-    "workshop-app/main.py",
-    "workshop-app/workshop.py",
-    "workshop-app/main.go",
-    "workshop-app/src/main.rs",
-    "workshop-app/src/main/java/",
+    "Program.cs",
+    "Helpers/",
+    "src/index.ts",
+    "src/workshop.ts",
+    "main.py",
+    "workshop.py",
+    "main.go",
+    "src/main.rs",
+    "src/main/java/",
     "```csharp",
     "```typescript",
     "```python",
@@ -1446,15 +1466,63 @@ def validate_documentation() -> None:
     require("go run ./finished/" not in all_markdown and "go run finished/" not in all_markdown,
             "Documentation runs Go modules from the repository root instead of their module directory")
     starters = read(ROOT / "start-accessibility" / "README.md")
-    require("cd workshop-app && go build -mod=readonly ./..." in starters,
-            "Starter documentation must build Go modules with the lock enforced")
+    require("cd start-accessibility/go && go build -mod=readonly ./..." in starters,
+            "Starter documentation must build Go modules in place with the lock enforced")
     require("python -m pip install -r requirements.txt" in starters,
             "Starter documentation must install the pinned Python requirements")
     require("python report.py" not in all_markdown,
             "Documentation must invoke Python main.py rather than an unwired report.py")
     for lesson in ("01-first-session.md", "05-combine-tools.md", "06-structured-report.md"):
-        require("python workshop-app/main.py" in read(WORKSHOP / lesson),
+        require("python main.py" in read(WORKSHOP / lesson),
                 f"{lesson} must run the Python project through main.py")
+
+    # Learners clone the repository and work in place inside start-accessibility/<language> or
+    # start-museum/<language>. No copied sibling project may reappear anywhere.
+    for lesson in LESSONS:
+        lesson_text = read(WORKSHOP / lesson)
+        for forbidden in IN_PLACE_FORBIDDEN_MARKERS:
+            require(
+                forbidden not in lesson_text,
+                f"workshop/{lesson} still references the retired copied project: {forbidden}",
+            )
+        for forbidden in SECOND_PROJECT_MARKERS:
+            require(
+                forbidden not in lesson_text,
+                f"workshop/{lesson} scaffolds or copies a second project instead of "
+                f"working in place: {forbidden}",
+            )
+    for documentation in (
+        ROOT / "README.md",
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+    ):
+        documentation_text = read(documentation)
+        for forbidden in (*IN_PLACE_FORBIDDEN_MARKERS, *SECOND_PROJECT_MARKERS):
+            require(
+                forbidden not in documentation_text,
+                f"{documentation.relative_to(ROOT)} still describes the retired copy flow: "
+                f"{forbidden}",
+            )
+
+    accessibility_preflight = read(WORKSHOP / "00-preflight.md")
+    require(
+        "git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git"
+        in accessibility_preflight,
+        "Accessibility preflight must start from a clone of the repository",
+    )
+    for language in LANGUAGES:
+        require(
+            f"cd start-accessibility/{language}" in accessibility_preflight,
+            f"Accessibility preflight must change into the {language} starter directory",
+        )
+    require(
+        "git checkout -- ." in accessibility_preflight,
+        "Accessibility preflight must explain how to restore a clean starter",
+    )
+    require(
+        "git status" in accessibility_preflight,
+        "Accessibility preflight must tell learners their in-place edits appear in git status",
+    )
 
     lesson_viewer = read(DOCS / "workshop" / "step.html")
     for step_id in (
@@ -1565,10 +1633,13 @@ def validate_documentation() -> None:
     for name, text in museum_lessons.items():
         if name == "museum-00-preflight.md":
             continue
-        require(
-            "museum-workshop-app" in text,
-            f"{name} must build the single museum-workshop-app project",
-        )
+        for language in LANGUAGES:
+            rendered = render_language_markdown(WORKSHOP / name, language)
+            require(
+                MUSEUM_ENTRYPOINTS[language] in rendered,
+                f"{name} ({language}) must grow the single in-place museum project through "
+                f"{MUSEUM_ENTRYPOINTS[language]}",
+            )
 
     # The museum curator reaches its approved facts through one application-owned local tool.
     # Nothing in the track may claim the session is tool-free or that its allowlist is empty.
@@ -1618,28 +1689,34 @@ def validate_documentation() -> None:
             )
 
     museum_preflight = read(WORKSHOP / "museum-00-preflight.md")
-    for clean_clone_step in (
+    for clone_step in (
         "git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git",
         'test "$(git rev-parse --show-toplevel)" = "$PWD"',
-        'test -z "$(git status --short)"',
-        "test ! -e museum-workshop-app",
     ):
         require(
-            clean_clone_step in museum_preflight,
-            f"Museum preflight is missing clean-clone guidance: {clean_clone_step}",
+            clone_step in museum_preflight,
+            f"Museum preflight is missing clone guidance: {clone_step}",
         )
     require(
-        "rm -rf museum-workshop-app" not in museum_preflight,
-        "Museum preflight must fail safely instead of deleting an existing learner project",
+        "rm -rf " not in museum_preflight,
+        "Museum preflight must fail safely instead of deleting learner work",
     )
     for language in LANGUAGES:
         require(
-            f"cp -R start-museum/{language} museum-workshop-app" in museum_preflight,
-            f"Museum preflight must copy the {language} starter",
+            f"cd start-museum/{language}" in museum_preflight,
+            f"Museum preflight must change into the {language} starter directory",
         )
     require(
+        "git checkout -- ." in museum_preflight,
+        "Museum preflight must explain how to restore a clean starter",
+    )
+    require(
+        "git status" in museum_preflight,
+        "Museum preflight must tell learners their in-place edits appear in git status",
+    )
+    require(
         "cp finished/" not in museum_preflight
-        and "mkdir -p museum-workshop-app/tests" not in museum_preflight,
+        and "mkdir -p tests" not in museum_preflight,
         "Museum preflight must not reconstruct projects or create test directories",
     )
     require(

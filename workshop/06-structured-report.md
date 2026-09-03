@@ -29,7 +29,7 @@ The agent now turns `browser evidence + catalog result` into a bounded, repeatab
 :::language dotnet
 ### 1. Add the report contract
 
-Create `workshop-app/Helpers/Prompts.cs`:
+Create `Helpers/Prompts.cs`:
 
 ```csharp
 namespace HelloCopilotSDK.Helpers;
@@ -76,7 +76,7 @@ await ResponseStreamer.SendAndPrintAsync(session, Prompts.CreateReportPrompt(tar
 :::language nodejs
 ### 1. Add the report contract
 
-In `workshop-app/src/workshop.ts`, add or replace `reportPrompt`:
+In `src/workshop.ts`, add or replace `reportPrompt`:
 
 ```typescript
 export function reportPrompt(target: URL): string {
@@ -102,7 +102,7 @@ Do not invent evidence, report unsupported statistics, or claim the page is WCAG
 :::language nodejs
 ### 2. Create the report entrypoint
 
-Create or replace `workshop-app/src/report.ts` with the URL parsing, session config, and prompt:
+Create or replace `src/report.ts` with the URL parsing, session config, and prompt:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -128,7 +128,7 @@ try {
 :::language nodejs
 ### 3. Point package start at the report entrypoint
 
-Replace `workshop-app/src/index.ts` so the package start command launches the report entrypoint:
+Replace `src/index.ts` so the package start command launches the report entrypoint:
 
 ```typescript
 import "./report.js";
@@ -138,7 +138,7 @@ import "./report.js";
 :::language python
 ### 1. Add the report contract
 
-In `workshop-app/workshop.py`, add or replace `report_prompt`:
+In `workshop.py`, add or replace `report_prompt`:
 
 ```python
 def report_prompt(target: str) -> str:
@@ -163,8 +163,7 @@ Do not invent evidence, report unsupported statistics, or claim the page is WCAG
 :::language python
 ### 2. Create the report entrypoint
 
-Create or replace `workshop-app/report.py` with URL parsing, session config, streaming, and the
-report prompt:
+Create or replace `report.py` with URL parsing, session config, streaming, and the report prompt:
 
 ```python
 import asyncio
@@ -215,7 +214,7 @@ if __name__ == "__main__":
 :::language python
 ### 3. Point the documented command at the report entrypoint
 
-Replace `workshop-app/main.py` so the documented command launches the report entrypoint:
+Replace `main.py` so the documented command launches the report entrypoint:
 
 ```python
 from report import main
@@ -230,7 +229,7 @@ if __name__ == "__main__":
 :::language go
 ### 1. Add the report contract
 
-In `workshop-app/main.go`, add `reportPrompt`:
+In `main.go`, add `reportPrompt`:
 
 ```go
 func reportPrompt(target string) string {
@@ -314,7 +313,7 @@ func main() {
 :::language rust
 ### 1. Add the report contract
 
-In `workshop-app/src/main.rs`, add `report_prompt`:
+In `src/main.rs`, add `report_prompt`:
 
 ```rust
 fn report_prompt(target: &Url) -> String {
@@ -420,7 +419,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 :::language java
 ### 1. Add the report contract
 
-In `workshop-app/src/main/java/workshop/AccessibilityReport.java`, add `reportPrompt`:
+In `src/main/java/workshop/AccessibilityReport.java`, add `reportPrompt`:
 
 ```java
 private static String reportPrompt(URI target) {
@@ -567,7 +566,7 @@ private record RunOptions(URI target, boolean allowLocalDemoMcp) {
 
 :::language dotnet
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 
 When the app asks for a URL, paste:
@@ -578,27 +577,27 @@ When the app asks for a URL, paste:
 :::
 :::language nodejs
 ```bash
-npm --prefix workshop-app start -- "{{TARGET_APP_URL}}"
+npm start -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language python
 ```bash
-python workshop-app/main.py "{{TARGET_APP_URL}}"
+python main.py "{{TARGET_APP_URL}}"
 ```
 :::
 :::language go
 ```bash
-go -C workshop-app run . "{{TARGET_APP_URL}}"
+go run . "{{TARGET_APP_URL}}"
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml -- "{{TARGET_APP_URL}}"
+cargo run -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language java
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
+mvn compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
 ```
 :::
 
@@ -623,7 +622,7 @@ This focused review uses browser-observable evidence and is not a full WCAG conf
 | The output contains unsupported counts | Confirm the prompt says not to report unsupported statistics. |
 | A finding has no concrete element or structure | Treat it as ungrounded; keep the evidence requirement in the report contract. |
 | The response claims WCAG compliance | Keep the required **Review limits** section and explicit prohibition. |
-| The package still runs an earlier entrypoint | Point the start command at the Step 6 report entrypoint (`src/index.ts` / `main.py`). |
+| The package still runs an earlier entrypoint | Point the start command at the Step 6 report entrypoint for your language. |
 | The URL is rejected | Pass an HTTP or HTTPS URL; a missing scheme is automatically changed to `https://`. |
 
 </details>

@@ -168,7 +168,7 @@ Use Maven for this track. Do not substitute JBang or Gradle. See the official
 [Java SDK installation guide](https://github.com/github/copilot-sdk/tree/main/java).
 :::
 
-## 1. Clone the repository
+## 1. Clone the repository and choose your starter
 
 ```bash
 git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git
@@ -177,6 +177,11 @@ code .
 ```
 
 If `code` is not on your path, use your editor's **Open Folder** command instead.
+
+You work **directly inside the repository**. There is no copy step: you change into the starter
+directory for your language and stay there for the whole workshop. That means you are editing
+tracked repository files, so your changes show up in `git status`. That is expected. If you want a
+clean starter again, run `git checkout -- .` from the repository root to discard your edits.
 
 ## 2. Authenticate Copilot
 
@@ -202,7 +207,7 @@ Microsoft Edge with `--browser=msedge`. If you prepared Google Chrome instead, u
 `--browser=chrome` when the argument appears in Step 4.
 
 :::language dotnet
-## 4. Copy and build the starter
+## 4. Move into the starter and build it
 
 If `dotnet build` cannot find the Copilot CLI later, set its path for the current terminal:
 
@@ -219,22 +224,12 @@ If `dotnet build` cannot find the Copilot CLI later, set its path for the curren
   </div>
 </div>
 
-Copy the starter and build it:
+Change into the .NET starter and build it. Stay in this directory for every later step:
 
-<div class="workshop-tabs" data-tabs>
-  <div role="tablist" aria-label="Copy the workshop starter">
-    <button type="button" role="tab" aria-selected="true" data-tab="copy-windows">Windows</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
-  </div>
-  <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/dotnet workshop-app
-dotnet build workshop-app</code></pre>
-  </div>
-  <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start-accessibility/dotnet workshop-app
-dotnet build workshop-app</code></pre>
-  </div>
-</div>
+```bash
+cd start-accessibility/dotnet
+dotnet build
+```
 
 A successful build ends with:
 
@@ -257,18 +252,18 @@ Open the controlled target page once to make sure you can reach it:
 |---|---|
 | `copilot` is not recognized | Restart the terminal after installation, or set `COPILOT_CLI_BINARY_PATH` with the command above. |
 | Copilot asks you to authenticate | Run `copilot login`, finish the browser flow, then retry. |
-| NuGet restore cannot reach the package source | Check proxy or package-source settings, then run `dotnet restore workshop-app`. |
+| NuGet restore cannot reach the package source | Check proxy or package-source settings, then run `dotnet restore`. |
 | `npx` is not recognized | Install Node.js 22 or newer and restart the terminal. |
 | The browser cannot start later | Install Edge or Chrome, or follow the [Playwright MCP browser configuration](https://github.com/microsoft/playwright-mcp#configuration). |
 
 </details>
 
-> **Start Step 1 when:** `dotnet build workshop-app` succeeds, `copilot login` is complete, and the
-> target page opens.
+> **Start Step 1 when:** `dotnet build` succeeds, `copilot login` is complete, and the target page
+> opens.
 :::
 
 :::language nodejs
-## 4. Copy and build the starter
+## 4. Move into the starter and build it
 
 If the SDK cannot find the Copilot CLI later, point it at your install for the current terminal:
 
@@ -285,24 +280,14 @@ If the SDK cannot find the Copilot CLI later, point it at your install for the c
   </div>
 </div>
 
-Copy the starter, install dependencies, and type-check:
+Change into the Node.js starter, install dependencies, and type-check. Stay in this directory for
+every later step:
 
-<div class="workshop-tabs" data-tabs>
-  <div role="tablist" aria-label="Copy the workshop starter">
-    <button type="button" role="tab" aria-selected="true" data-tab="copy-windows">Windows</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
-  </div>
-  <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/nodejs workshop-app
-npm --prefix workshop-app install
-npm --prefix workshop-app run build</code></pre>
-  </div>
-  <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start-accessibility/nodejs workshop-app
-npm --prefix workshop-app install
-npm --prefix workshop-app run build</code></pre>
-  </div>
-</div>
+```bash
+cd start-accessibility/nodejs
+npm install
+npm run build
+```
 
 A successful type-check ends with no TypeScript errors (empty output from `tsc --noEmit`). The
 `package.json` start script is `tsx src/index.ts`.
@@ -320,7 +305,7 @@ Open the controlled target page once to make sure you can reach it:
 |---|---|
 | `node` or `npm` is not recognized | Install Node.js 22.12 or newer and restart the terminal. |
 | Engine warning about Node version | Upgrade to Node.js 22.12+; the starter declares `"node": ">=22.12.0"`. |
-| `npm install` fails on the lockfile | Stay in the copied `workshop-app` directory and keep `package-lock.json`; do not delete it. |
+| `npm install` fails on the lockfile | Stay in `start-accessibility/nodejs` and keep `package-lock.json`; do not delete it. |
 | `copilot` is not recognized | Restart the terminal after installation, or set `COPILOT_CLI_PATH` with the command above. |
 | Copilot asks you to authenticate | Run `copilot login`, finish the browser flow, then retry. |
 | `npx` cannot download Playwright MCP | Check network access, then rerun the warm-up command from section 3. |
@@ -328,12 +313,12 @@ Open the controlled target page once to make sure you can reach it:
 
 </details>
 
-> **Start Step 1 when:** `npm --prefix workshop-app run build` succeeds, `copilot login` is complete,
-> and the target page opens.
+> **Start Step 1 when:** `npm run build` succeeds, `copilot login` is complete, and the target page
+> opens.
 :::
 
 :::language python
-## 4. Copy and build the starter
+## 4. Move into the starter and build it
 
 Optional: force the SDK to use your installed CLI instead of downloading a runtime:
 
@@ -350,26 +335,27 @@ Optional: force the SDK to use your installed CLI instead of downloading a runti
   </div>
 </div>
 
-Copy the starter, create a virtual environment, install pinned requirements, and compile-check:
+Change into the Python starter, create a virtual environment, install pinned requirements, and
+compile-check. Stay in this directory for every later step:
 
 <div class="workshop-tabs" data-tabs>
-  <div role="tablist" aria-label="Copy the workshop starter">
-    <button type="button" role="tab" aria-selected="true" data-tab="copy-windows">Windows</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
+  <div role="tablist" aria-label="Create the Python virtual environment">
+    <button type="button" role="tab" aria-selected="true" data-tab="venv-windows">Windows</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="venv-unix">macOS or Linux</button>
   </div>
-  <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/python workshop-app
-python -m venv workshop-app/.venv
-workshop-app\.venv\Scripts\Activate.ps1
-python -m pip install -r workshop-app/requirements.txt
-python -m py_compile workshop-app/main.py workshop-app/workshop.py workshop-app/report.py workshop-app/accessibility_rule_catalog.py</code></pre>
+  <div role="tabpanel" data-panel="venv-windows">
+    <pre><code class="language-powershell">cd start-accessibility/python
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m py_compile main.py workshop.py report.py accessibility_rule_catalog.py</code></pre>
   </div>
-  <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start-accessibility/python workshop-app
-python3 -m venv workshop-app/.venv
-source workshop-app/.venv/bin/activate
-python -m pip install -r workshop-app/requirements.txt
-python -m py_compile workshop-app/main.py workshop-app/workshop.py workshop-app/report.py workshop-app/accessibility_rule_catalog.py</code></pre>
+  <div role="tabpanel" data-panel="venv-unix" hidden>
+    <pre><code class="language-bash">cd start-accessibility/python
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m py_compile main.py workshop.py report.py accessibility_rule_catalog.py</code></pre>
   </div>
 </div>
 
@@ -394,7 +380,7 @@ Open the controlled target page once to make sure you can reach it:
 | Symptom | Fix |
 |---|---|
 | `python` points at Python 2 or is missing | Use Python 3.11+ (`python3` on macOS/Linux) and recreate the venv. |
-| `pip install` cannot reach PyPI | Check proxy settings, then rerun `python -m pip install -r workshop-app/requirements.txt`. |
+| `pip install` cannot reach PyPI | Check proxy settings, then rerun `python -m pip install -r requirements.txt`. |
 | Wrong package versions | Install only from the pinned `requirements.txt`; do not loosen `==` pins. |
 | Runtime download fails later | Run `python -m copilot download-runtime`, or set `COPILOT_CLI_PATH` to a working CLI. |
 | Copilot asks you to authenticate | Run `copilot login`, finish the browser flow, then retry. |
@@ -408,7 +394,7 @@ Open the controlled target page once to make sure you can reach it:
 :::
 
 :::language go
-## 4. Copy and build the starter
+## 4. Move into the starter and build it
 
 The Go SDK expects the Copilot CLI on `PATH`, or via `COPILOT_CLI_PATH`:
 
@@ -425,25 +411,16 @@ The Go SDK expects the Copilot CLI on `PATH`, or via `COPILOT_CLI_PATH`:
   </div>
 </div>
 
-Copy the starter and build with the lock enforced:
+Change into the Go starter and build with the lock enforced. Stay in this directory for every later
+step:
 
-<div class="workshop-tabs" data-tabs>
-  <div role="tablist" aria-label="Copy the workshop starter">
-    <button type="button" role="tab" aria-selected="true" data-tab="copy-windows">Windows</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
-  </div>
-  <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/go workshop-app
-go -C workshop-app build -mod=readonly ./...</code></pre>
-  </div>
-  <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start-accessibility/go workshop-app
-go -C workshop-app build -mod=readonly ./...</code></pre>
-  </div>
-</div>
+```bash
+cd start-accessibility/go
+go build -mod=readonly ./...
+```
 
-A successful build prints no errors and produces a binary in `workshop-app`. Keep `go.sum` intact so
-module resolution stays deterministic.
+A successful build prints no errors and produces a binary in the starter directory. Keep `go.sum`
+intact so module resolution stays deterministic.
 
 Open the controlled target page once to make sure you can reach it:
 
@@ -458,7 +435,7 @@ Open the controlled target page once to make sure you can reach it:
 |---|---|
 | `go: go.mod requires go >= 1.24` | Install Go 1.24 or newer and reopen the terminal. |
 | `missing go.sum entry` | Restore the committed `go.sum`; build with `-mod=readonly` instead of rewriting the lock. |
-| Module download blocked | Configure `GOPROXY`/proxy access, then retry the build from `workshop-app`. |
+| Module download blocked | Configure `GOPROXY`/proxy access, then retry the build from the starter directory. |
 | `copilot` is not recognized | Install the CLI, restart the terminal, or set `COPILOT_CLI_PATH`. |
 | Copilot asks you to authenticate | Run `copilot login`, finish the browser flow, then retry. |
 | `npx` is not recognized | Install Node.js 22 or newer and restart the terminal. |
@@ -466,8 +443,8 @@ Open the controlled target page once to make sure you can reach it:
 
 </details>
 
-> **Start Step 1 when:** `go -C workshop-app build -mod=readonly ./...` succeeds, `copilot login` is
-> complete, and the target page opens.
+> **Start Step 1 when:** `go build -mod=readonly ./...` succeeds, `copilot login` is complete, and
+> the target page opens.
 
 Compare with
 [`finished/go/hello-copilot-sdk`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/go/hello-copilot-sdk)
@@ -475,7 +452,7 @@ if you want a later reference point after Step 1.
 :::
 
 :::language rust
-## 4. Copy and build the starter
+## 4. Move into the starter and build it
 
 If runtime startup cannot resolve the CLI later, set `COPILOT_CLI_PATH`:
 
@@ -492,22 +469,13 @@ If runtime startup cannot resolve the CLI later, set `COPILOT_CLI_PATH`:
   </div>
 </div>
 
-Copy the starter and check it against the lockfile:
+Change into the Rust starter and check it against the lockfile. Stay in this directory for every
+later step:
 
-<div class="workshop-tabs" data-tabs>
-  <div role="tablist" aria-label="Copy the workshop starter">
-    <button type="button" role="tab" aria-selected="true" data-tab="copy-windows">Windows</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
-  </div>
-  <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/rust workshop-app
-cargo check --manifest-path workshop-app/Cargo.toml --locked</code></pre>
-  </div>
-  <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start-accessibility/rust workshop-app
-cargo check --manifest-path workshop-app/Cargo.toml --locked</code></pre>
-  </div>
-</div>
+```bash
+cd start-accessibility/rust
+cargo check --locked
+```
 
 A successful check ends with a `Finished` line and no errors. Keep `Cargo.lock` committed so the
 crate graph stays pinned.
@@ -533,8 +501,8 @@ Open the controlled target page once to make sure you can reach it:
 
 </details>
 
-> **Start Step 1 when:** `cargo check --manifest-path workshop-app/Cargo.toml --locked` succeeds,
-> `copilot login` is complete, and the target page opens.
+> **Start Step 1 when:** `cargo check --locked` succeeds, `copilot login` is complete, and the
+> target page opens.
 
 Compare with
 [`finished/rust/hello-copilot-sdk`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/rust/hello-copilot-sdk)
@@ -542,7 +510,7 @@ if you want a later reference point after Step 1.
 :::
 
 :::language java
-## 4. Copy and build the starter
+## 4. Move into the starter and build it
 
 The Java SDK expects the Copilot CLI on `PATH` when the application starts. Confirm it before
 building:
@@ -551,22 +519,12 @@ building:
 copilot --version
 ```
 
-Copy the starter and compile with Maven:
+Change into the Java starter and compile with Maven. Stay in this directory for every later step:
 
-<div class="workshop-tabs" data-tabs>
-  <div role="tablist" aria-label="Copy the workshop starter">
-    <button type="button" role="tab" aria-selected="true" data-tab="copy-windows">Windows</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="copy-unix">macOS or Linux</button>
-  </div>
-  <div role="tabpanel" data-panel="copy-windows">
-    <pre><code class="language-powershell">Copy-Item -Recurse start-accessibility/java workshop-app
-mvn -f workshop-app/pom.xml compile</code></pre>
-  </div>
-  <div role="tabpanel" data-panel="copy-unix" hidden>
-    <pre><code class="language-bash">cp -R start-accessibility/java workshop-app
-mvn -f workshop-app/pom.xml compile</code></pre>
-  </div>
-</div>
+```bash
+cd start-accessibility/java
+mvn compile
+```
 
 A successful compile ends with:
 
@@ -590,7 +548,7 @@ Open the controlled target page once to make sure you can reach it:
 |---|---|
 | `java` or `mvn` is not recognized | Install JDK 17+ and Maven, then restart the terminal. |
 | Compiler release errors | Confirm `java -version` reports 17 or newer; the POM sets `maven.compiler.release` to 17. |
-| Dependency download fails | Check Maven Central / proxy settings, then rerun `mvn -f workshop-app/pom.xml compile`. |
+| Dependency download fails | Check Maven Central / proxy settings, then rerun `mvn compile`. |
 | Tempted to switch tools | Do not replace Maven with JBang or Gradle for this workshop. |
 | `copilot` is not recognized | Install the CLI, restart the terminal, and verify `copilot --version`. |
 | Copilot asks you to authenticate | Run `copilot login`, finish the browser flow, then retry. |
@@ -599,8 +557,8 @@ Open the controlled target page once to make sure you can reach it:
 
 </details>
 
-> **Start Step 1 when:** `mvn -f workshop-app/pom.xml compile` prints `BUILD SUCCESS`,
-> `copilot login` is complete, and the target page opens.
+> **Start Step 1 when:** `mvn compile` prints `BUILD SUCCESS`, `copilot login` is complete, and the
+> target page opens.
 
 Compare with
 [`finished/java/hello-copilot-sdk`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/finished/java/hello-copilot-sdk)
