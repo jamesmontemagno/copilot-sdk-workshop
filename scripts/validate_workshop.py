@@ -1780,9 +1780,11 @@ def validate_documentation() -> None:
 
 def validate_editor_open_guidance() -> None:
     # Both tracks hand the learner exactly one starter directory and expect them to live in it for
-    # the whole workshop. Every per-language render has to name that folder and show `code .` next
-    # to it, so the "open this folder in your editor" step cannot quietly vanish from one block.
-    fence = "```bash\ncode .\n```"
+    # the whole workshop. Every per-language render has to name that folder and mention `code .`
+    # next to it, so the "open this folder in your editor" step cannot quietly vanish from one
+    # block. Opening an editor is a convenience, so this asserts the inline mention rather than a
+    # fenced command the learner is expected to run.
+    fence = "`code .`"
     for lesson_name, starter_root in (
         ("00-preflight.md", "start-accessibility"),
         ("museum-00-preflight.md", "start-museum"),

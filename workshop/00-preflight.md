@@ -236,17 +236,8 @@ Build succeeded.
     0 Error(s)
 ```
 
-You work in `start-accessibility/dotnet` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-accessibility/dotnet`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-accessibility/dotnet` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Open the controlled target page once to make sure you can reach it:
 
@@ -301,17 +292,8 @@ npm run build
 A successful type-check ends with no TypeScript errors (empty output from `tsc --noEmit`). The
 `package.json` start script is `tsx src/index.ts`.
 
-You work in `start-accessibility/nodejs` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-accessibility/nodejs`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-accessibility/nodejs` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Open the controlled target page once to make sure you can reach it:
 
@@ -383,17 +365,8 @@ python -m py_compile main.py workshop.py report.py accessibility_rule_catalog.py
 A successful install prints the resolved packages, including `github-copilot-sdk==...`. A successful
 compile check prints no output. Keep the virtual environment activated for later steps.
 
-You work in `start-accessibility/python` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-accessibility/python`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-accessibility/python` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Optionally pre-download the runtime now so the first Step 1 run is faster:
 
@@ -455,17 +428,8 @@ go build -mod=readonly ./...
 A successful build prints no errors and produces a binary in the starter directory. Keep `go.sum`
 intact so module resolution stays deterministic.
 
-You work in `start-accessibility/go` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-accessibility/go`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-accessibility/go` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Open the controlled target page once to make sure you can reach it:
 
@@ -525,17 +489,8 @@ cargo check --locked
 A successful check ends with a `Finished` line and no errors. Keep `Cargo.lock` committed so the
 crate graph stays pinned.
 
-You work in `start-accessibility/rust` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-accessibility/rust`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-accessibility/rust` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Open the controlled target page once to make sure you can reach it:
 
@@ -592,17 +547,8 @@ A successful compile ends with:
 The `pom.xml` already configures `exec-maven-plugin` with
 `mainClass` `workshop.AccessibilityReport`. Stay on Maven for this track.
 
-You work in `start-accessibility/java` for the rest of the workshop. Open that folder in your
-editor and leave this terminal in the same directory, so the paths in each lesson match the file
-tree you see. From inside the starter directory:
-
-```bash
-code .
-```
-
-That opens exactly `start-accessibility/java`. Any editor works; if you do not use VS Code, open
-that same folder in yours. (`code .` needs the `code` command on your `PATH`; VS Code adds it
-from the Command Palette with "Shell Command: Install 'code' command in PATH" on macOS.)
+You work in `start-accessibility/java` for the rest of the workshop, so keep this terminal here. From
+this folder, enter `code .` to open it in VS Code, or open the folder in your favorite editor.
 
 Open the controlled target page once to make sure you can reach it:
 
