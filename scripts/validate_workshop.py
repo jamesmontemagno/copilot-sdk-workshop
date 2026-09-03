@@ -1077,6 +1077,21 @@ MUSEUM_SESSION_CREATION = {
     "rust": r"createsession\(",
     "java": r"createsession\(",
 }
+# Every pre-built Rust helper reports failure as the crate's `RuntimeError` alias. A lesson that
+# declares `Result<_, Box<dyn std::error::Error>>` instead stops compiling the moment it uses `?` on
+# a helper call: `dyn Error + Send + Sync` is unsized, so it does not implement `Error`, and
+# `Box<dyn Error>` therefore has no `From<Box<dyn Error + Send + Sync>>` impl. Assert the declared
+# error type rather than any prose, because the type is what the compiler rejects.
+MUSEUM_RUST_ERROR_ALIAS = "RuntimeError"
+MUSEUM_RUST_ERROR_ALIAS_DEFINITION = (
+    f"pub type {MUSEUM_RUST_ERROR_ALIAS} = Box<dyn Error + Send + Sync>;"
+)
+MUSEUM_RUST_ENTRYPOINT = re.compile(
+    r"\bfn\s+(?P<name>main|run)\b\s*\([^)]*\)\s*(?:->\s*(?P<returns>[^{\n]+?)\s*)?\{"
+)
+MUSEUM_RUST_CRATE_IMPORT = re.compile(
+    r"use museum_exhibit_studio::(?:\{(?P<names>[^}]*)\}|(?P<name>[A-Za-z0-9_]+))\s*;", re.S
+)
 
 
 def museum_symbols(text: str) -> str:
@@ -1871,6 +1886,70 @@ def validate_museum_permission_handlers() -> None:
         )
 
 
+def rust_lesson_code_blocks(markdown_file: Path) -> list[str]:
+    """Return the Rust fenced blocks a learner is told to type in one lesson."""
+    rendered = render_language_markdown(markdown_file, "rust")
+    return re.findall(r"^```rust\n(.*?)^```$", rendered, re.S | re.M)
+
+
+def rust_result_error_type(returns: str) -> str | None:
+    """Return the error half of a `Result<_, E>` return type, or None for anything else."""
+    if not returns.startswith("Result<") or not returns.endswith(">"):
+        return None
+    inner = returns[len("Result<") : -1]
+    depth = 0
+    for index, character in enumerate(inner):
+        if character == "<":
+            depth += 1
+        elif character == ">":
+            depth -= 1
+        elif character == "," and depth == 0:
+            return inner[index + 1 :].strip()
+    return None
+
+
+def validate_museum_rust_error_types() -> None:
+    # The museum lessons build on one pre-built helper crate, and every helper that can fail returns
+    # its `RuntimeError` alias. Repository validation compiles the starter and the finished app but
+    # never the code the lessons dictate, so a lesson is free to declare an error type no helper call
+    # can convert into. Assert the declared type in each lesson signature against the alias the
+    # helper actually exports.
+    helper = read(ROOT / "start-museum" / "rust" / "src" / "lib.rs")
+    require(
+        MUSEUM_RUST_ERROR_ALIAS_DEFINITION in helper,
+        "start-museum/rust/src/lib.rs must export "
+        f"`{MUSEUM_RUST_ERROR_ALIAS_DEFINITION}` as the error type every helper returns",
+    )
+    for lesson_name in MUSEUM_LESSONS:
+        blocks = rust_lesson_code_blocks(WORKSHOP / lesson_name)
+        lesson_source = "\n".join(blocks)
+        imported = {
+            name.strip()
+            for match in MUSEUM_RUST_CRATE_IMPORT.finditer(lesson_source)
+            for name in ((match.group("names") or match.group("name") or "").split(","))
+            if name.strip()
+        }
+        shows_crate_import = bool(imported)
+        for block in blocks:
+            for match in MUSEUM_RUST_ENTRYPOINT.finditer(block):
+                returns = (match.group("returns") or "").strip()
+                if not returns:
+                    continue
+                entrypoint = f"`fn {match.group('name')}`"
+                require(
+                    rust_result_error_type(returns) == MUSEUM_RUST_ERROR_ALIAS,
+                    f"workshop/{lesson_name} (rust) declares {entrypoint} returning `{returns}`; "
+                    f"the pre-built helpers return {MUSEUM_RUST_ERROR_ALIAS} "
+                    "(Box<dyn Error + Send + Sync>), which no other boxed error type can absorb "
+                    f"through `?`, so the error type must be {MUSEUM_RUST_ERROR_ALIAS}",
+                )
+                require(
+                    not shows_crate_import or MUSEUM_RUST_ERROR_ALIAS in imported,
+                    f"workshop/{lesson_name} (rust) uses {MUSEUM_RUST_ERROR_ALIAS} in {entrypoint} "
+                    "but its museum_exhibit_studio import does not bring the name into scope",
+                )
+
+
 def validate_workflows() -> None:
     required_setup = (
         ("actions/setup-dotnet@v6", "dotnet-version: 10.0.x"),
@@ -1930,6 +2009,7 @@ validate_site_behavior()
 validate_documentation()
 validate_editor_open_guidance()
 validate_museum_permission_handlers()
+validate_museum_rust_error_types()
 validate_workflows()
 
 if errors:

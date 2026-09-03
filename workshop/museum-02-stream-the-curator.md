@@ -217,10 +217,10 @@ Replace the entire contents of `src/main.rs`:
 use github_copilot_sdk::permission;
 use github_copilot_sdk::types::SessionConfig;
 use github_copilot_sdk::{Client, ClientOptions};
-use museum_exhibit_studio::{GENERATION_TIMEOUT, stream_exhibit};
+use museum_exhibit_studio::{GENERATION_TIMEOUT, RuntimeError, stream_exhibit};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), RuntimeError> {
     println!("=== Museum Exhibit Studio ===");
     println!();
 

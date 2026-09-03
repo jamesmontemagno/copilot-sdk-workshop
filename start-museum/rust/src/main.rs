@@ -48,6 +48,7 @@ fn main() {
     println!("Pre-built curator helpers are ready in src/lib.rs.");
     println!("Continue with museum step 1 to write your first curator session.");
     // Your run flow (Steps 1-8) replaces the banner above. Once you create a session main()
-    // becomes `#[tokio::main] async fn main()`, and in Step 5 it becomes a thin wrapper over
-    // an `async fn run() -> Result<(), RuntimeError>` so failures exit with status 1.
+    // becomes `#[tokio::main] async fn main() -> Result<(), RuntimeError>`, using the error alias
+    // src/lib.rs exports, and in Step 5 it becomes a thin wrapper over an
+    // `async fn run() -> Result<(), RuntimeError>` so failures exit with status 1.
 }

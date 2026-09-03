@@ -459,8 +459,8 @@ Open `src/main.rs` and widen the crate import:
 
 ```rust
 use museum_exhibit_studio::{
-    APPROVED_FACT_LOOKUP_NAME, GENERATION_TIMEOUT, approved_fact_lookup, ask_line, ask_yes_no,
-    bound_facts, fact_sets, read_facts, stream_exhibit,
+    APPROVED_FACT_LOOKUP_NAME, GENERATION_TIMEOUT, RuntimeError, approved_fact_lookup, ask_line,
+    ask_yes_no, bound_facts, fact_sets, read_facts, stream_exhibit,
 };
 ```
 
@@ -494,7 +494,7 @@ Replace `main`:
 
 ```rust
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), RuntimeError> {
     println!("=== Museum Exhibit Studio ===");
     println!();
     println!("Approved fact sets:");

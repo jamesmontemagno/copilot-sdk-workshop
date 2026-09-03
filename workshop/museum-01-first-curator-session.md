@@ -222,9 +222,10 @@ Open `src/main.rs` and **replace the entire file**:
 use github_copilot_sdk::permission;
 use github_copilot_sdk::types::{MessageOptions, SessionConfig};
 use github_copilot_sdk::{Client, ClientOptions};
+use museum_exhibit_studio::RuntimeError;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), RuntimeError> {
     println!("=== Museum Exhibit Studio ===");
     println!();
 
@@ -251,9 +252,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-`src/lib.rs` is the `museum_exhibit_studio` library crate that ships the pre-built helpers. You do
-not need it yet, and you never edit it. `with_permission_handler` returns the updated config, so
-keep the remaining fields set on the value it hands back.
+`src/lib.rs` is the `museum_exhibit_studio` library crate that ships the pre-built helpers, and you
+never edit it. You import one name from it today: `RuntimeError`, the crate's alias for
+`Box<dyn Error + Send + Sync>`. Every helper you call from Step 2 onward reports failure with that
+type, so `main` returns it from the start and `?` keeps working as the lessons grow.
+
+`with_permission_handler` returns the updated config, so keep the remaining fields set on the value
+it hands back.
 :::
 
 :::language java
