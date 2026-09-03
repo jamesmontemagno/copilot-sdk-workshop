@@ -28,23 +28,16 @@ SDLC_LESSONS = (
 )
 MUSEUM_LESSONS = (
     "museum-00-preflight.md",
-    "museum-01-curator-role.md",
-    "museum-02-tool-free-session.md",
-    "museum-03-approved-facts.md",
-    "museum-04-deterministic-validation.md",
-    "museum-05-lifecycle-tests.md",
-    "museum-06-run-review.md",
-    "museum-07-wikipedia-grounding.md",
+    "museum-01-first-curator-session.md",
+    "museum-02-stream-the-curator.md",
+    "museum-03-curator-voice.md",
+    "museum-04-approved-facts.md",
+    "museum-05-guardrails.md",
+    "museum-06-prove-the-structure.md",
+    "museum-07-wikipedia-research.md",
+    "museum-08-interactive-exhibit-page.md",
 )
 LESSONS = SDLC_LESSONS + MUSEUM_LESSONS
-CHECKPOINTS = (
-    "01-first-session",
-    "02-streaming",
-    "03-local-tool",
-    "04-mcp-safety",
-    "05-combine-tools",
-    "06-structured-report",
-)
 OFFICIAL_SDK_URLS = {
     "dotnet": "https://github.com/github/copilot-sdk/tree/main/dotnet",
     "nodejs": "https://github.com/github/copilot-sdk/tree/main/nodejs",
@@ -61,14 +54,6 @@ MANIFESTS = {
     "rust": "Cargo.toml",
     "java": "pom.xml",
 }
-SOURCE_FILES = {
-    "dotnet": "Program.cs",
-    "nodejs": "src/workshop.ts",
-    "python": "workshop.py",
-    "go": "main.go",
-    "rust": "src/main.rs",
-    "java": "src/main/java/workshop/AccessibilityReport.java",
-}
 ENTRYPOINTS = {
     "dotnet": "Program.cs",
     "nodejs": "src/index.ts",
@@ -79,108 +64,138 @@ ENTRYPOINTS = {
 }
 LESSON_TRACK_MARKERS = {
     "dotnet": (
-        "workshop-app/Program.cs",
-        "workshop-app/Helpers/",
+        "Program.cs",
+        "Helpers/",
         "dotnet run",
         "```csharp",
-        "checkpoints/dotnet/",
-        "samples/dotnet/",
+        "finished/dotnet/",
     ),
     "nodejs": (
-        "workshop-app/src/index.ts",
-        "workshop-app/src/workshop.ts",
-        "npm --prefix workshop-app",
+        "src/index.ts",
+        "src/workshop.ts",
+        "npm start",
         "```typescript",
-        "checkpoints/nodejs/",
-        "samples/nodejs/",
+        "finished/nodejs/",
     ),
     "python": (
-        "workshop-app/main.py",
-        "workshop-app/workshop.py",
-        "python workshop-app/main.py",
+        "main.py",
+        "workshop.py",
+        "python main.py",
         "```python",
-        "checkpoints/python/",
-        "samples/python/",
+        "finished/python/",
     ),
     "go": (
-        "workshop-app/main.go",
-        "go -C workshop-app",
+        "main.go",
+        "go run .",
         "```go",
-        "checkpoints/go/",
-        "samples/go/",
+        "finished/go/",
     ),
     "rust": (
-        "workshop-app/src/main.rs",
-        "cargo run --manifest-path workshop-app/Cargo.toml",
+        "src/main.rs",
+        "cargo run",
         "```rust",
-        "checkpoints/rust/",
-        "samples/rust/",
+        "finished/rust/",
     ),
     "java": (
-        "workshop-app/src/main/java/",
-        "mvn -f workshop-app/pom.xml",
+        "src/main/java/",
+        "mvn compile",
         "```java",
-        "checkpoints/java/",
-        "samples/java/",
+        "finished/java/",
     ),
 }
 STEP_3_TRACK_MARKERS = {
-    "dotnet": ("AccessibilityRuleCatalog.cs", "CopilotTool.DefineTool", "dotnet run --project workshop-app"),
-    "nodejs": ("src/workshop.ts", 'defineTool("accessibility_rule_lookup"', "npm --prefix workshop-app start"),
-    "python": ("workshop.py", '@define_tool(', "python workshop-app/main.py"),
-    "go": ("main.go", "copilot.DefineTool(", "go -C workshop-app run ."),
-    "rust": ("src/main.rs", 'Tool::new("accessibility_rule_lookup")', "cargo run --manifest-path workshop-app/Cargo.toml"),
-    "java": ("AccessibilityReport.java", "ToolDefinition.from(", "mvn -f workshop-app/pom.xml compile exec:java"),
+    "dotnet": ("AccessibilityRuleCatalog.cs", "CopilotTool.DefineTool", "dotnet run"),
+    "nodejs": ("src/workshop.ts", 'defineTool("accessibility_rule_lookup"', "npm start"),
+    "python": ("workshop.py", '@define_tool(', "python main.py"),
+    "go": ("main.go", "copilot.DefineTool(", "go run ."),
+    "rust": ("src/main.rs", 'Tool::new("accessibility_rule_lookup")', "cargo run"),
+    "java": ("AccessibilityReport.java", "ToolDefinition.from(", "mvn compile exec:java"),
 }
+# Every command runs from inside the starter directory the learner already sits in.
+# No lesson may reintroduce a copied sibling project.
 RUN_COMMAND_MARKERS = {
-    "dotnet": "dotnet run --project workshop-app",
-    "nodejs": "npm --prefix workshop-app start",
-    "python": "python workshop-app/main.py",
-    "go": "go -C workshop-app run .",
-    "rust": "cargo run --manifest-path workshop-app/Cargo.toml",
-    "java": "mvn -f workshop-app/pom.xml compile exec:java",
+    "dotnet": "dotnet run",
+    "nodejs": "npm start",
+    "python": "python main.py",
+    "go": "go run .",
+    "rust": "cargo run",
+    "java": "mvn compile exec:java",
 }
 STEP_9_RUN_COMMAND_MARKERS = {
-    "dotnet": "cd workshop-app && dotnet run",
-    "nodejs": "npm --prefix workshop-app start",
-    "python": "cd workshop-app && python main.py",
-    "go": "go -C workshop-app run .",
-    "rust": "cd workshop-app && cargo run --",
-    "java": "cd workshop-app && mvn compile exec:java",
+    "dotnet": "dotnet run",
+    "nodejs": "npm start",
+    "python": "python main.py",
+    "go": "go run .",
+    "rust": "cargo run --",
+    "java": "mvn compile exec:java",
 }
 MUSEUM_COMMAND_MARKERS = {
     "dotnet": (
-        "dotnet build museum-workshop-app",
-        "dotnet test museum-workshop-app/",
-        "dotnet run --project museum-workshop-app",
+        "dotnet run",
     ),
     "nodejs": (
-        "npm --prefix museum-workshop-app run build",
-        "npm --prefix museum-workshop-app test",
-        "npm --prefix museum-workshop-app start",
+        "npm start",
     ),
     "python": (
-        "museum-workshop-app/.venv/bin/python",
-        "python3 -m py_compile museum-workshop-app/",
-        "python3 -m unittest",
-        "python -m unittest",
-        "python3 museum-workshop-app/main.py",
+        ".venv/bin/python main.py",
     ),
     "go": (
-        "go -C museum-workshop-app test",
-        "go -C museum-workshop-app run .",
+        "go run .",
     ),
     "rust": (
-        "cargo check --manifest-path museum-workshop-app/Cargo.toml",
-        "cargo test --manifest-path museum-workshop-app/Cargo.toml",
-        "cargo run --manifest-path museum-workshop-app/Cargo.toml",
+        "cargo run",
     ),
     "java": (
-        "mvn -f museum-workshop-app/pom.xml test",
-        "mvn -f museum-workshop-app/pom.xml -Dtest=",
-        "mvn -f museum-workshop-app/pom.xml compile exec:java",
+        "mvn compile exec:java",
     ),
 }
+MUSEUM_ENTRYPOINTS = {
+    "dotnet": "Program.cs",
+    "nodejs": "src/index.ts",
+    "python": "main.py",
+    "go": "main.go",
+    "rust": "src/main.rs",
+    "java": "src/main/java/workshop/MuseumExhibitStudio.java",
+}
+# The learner grows one project in place. Nothing may scaffold or copy a second one.
+SECOND_PROJECT_MARKERS = (
+    "cp -R start-",
+    "Copy-Item -Recurse start-",
+    "dotnet new console",
+    "cargo new ",
+    "go mod init",
+    "npm init ",
+    "mvn archetype:generate",
+)
+IN_PLACE_FORBIDDEN_MARKERS = (
+    "workshop-app",
+    "museum-workshop-app",
+)
+MUSEUM_FORBIDDEN_LESSON_MARKERS = (
+    "museum-07-guides",
+    "dotnet test",
+    "npm test",
+    "go test",
+    "cargo test",
+    "mvn test",
+    "python -m unittest",
+    "unittest",
+    "mock-wikipedia",
+    "tests/",
+    "src/test/java",
+    "checkpoints/",
+    "samples/",
+    "ICuratorClient",
+    "ICuratorSession",
+    "CopilotCuratorClient",
+    "createCopilotCuratorClient",
+    "MuseumExhibitService",
+    "CuratorRuntime",
+    "ExhibitValidator",
+    "selectApprovedFacts",
+    "parseResearchResult",
+    "ProposedAddition",
+)
 PROCEDURE_MARKERS = {
     "01-first-session.md": {
         "dotnet": "SendAndWaitAsync",
@@ -203,8 +218,8 @@ PROCEDURE_MARKERS = {
     },
     "04-mcp-safety.md": {
         "dotnet": "McpStdioServerConfig",
-        "nodejs": "workshop-app/src/index.ts",
-        "python": "workshop-app/main.py",
+        "nodejs": "src/index.ts",
+        "python": "main.py",
         "go": "MCPStdioServerConfig",
             "rust": 'tools: Some(vec!["browser_navigate"',
             "java": '.setTools(List.of("browser_navigate"))',
@@ -241,23 +256,31 @@ PROCEDURE_MARKERS = {
         "rust": "builtin:apply_patch",
         "java": "builtin:apply_patch",
     },
-    "museum-01-curator-role.md": {
-        "dotnet": "public const string SystemMessage",
-        "nodejs": "export const systemMessage",
+    "museum-01-first-curator-session.md": {
+        "dotnet": "SendAndWaitAsync",
+        "nodejs": "sendAndWait",
+        "python": "create_session",
+        "go": "copilot.NewClient",
+        "rust": "Client::start",
+        "java": "new CopilotClient",
+    },
+    "museum-02-stream-the-curator.md": {
+        "dotnet": "CuratorStreamer.StreamExhibitAsync",
+        "nodejs": "streamExhibit(",
+        "python": "stream_exhibit(",
+        "go": "StreamExhibit(",
+        "rust": "stream_exhibit(",
+        "java": "CuratorStreamer.streamExhibit",
+    },
+    "museum-03-curator-voice.md": {
+        "dotnet": "const string SystemMessage",
+        "nodejs": "const systemMessage",
         "python": "SYSTEM_MESSAGE =",
-        "go": "curatorSystemMessage =",
-        "rust": "pub const SYSTEM_MESSAGE",
+        "go": "const systemMessage",
+        "rust": "const SYSTEM_MESSAGE",
         "java": "public static final String SYSTEM_MESSAGE",
     },
-    "museum-02-tool-free-session.md": {
-        "dotnet": "AvailableTools = []",
-        "nodejs": "availableTools: []",
-        "python": '"available_tools": []',
-        "go": "AvailableTools: []string{}",
-        "rust": "config.available_tools = Some(Vec::new())",
-        "java": ".setAvailableTools(List.of())",
-    },
-    "museum-03-approved-facts.md": {
+    "museum-04-approved-facts.md": {
         "dotnet": "BuildExhibitPrompt",
         "nodejs": "buildExhibitPrompt",
         "python": "build_exhibit_prompt",
@@ -265,41 +288,49 @@ PROCEDURE_MARKERS = {
         "rust": "build_exhibit_prompt",
         "java": "buildExhibitPrompt",
     },
-    "museum-04-deterministic-validation.md": {
-        "dotnet": "ExhibitValidator.Validate",
-        "nodejs": "validateExhibit",
-        "python": "validate_exhibit",
-        "go": "validateExhibit",
-        "rust": "validate_exhibit",
-        "java": "ExhibitValidator.validate",
+    "museum-05-guardrails.md": {
+        "dotnet": "static async Task<string> RunSessionAsync",
+        "nodejs": "async function runSession",
+        "python": "async def run_session",
+        "go": "func runSession(",
+        "rust": "async fn run_session",
+        "java": "private static String runSession",
     },
-    "museum-05-lifecycle-tests.md": {
-        "dotnet": "GenerateAsync",
-        "nodejs": "async generate(",
-        "python": "async def generate(",
-        "go": "func (service museumExhibitService) Generate(",
-        "rust": "pub async fn generate_exhibit(",
-        "java": "GeneratedExhibit generate(",
+    "museum-06-prove-the-structure.md": {
+        "dotnet": "CuratorValidation.FormatValidation",
+        "nodejs": "formatValidation(validateExhibit(",
+        "python": "format_validation(validate_exhibit(",
+        "go": "FormatValidation(ValidateExhibit(",
+        "rust": "format_validation(&validate_exhibit(",
+        "java": "CuratorValidation.formatValidation",
     },
-    "museum-06-run-review.md": {
-        "dotnet": "new CopilotCuratorClient()",
-        "nodejs": "createCopilotCuratorClient()",
-        "python": "MuseumExhibitService(CopilotClient())",
-        "go": "newCopilotCuratorClient()",
-        "rust": "CopilotCuratorClient::new()",
-        "java": "new CopilotCuratorClient()",
+    "museum-07-wikipedia-research.md": {
+        "dotnet": "CuratorSafety.WikipediaPermissionHandler()",
+        "nodejs": "wikipediaPermissionHandler()",
+        "python": "wikipedia_permission_handler()",
+        "go": "WikipediaPermissionHandler()",
+        "rust": "wikipedia_permission_handler()",
+        "java": "CuratorSafety.wikipediaPermissionHandler()",
+    },
+    "museum-08-interactive-exhibit-page.md": {
+        "dotnet": "builtin:apply_patch",
+        "nodejs": "builtin:apply_patch",
+        "python": "builtin:apply_patch",
+        "go": "builtin:apply_patch",
+        "rust": "builtin:apply_patch",
+        "java": "builtin:apply_patch",
     },
 }
 UNSCOPED_TRACK_MARKERS = (
-    "workshop-app/Program.cs",
-    "workshop-app/Helpers/",
-    "workshop-app/src/index.ts",
-    "workshop-app/src/workshop.ts",
-    "workshop-app/main.py",
-    "workshop-app/workshop.py",
-    "workshop-app/main.go",
-    "workshop-app/src/main.rs",
-    "workshop-app/src/main/java/",
+    "Program.cs",
+    "Helpers/",
+    "src/index.ts",
+    "src/workshop.ts",
+    "main.py",
+    "workshop.py",
+    "main.go",
+    "src/main.rs",
+    "src/main/java/",
     "```csharp",
     "```typescript",
     "```python",
@@ -349,6 +380,10 @@ def has_manifest(directory: Path, language: str) -> bool:
 def entrypoint_path(directory: Path, language: str) -> Path:
     if language == "java" and directory.name == "hello-copilot-sdk":
         return Path("src/main/java/workshop/AccessibilityGuidance.java")
+    if language == "java" and directory.name == "museum-exhibit-studio":
+        return Path("src/main/java/workshop/MuseumExhibitStudio.java")
+    if language == "java" and directory.parent.name == "start-museum":
+        return Path("src/main/java/workshop/MuseumExhibitStudio.java")
     return Path(ENTRYPOINTS[language])
 
 
@@ -515,7 +550,7 @@ def validate_runtime_flow(language: str, stage: str, text: str, label: Path) -> 
     elif language == "java":
         markers = (
             ("sendAndWait", "response == null", "response.getData().content()", ".get()")
-            if not streaming or label != Path("samples/java/hello-copilot-sdk")
+            if not streaming or label != Path("finished/java/hello-copilot-sdk")
             else ("AssistantMessageDeltaEvent", "AssistantMessageEvent", "receivedDelta",
                   "System.out.print", "sendAndWait", ".get()")
         )
@@ -557,9 +592,6 @@ def validate_executable_stage(language: str, stage: str, directory: Path) -> str
     text = executable_source(directory, language)
     apis = LANGUAGE_APIS[language]
     label = directory.relative_to(ROOT)
-    require("CHECKPOINT_STAGE" not in text and "checkpointStage" not in text,
-            f"{label} relies on a cosmetic checkpoint label instead of executable behavior")
-
     if stage == "starter":
         for capability in ("client", "session", "stream", "local", "mcp", "browser", "snapshot", "permission", "report"):
             markers = apis.get(capability, ()) + LATER_CAPABILITIES.get(capability, ())
@@ -816,7 +848,6 @@ def validate_rendered_language_content(markdown_file: Path) -> None:
         if markdown_file.name == "03-local-tool.md":
             for marker in (
                 *STEP_3_TRACK_MARKERS[selected_language],
-                f"checkpoints/{selected_language}/03-local-tool",
                 "## Run it",
                 "Troubleshooting this run",
             ):
@@ -902,29 +933,305 @@ def validate_language_registry() -> None:
 
 def validate_layout() -> None:
     for language in LANGUAGES:
-        for directory in [ROOT / "start" / language, ROOT / "samples" / language / "hello-copilot-sdk", ROOT / "samples" / language / "accessibility-report"]:
+        directories = [
+            ROOT / "start-accessibility" / language,
+            ROOT / "start-museum" / language,
+            *(ROOT / "finished" / language / project for project in (
+                "hello-copilot-sdk",
+                "accessibility-report",
+                "museum-exhibit-studio",
+            )),
+        ]
+        for directory in directories:
             require(directory.is_dir(), f"Missing {language} project directory {directory.relative_to(ROOT)}")
             require(has_manifest(directory, language), f"Missing {language} manifest in {directory.relative_to(ROOT)}")
             require((directory / entrypoint_path(directory, language)).exists(),
                     f"Missing {language} executable entrypoint in {directory.relative_to(ROOT)}")
-        for checkpoint in CHECKPOINTS:
-            directory = ROOT / "checkpoints" / language / checkpoint
-            require(directory.is_dir(), f"Missing {language} checkpoint {checkpoint}")
-            require(has_manifest(directory, language), f"Missing {language} manifest in {directory.relative_to(ROOT)}")
-            require((directory / SOURCE_FILES[language]).exists(), f"Missing {language} source in {directory.relative_to(ROOT)}")
-            require((directory / ENTRYPOINTS[language]).exists(),
-                    f"Missing {language} executable entrypoint in {directory.relative_to(ROOT)}")
     for language in ("nodejs", "go", "rust"):
-        for directory in [ROOT / "start" / language, *(ROOT / "samples" / language / sample for sample in ("hello-copilot-sdk", "accessibility-report")), *(ROOT / "checkpoints" / language / checkpoint for checkpoint in CHECKPOINTS)]:
+        for directory in [
+            ROOT / "start-accessibility" / language,
+            ROOT / "start-museum" / language,
+            *(ROOT / "finished" / language / project for project in (
+                "hello-copilot-sdk",
+                "accessibility-report",
+                "museum-exhibit-studio",
+            )),
+        ]:
             lock = {"nodejs": "package-lock.json", "go": "go.sum", "rust": "Cargo.lock"}[language]
             require((directory / lock).exists(), f"Missing deterministic {language} lock file in {directory.relative_to(ROOT)}")
+    require(
+        (ROOT / "start-museum" / "dotnet" / "packages.lock.json").exists(),
+        "Missing deterministic .NET package lock in start-museum/dotnet",
+    )
+
+
+MUSEUM_HELPER_PATTERNS = {
+    "dotnet": ("Helpers/Curator*.cs",),
+    "nodejs": ("src/curator.ts",),
+    "python": ("curator.py",),
+    "go": ("curator.go",),
+    "rust": ("src/lib.rs",),
+    "java": ("src/main/java/workshop/Curator*.java",),
+}
+MUSEUM_HELPER_SYMBOLS = (
+    "apollo11facts",
+    "greatbarrierreeffacts",
+    "terracottaarmyfacts",
+    "factsets",
+    "maximumfactcount",
+    "maximumfactlength",
+    "boundfacts",
+    "approvedfactlookup",
+    "streamexhibit",
+    "validateexhibit",
+    "formatvalidation",
+    "wikipediaserver",
+    "wikipediapermission",
+    "extractsources",
+    "exhibitwrite",
+    "askyesno",
+    "readfacts",
+)
+MUSEUM_HELPER_LESSON_REFERENCES = {
+    "dotnet": re.compile(r"Helpers/Curator[A-Za-z]+\.cs"),
+    "nodejs": re.compile(r"src/curator\.ts"),
+    "python": re.compile(r"(?<![\w/])curator\.py"),
+    "go": re.compile(r"(?<![\w/])curator\.go"),
+    "rust": re.compile(r"src/lib\.rs"),
+    "java": re.compile(r"(?<![\w/])Curator[A-Za-z]+\.java"),
+}
+MUSEUM_ABSTRACTION_MARKERS = (
+    "icuratorclient",
+    "icuratorsession",
+    "curatorclient",
+    "curatorsession",
+    "curatorruntime",
+    "copilotcuratorclient",
+)
+MUSEUM_RETIRED_RESEARCH_MARKERS = (
+    "proposedaddition",
+    "selectapprovedfacts",
+    "parseresearchresult",
+    "researchmodels",
+    "factreview",
+    "incompleteresearch",
+)
+MUSEUM_STARTER_SOLUTION_MARKERS = (
+    "systemmessage",
+    "buildexhibitprompt",
+    "buildresearchprompt",
+    "availabletools",
+    "createsession",
+    "copilotclient",
+    "mcpservers",
+)
+MUSEUM_ONE_TOOL_ALLOWLIST = {
+    "dotnet": (r"availabletools=\[curatorfacts\.approvedfactlookupname\]",),
+    "nodejs": (r"availabletools:\[approvedfactlookupname\]",),
+    "python": (r"[\"']?availabletools[\"']?[=:]\[approvedfactlookupname\]",),
+    "go": (r"availabletools:\[\]string\{approvedfactlookupname\}",),
+    "rust": (r"availabletools=some\(vec!\[approvedfactlookupname\.toowned\(\)\]\)",),
+    "java": (r"setavailabletools\(list\.of\(curatorfacts\.approvedfactlookupname\)\)",),
+}
+MUSEUM_TOOL_REGISTRATION = {
+    "dotnet": (r"tools=\[curatorfacts\.createapprovedfactlookup\(",),
+    "nodejs": (r"tools:\[createapprovedfactlookup\(",),
+    "python": (r"[\"']?tools[\"']?[=:]\[createapprovedfactlookup\(",),
+    "go": (r"tools:\[\]copilot\.tool\{lookup\}",),
+    "rust": (r"tools=some\(vec!\[approvedfactlookup\(",),
+    "java": (r"settools\(list\.of\(curatorfacts\.approvedfactlookup\(",),
+}
+
+
+def museum_symbols(text: str) -> str:
+    """Fold case and drop underscores so one marker matches every language's naming style."""
+    return text.casefold().replace("_", "")
+
+
+def museum_tokens(text: str) -> str:
+    """Fold case and drop underscores and whitespace so configuration markers match any layout."""
+    return re.sub(r"\s+", "", museum_symbols(text))
+
+
+def strip_line_comments(text: str) -> str:
+    """Drop whole-line // and # comments so scaffold guidance is not read as seeded code."""
+    return "\n".join(
+        line for line in text.splitlines()
+        if not re.match(r"\s*(//|#)", line)
+    )
+
+
+def museum_helper_source(directory: Path, language: str) -> str:
+    paths = sorted(
+        path
+        for pattern in MUSEUM_HELPER_PATTERNS[language]
+        for path in directory.glob(pattern)
+    )
+    require(
+        bool(paths),
+        f"{directory.relative_to(ROOT)} has no pre-built curator helper module "
+        f"({', '.join(MUSEUM_HELPER_PATTERNS[language])})",
+    )
+    return "\n".join(read(path) for path in paths)
+
+
+def validate_museum_projects() -> None:
+    ignored_directories = {
+        ".venv",
+        "__pycache__",
+        "bin",
+        "dist",
+        "node_modules",
+        "obj",
+        "target",
+    }
+
+    def tracked_project_files(directory: Path):
+        return (
+            path
+            for path in directory.rglob("*")
+            if path.is_file()
+            and not ignored_directories.intersection(
+                part.casefold() for part in path.relative_to(directory).parts[:-1]
+            )
+        )
+
+    for language in LANGUAGES:
+        starter = ROOT / "start-museum" / language
+        starter_symbols = museum_symbols(project_source(starter))
+        entrypoint = read(starter / entrypoint_path(starter, language))
+        # Placement comments tell the learner where each step's code goes. They name SDK members
+        # on purpose, so only real code is checked for seeded solutions.
+        entrypoint_symbols = museum_symbols(strip_line_comments(entrypoint))
+        require(
+            "Museum Exhibit Studio starter" in entrypoint,
+            f"{starter.relative_to(ROOT)} does not identify itself when run",
+        )
+        for step_reference in ("Step 1", "Step 4", "Step 5", "Step 8"):
+            require(
+                step_reference in entrypoint,
+                f"{starter.relative_to(ROOT)} entrypoint does not tell the learner where "
+                f"{step_reference} code goes",
+            )
+        helper_symbols = museum_symbols(museum_helper_source(starter, language))
+        for symbol in MUSEUM_HELPER_SYMBOLS:
+            require(
+                symbol in helper_symbols,
+                f"{starter.relative_to(ROOT)} helper module is missing {symbol}",
+            )
+        require(
+            "approved_fact_lookup" in museum_helper_source(starter, language),
+            f"{starter.relative_to(ROOT)} helper module does not ship the pre-built "
+            "approved_fact_lookup tool",
+        )
+        for marker in MUSEUM_STARTER_SOLUTION_MARKERS:
+            require(
+                marker not in entrypoint_symbols,
+                f"{starter.relative_to(ROOT)} entrypoint seeds lesson solution code: {marker}",
+            )
+        for marker in MUSEUM_ABSTRACTION_MARKERS:
+            require(
+                marker not in starter_symbols,
+                f"{starter.relative_to(ROOT)} still wraps the SDK in an abstraction: {marker}",
+            )
+        require(
+            not any(
+                path.is_file()
+                and (
+                    "test" in {part.casefold() for part in path.relative_to(starter).parts[:-1]}
+                    or path.name.casefold().endswith(("_test.go", ".test.ts", "test.java"))
+                )
+                for path in tracked_project_files(starter)
+            ),
+            f"{starter.relative_to(ROOT)} contains a test artifact",
+        )
+
+        finished = ROOT / "finished" / language / "museum-exhibit-studio"
+        finished_source = project_source(finished)
+        finished_symbols = museum_symbols(finished_source)
+        finished_tokens = museum_tokens(finished_source)
+        finished_helper_symbols = museum_symbols(museum_helper_source(finished, language))
+        for symbol in MUSEUM_HELPER_SYMBOLS:
+            require(
+                symbol in finished_helper_symbols,
+                f"{finished.relative_to(ROOT)} helper module is missing {symbol}",
+            )
+        require(
+            museum_helper_source(starter, language) == museum_helper_source(finished, language),
+            f"{starter.relative_to(ROOT)} and {finished.relative_to(ROOT)} ship different "
+            "curator helper modules; a learner must end up with the starter's helpers unchanged",
+        )
+        for marker in MUSEUM_ABSTRACTION_MARKERS:
+            require(
+                marker not in finished_symbols,
+                f"{finished.relative_to(ROOT)} still wraps the SDK in an abstraction: {marker}",
+            )
+        for marker in MUSEUM_RETIRED_RESEARCH_MARKERS:
+            require(
+                marker not in finished_symbols,
+                f"{finished.relative_to(ROOT)} keeps the retired research contract: {marker}",
+            )
+        require(
+            any(
+                re.search(pattern, finished_tokens)
+                for pattern in MUSEUM_ONE_TOOL_ALLOWLIST[language]
+            ),
+            f"{finished.relative_to(ROOT)} does not restrict exhibit generation to the "
+            "single approved_fact_lookup allowlist entry",
+        )
+        require(
+            any(
+                re.search(pattern, finished_tokens)
+                for pattern in MUSEUM_TOOL_REGISTRATION[language]
+            ),
+            f"{finished.relative_to(ROOT)} does not register the approved_fact_lookup "
+            "implementation on the generation session",
+        )
+        require(
+            "approved_fact_lookup" in finished_source,
+            f"{finished.relative_to(ROOT)} never names the approved_fact_lookup tool",
+        )
+        for marker in ("wikipedia-mcp@1.0.3", "builtin:apply_patch", "exhibit.html"):
+            require(
+                marker in finished_source,
+                f"{finished.relative_to(ROOT)} is missing required behavior: {marker}",
+            )
+        require(
+            "#[cfg(test)]" not in finished_source,
+            f"{finished.relative_to(ROOT)} contains inline Rust tests",
+        )
+        require(
+            not any(
+                path.is_file()
+                and (
+                    "test" in {part.casefold() for part in path.relative_to(finished).parts[:-1]}
+                    or path.name.casefold().endswith(("_test.go", ".test.ts", "test.java"))
+                    or path.name.casefold().startswith("test_")
+                    or "mock-wikipedia" in path.name.casefold()
+                )
+                for path in tracked_project_files(finished)
+            ),
+            f"{finished.relative_to(ROOT)} contains a museum test artifact",
+        )
+
+    node_package = json.loads(read(ROOT / "finished" / "nodejs" / "museum-exhibit-studio" / "package.json"))
+    require("test" not in node_package.get("scripts", {}), "Finished Node museum package still defines tests")
+    java_pom = read(ROOT / "finished" / "java" / "museum-exhibit-studio" / "pom.xml")
+    require(
+        "junit" not in java_pom.casefold() and "surefire" not in java_pom.casefold(),
+        "Finished Java museum manifest still includes test-only configuration",
+    )
 
 
 def validate_python_dependencies() -> None:
     directories = [
-        ROOT / "start" / "python",
-        *(ROOT / "samples" / "python" / sample for sample in ("hello-copilot-sdk", "accessibility-report")),
-        *(ROOT / "checkpoints" / "python" / checkpoint for checkpoint in CHECKPOINTS),
+        ROOT / "start-accessibility" / "python",
+        ROOT / "start-museum" / "python",
+        *(ROOT / "finished" / "python" / project for project in (
+            "hello-copilot-sdk",
+            "accessibility-report",
+            "museum-exhibit-studio",
+        )),
     ]
     for directory in directories:
         requirements = [
@@ -942,11 +1249,8 @@ def validate_python_dependencies() -> None:
 def validate_security_invariants() -> None:
     required_tools = ("accessibility_rule_lookup", "read_latest_accessibility_snapshot", "playwright-browser_navigate")
     for language in LANGUAGES:
-        directories = [
-            ROOT / "checkpoints" / language / checkpoint
-            for checkpoint in CHECKPOINTS[3:]
-        ] + [ROOT / "samples" / language / "accessibility-report"]
-        for directory in directories:
+        directory = ROOT / "finished" / language / "accessibility-report"
+        for directory in (directory,):
             source = project_source(directory)
             for tool in required_tools:
                 require(tool in source, f"{directory.relative_to(ROOT)} is missing canonical tool {tool}")
@@ -1058,9 +1362,8 @@ def validate_playwright_file_output(text: str, label: Path) -> None:
 
 def validate_playwright_output_configuration() -> None:
     directories = [
-        *(ROOT / "start" / language for language in LANGUAGES),
-        *(ROOT / "samples" / language / "accessibility-report" for language in LANGUAGES),
-        *(ROOT / "checkpoints" / language / checkpoint for language in LANGUAGES for checkpoint in CHECKPOINTS),
+        *(ROOT / "start-accessibility" / language for language in LANGUAGES),
+        *(ROOT / "finished" / language / "accessibility-report" for language in LANGUAGES),
     ]
     for directory in directories:
         validate_playwright_file_output(project_source(directory), directory.relative_to(ROOT))
@@ -1074,63 +1377,25 @@ def validate_playwright_output_configuration() -> None:
             )
 
 
-def validate_checkpoint_progression() -> None:
+def validate_project_behavior() -> None:
     for language in LANGUAGES:
-        executable_hashes: set[str] = set()
-        starter = ROOT / "start" / language
+        starter = ROOT / "start-accessibility" / language
         require((starter / ENTRYPOINTS[language]).exists(),
                 f"Missing {language} starter executable {ENTRYPOINTS[language]}")
         validate_executable_stage(language, "starter", starter)
-        for checkpoint in CHECKPOINTS:
-            directory = ROOT / "checkpoints" / language / checkpoint
-            text = validate_executable_stage(language, checkpoint, directory)
-            executable_hashes.add(text)
-            if language == "nodejs":
-                package = read(directory / "package.json")
-                require('"start": "tsx src/index.ts"' in package, f"{directory.relative_to(ROOT)} start script bypasses its checkpoint entrypoint")
-                require("Continue with Step 1" not in text, f"{directory.relative_to(ROOT)} has a placeholder entrypoint")
-            if language == "python":
-                if checkpoint == "06-structured-report":
-                    report = read(directory / "report.py")
-                    require("case SessionErrorData(message=message): raise" not in report,
-                            f"{directory.relative_to(ROOT)} raises from an event callback instead of completing the wait")
-                    require("error: RuntimeError | None = None" in report and "done.set()" in report,
-                            f"{directory.relative_to(ROOT)} does not propagate session errors to the awaited flow")
-                    require('if __name__ == "__main__":' in report,
-                            f"{directory.relative_to(ROOT)} runs interactive code when imported")
-                else:
-                    require(not (directory / "report.py").exists(),
-                            f"{directory.relative_to(ROOT)} includes a misleading completed reporter before Step 6")
-            if language == "java":
-                pom = read(directory / "pom.xml")
-                require("<mainClass>workshop.AccessibilityReport</mainClass>" in pom,
-                        f"{directory.relative_to(ROOT)} does not configure mvn exec:java")
-        require(
-            len(executable_hashes) == len(CHECKPOINTS),
-            f"{language} checkpoints have identical executable behavior; each checkpoint must demonstrate its named stage",
-        )
 
-    hello_sample_stages = {
-        "dotnet": "03-local-tool",
-        "nodejs": "03-local-tool",
-        "python": "03-local-tool",
-        "go": "03-local-tool",
-        "rust": "03-local-tool",
-        "java": "03-local-tool",
-    }
-    for language, stage in hello_sample_stages.items():
-        directory = ROOT / "samples" / language / "hello-copilot-sdk"
-        require(stage == "03-local-tool", f"{directory.relative_to(ROOT)} is not pinned to Step 3 local-tool")
+    for language in LANGUAGES:
+        directory = ROOT / "finished" / language / "hello-copilot-sdk"
         validate_hello_sample(language, directory)
 
     for language, stage, directory in (
-        ("go", "06-structured-report", ROOT / "samples" / "go" / "accessibility-report"),
-        ("rust", "06-structured-report", ROOT / "samples" / "rust" / "accessibility-report"),
-        ("java", "06-structured-report", ROOT / "samples" / "java" / "accessibility-report"),
+        ("go", "06-structured-report", ROOT / "finished" / "go" / "accessibility-report"),
+        ("rust", "06-structured-report", ROOT / "finished" / "rust" / "accessibility-report"),
+        ("java", "06-structured-report", ROOT / "finished" / "java" / "accessibility-report"),
     ):
         text = executable_source(directory, language)
         validate_runtime_flow(language, stage, runtime_source(directory, language, text), directory.relative_to(ROOT))
-    for directory in (ROOT / "samples" / "python" / "accessibility-report",):
+    for directory in (ROOT / "finished" / "python" / "accessibility-report",):
         validate_runtime_flow(
             "python",
             "06-structured-report",
@@ -1138,21 +1403,21 @@ def validate_checkpoint_progression() -> None:
             directory.relative_to(ROOT),
         )
 
-    node_report_package = read(ROOT / "samples" / "nodejs" / "accessibility-report" / "package.json")
+    node_report_package = read(ROOT / "finished" / "nodejs" / "accessibility-report" / "package.json")
     require('"start": "tsx src/report.ts"' in node_report_package,
             "Node accessibility-report npm start must execute src/report.ts")
-    for directory in [ROOT / "start" / "nodejs", *(ROOT / "checkpoints" / "nodejs" / checkpoint for checkpoint in CHECKPOINTS), ROOT / "samples" / "nodejs" / "accessibility-report"]:
+    for directory in [ROOT / "start-accessibility" / "nodejs", ROOT / "finished" / "nodejs" / "accessibility-report"]:
         source = read(directory / "src" / "workshop.ts")
         require("const existingSnapshots = safeSnapshotNames(outputDirectory)" in source,
                 f"{directory.relative_to(ROOT)} captures snapshot baseline lazily")
         require("const baseline = await existingSnapshots" in source,
                 f"{directory.relative_to(ROOT)} does not await the construction-time snapshot baseline")
-    for directory in [ROOT / "start" / "python", *(ROOT / "checkpoints" / "python" / checkpoint for checkpoint in CHECKPOINTS), *(ROOT / "samples" / "python" / sample for sample in ("hello-copilot-sdk", "accessibility-report"))]:
+    for directory in [ROOT / "start-accessibility" / "python", *(ROOT / "finished" / "python" / project for project in ("hello-copilot-sdk", "accessibility-report"))]:
         report_path = directory / "report.py"
         if report_path.exists():
             require('if __name__ == "__main__":' in read(report_path),
                     f"{directory.relative_to(ROOT)} report entrypoint cannot be imported safely")
-    for directory in [ROOT / "start" / "java", *(ROOT / "checkpoints" / "java" / checkpoint for checkpoint in CHECKPOINTS), *(ROOT / "samples" / "java" / sample for sample in ("hello-copilot-sdk", "accessibility-report"))]:
+    for directory in [ROOT / "start-accessibility" / "java", *(ROOT / "finished" / "java" / project for project in ("hello-copilot-sdk", "accessibility-report"))]:
         main_class = "AccessibilityGuidance" if directory.name == "hello-copilot-sdk" else "AccessibilityReport"
         require(f"<mainClass>workshop.{main_class}</mainClass>" in read(directory / "pom.xml"),
                 f"{directory.relative_to(ROOT)} does not configure the Maven executable entrypoint")
@@ -1187,60 +1452,137 @@ def validate_site_behavior() -> None:
 
 
 def validate_documentation() -> None:
-    for markdown in [ROOT / "README.md", ROOT / "start" / "README.md", ROOT / "checkpoints" / "README.md", *WORKSHOP.glob("*.md")]:
+    for markdown in [
+        ROOT / "README.md",
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+        *WORKSHOP.glob("*.md"),
+    ]:
         validate_markdown_links(markdown)
     published = "\n".join(read(path) for path in [ROOT / "README.md", *WORKSHOP.glob("*.md"), *DOCS.rglob("*.html")])
-    for forbidden in ("jamesmontemagno.github.io", "codemillmatt.github.io", "](../start/", "](../samples/"):
+    for forbidden in ("jamesmontemagno.github.io", "codemillmatt.github.io", "](../start-accessibility/", "](../finished/"):
         require(forbidden not in published, f"Published content contains forbidden pattern: {forbidden}")
     for url in OFFICIAL_SDK_URLS.values():
         require(url in read(ROOT / "README.md"), f"README is missing official SDK link {url}")
     require("https://github.com/github/copilot-sdk/tree/main/cookbook" in read(ROOT / "README.md"), "README is missing the official cookbook link")
-    all_markdown = "\n".join(read(path) for path in [ROOT / "README.md", ROOT / "start" / "README.md", ROOT / "checkpoints" / "README.md", *WORKSHOP.glob("*.md")])
-    require("go run ./samples/" not in all_markdown and "go run samples/" not in all_markdown,
+    all_markdown = "\n".join(read(path) for path in [
+        ROOT / "README.md",
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+        *WORKSHOP.glob("*.md"),
+    ])
+    require("go run ./finished/" not in all_markdown and "go run finished/" not in all_markdown,
             "Documentation runs Go modules from the repository root instead of their module directory")
-    starters = read(ROOT / "start" / "README.md")
-    require("cd workshop-app && go build -mod=readonly ./..." in starters,
-            "Starter documentation must build Go modules with the lock enforced")
-    checkpoints = read(ROOT / "checkpoints" / "README.md")
-    require("go test -mod=readonly ./..." in checkpoints,
-            "Checkpoint documentation must test Go modules with the lock enforced")
+    starters = read(ROOT / "start-accessibility" / "README.md")
+    require("cd start-accessibility/go && go build -mod=readonly ./..." in starters,
+            "Starter documentation must build Go modules in place with the lock enforced")
     require("python -m pip install -r requirements.txt" in starters,
             "Starter documentation must install the pinned Python requirements")
     require("python report.py" not in all_markdown,
-            "Documentation must invoke Python checkpoint main.py rather than an unwired report.py")
+            "Documentation must invoke Python main.py rather than an unwired report.py")
     for lesson in ("01-first-session.md", "05-combine-tools.md", "06-structured-report.md"):
-        require("python workshop-app/main.py" in read(WORKSHOP / lesson),
-                f"{lesson} must run the Python checkpoint through main.py")
+        require("python main.py" in read(WORKSHOP / lesson),
+                f"{lesson} must run the Python project through main.py")
+
+    # Learners clone the repository and work in place inside start-accessibility/<language> or
+    # start-museum/<language>. No copied sibling project may reappear anywhere.
+    for lesson in LESSONS:
+        lesson_text = read(WORKSHOP / lesson)
+        for forbidden in IN_PLACE_FORBIDDEN_MARKERS:
+            require(
+                forbidden not in lesson_text,
+                f"workshop/{lesson} still references the retired copied project: {forbidden}",
+            )
+        for forbidden in SECOND_PROJECT_MARKERS:
+            require(
+                forbidden not in lesson_text,
+                f"workshop/{lesson} scaffolds or copies a second project instead of "
+                f"working in place: {forbidden}",
+            )
+    for documentation in (
+        ROOT / "README.md",
+        ROOT / "start-accessibility" / "README.md",
+        ROOT / "start-museum" / "README.md",
+    ):
+        documentation_text = read(documentation)
+        for forbidden in (*IN_PLACE_FORBIDDEN_MARKERS, *SECOND_PROJECT_MARKERS):
+            require(
+                forbidden not in documentation_text,
+                f"{documentation.relative_to(ROOT)} still describes the retired copy flow: "
+                f"{forbidden}",
+            )
+
+    accessibility_preflight = read(WORKSHOP / "00-preflight.md")
+    require(
+        "git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git"
+        in accessibility_preflight,
+        "Accessibility preflight must start from a clone of the repository",
+    )
+    for language in LANGUAGES:
+        require(
+            f"cd start-accessibility/{language}" in accessibility_preflight,
+            f"Accessibility preflight must change into the {language} starter directory",
+        )
+    require(
+        "git checkout -- ." in accessibility_preflight,
+        "Accessibility preflight must explain how to restore a clean starter",
+    )
+    require(
+        "git status" in accessibility_preflight,
+        "Accessibility preflight must tell learners their in-place edits appear in git status",
+    )
 
     lesson_viewer = read(DOCS / "workshop" / "step.html")
     for step_id in (
         "09-interactive-html-report",
         "museum-00-preflight",
-        "museum-01-curator-role",
-        "museum-02-tool-free-session",
-        "museum-03-approved-facts",
-        "museum-04-deterministic-validation",
-        "museum-05-lifecycle-tests",
-        "museum-06-run-review",
-        "museum-07-wikipedia-grounding",
+        "museum-01-first-curator-session",
+        "museum-02-stream-the-curator",
+        "museum-03-curator-voice",
+        "museum-04-approved-facts",
+        "museum-05-guardrails",
+        "museum-06-prove-the-structure",
+        "museum-07-wikipedia-research",
+        "museum-08-interactive-exhibit-page",
     ):
         require(
             f"id: '{step_id}'" in lesson_viewer,
             f"Lesson viewer navigation is missing {step_id}",
         )
+    for retired_step_id in (
+        "museum-01-curator-role",
+        "museum-02-tool-free-session",
+        "museum-05-lifecycle-tests",
+        "museum-06-run-review",
+        "museum-07-wikipedia-grounding",
+    ):
+        require(
+            f"id: '{retired_step_id}'" not in lesson_viewer,
+            f"Lesson viewer still registers the retired museum step {retired_step_id}",
+        )
+        require(
+            f"'{retired_step_id}':" in lesson_viewer,
+            f"Lesson viewer must keep a legacy redirect for {retired_step_id}",
+        )
+    require(
+        "'museum-03-approved-facts': 'museum-04-approved-facts'" in lesson_viewer
+        and "'museum-04-deterministic-validation': 'museum-06-prove-the-structure'" in lesson_viewer
+        and "'museum-05-lifecycle-tests': 'museum-05-guardrails'" in lesson_viewer
+        and "'museum-07-wikipedia-grounding': 'museum-07-wikipedia-research'" in lesson_viewer,
+        "Legacy museum step URLs must map onto the redesigned lessons",
+    )
 
-    wikipedia_lesson = read(WORKSHOP / "museum-07-wikipedia-grounding.md")
+    wikipedia_lesson = read(WORKSHOP / "museum-07-wikipedia-research.md")
     for required_step in (
-        "# Wikipedia MCP",
-        "## 1. Choose one Wikipedia MCP server",
-        "## 2. Add a separate research contract",
-        "## 3. Create the research session",
-        "## 4. Implement bounded research",
-        "## 5. Add the approval gate",
-        "## 6. Test with a mock MCP server",
-        '"wikipedia-search"',
-        '"wikipedia-readArticle"',
-        "The original generation configuration still has an empty tool allowlist.",
+        "# Step 7: Research with Wikipedia MCP",
+        "## Two sessions, two capability profiles",
+        "## Add the research session",
+        "wikipedia-search",
+        "wikipedia-readArticle",
+        "deny-by-default",
+        "Research notes are never merged into the approved facts.",
+        "The session that writes the exhibit keeps its one-tool allowlist.",
+        "Consulted Wikipedia sources:",
     ):
         require(
             required_step in wikipedia_lesson,
@@ -1251,32 +1593,152 @@ def validate_documentation() -> None:
         "Wikipedia MCP must be a required museum workshop step",
     )
     require(
-        "id: 'museum-07-wikipedia-grounding'" in lesson_viewer
-        and "title: 'Wikipedia MCP',\n                navTitle: 'Wikipedia MCP'" in lesson_viewer
-        and "kind: 'core',\n                number: 7,\n                time: '30 min'" in lesson_viewer,
-        "Wikipedia MCP must be registered as required 30-minute museum step 7",
-    )
-    landing_page = read(DOCS / "index.html")
-    require(
-        "Non-SDLC tool · 105 minutes" in landing_page
-        and "105 minutes for Museum Exhibit Studio" in read(ROOT / "README.md"),
-        "Museum workshop duration must include all 105 timed minutes",
+        "id: 'museum-07-wikipedia-research'" in lesson_viewer
+        and "title: 'Research with Wikipedia MCP',\n                navTitle: 'Wikipedia research'" in lesson_viewer
+        and "kind: 'core',\n                number: 7,\n                time: '20 min'" in lesson_viewer,
+        "Wikipedia MCP must be registered as required 20-minute museum step 7",
     )
 
-    museum_preflight = read(WORKSHOP / "museum-00-preflight.md")
-    for clean_clone_step in (
-        "git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git",
-        'test "$(git rev-parse --show-toplevel)" = "$PWD"',
-        'test -z "$(git status --short)"',
-        "test ! -e museum-workshop-app",
+    html_lesson = read(WORKSHOP / "museum-08-interactive-exhibit-page.md")
+    for required_step in (
+        "builtin:apply_patch",
+        "exhibit.html",
+        "accessible text filter",
+        "keyboard focus",
     ):
         require(
-            clean_clone_step in museum_preflight,
-            f"Museum preflight is missing clean-clone guidance: {clean_clone_step}",
+            required_step in html_lesson,
+            f"Optional exhibit page lesson is missing required guidance: {required_step}",
         )
     require(
-        "rm -rf museum-workshop-app" not in museum_preflight,
-        "Museum preflight must fail safely instead of deleting an existing learner project",
+        "id: 'museum-08-interactive-exhibit-page'" in lesson_viewer
+        and "kind: 'optional',\n                number: 8,\n                time: '15 min'" in lesson_viewer,
+        "The interactive exhibit page must be registered as optional 15-minute museum step 8",
+    )
+
+    landing_page = read(DOCS / "index.html")
+    require(
+        "Non-SDLC tool · 90 minutes" in landing_page
+        and "90 minutes for Museum Exhibit Studio" in read(ROOT / "README.md"),
+        "Museum workshop duration must match the seven timed core steps",
+    )
+
+    museum_lessons = {name: read(WORKSHOP / name) for name in MUSEUM_LESSONS}
+    combined_museum = "\n".join(museum_lessons.values())
+    for forbidden in MUSEUM_FORBIDDEN_LESSON_MARKERS:
+        require(
+            forbidden.casefold() not in combined_museum.casefold(),
+            f"Museum lessons still reference retired workshop content: {forbidden}",
+        )
+    require(
+        not re.search(r"(?<![-\w])start/", combined_museum),
+        "Museum lessons must copy starters from start-museum/, not a bare start/ path",
+    )
+    require(
+        not (WORKSHOP / "museum-07-guides").exists(),
+        "workshop/museum-07-guides must be deleted; lessons now carry the per-language code",
+    )
+    for name, text in museum_lessons.items():
+        if name == "museum-00-preflight.md":
+            continue
+        for language in LANGUAGES:
+            rendered = render_language_markdown(WORKSHOP / name, language)
+            require(
+                MUSEUM_ENTRYPOINTS[language] in rendered,
+                f"{name} ({language}) must grow the single in-place museum project through "
+                f"{MUSEUM_ENTRYPOINTS[language]}",
+            )
+            # Learners call a large pre-built helper module in every step. Each lesson has to
+            # point at the file that holds it, in that reader's own language, so the "look
+            # inside" notes cannot quietly disappear.
+            require(
+                MUSEUM_HELPER_LESSON_REFERENCES[language].search(rendered) is not None,
+                f"{name} ({language}) must tell the learner which pre-built curator helper file "
+                f"to open (expected a reference matching "
+                f"{MUSEUM_HELPER_LESSON_REFERENCES[language].pattern})",
+            )
+
+    # The museum curator reaches its approved facts through one application-owned local tool.
+    # Nothing in the track may claim the session is tool-free or that its allowlist is empty.
+    for retired_framing in (
+        "tool-free",
+        "tool free",
+        "empty tool allowlist",
+        "empty allowlist",
+    ):
+        require(
+            retired_framing not in combined_museum.casefold(),
+            f"Museum lessons still describe the curator as {retired_framing!r}; the curator now "
+            "reaches its approved facts through the approved_fact_lookup tool",
+        )
+
+    facts_lesson = museum_lessons["museum-04-approved-facts.md"]
+    require(
+        "Call approved_fact_lookup first." in facts_lesson
+        or "Call `approved_fact_lookup` first." in facts_lesson,
+        "museum-04-approved-facts.md must instruct the curator to call approved_fact_lookup first",
+    )
+    require(
+        "[tool:start] approved_fact_lookup" in facts_lesson,
+        "museum-04-approved-facts.md must show the approved_fact_lookup tool event in its run output",
+    )
+    for language in LANGUAGES:
+        for lesson_name, lesson_label in (
+            ("museum-04-approved-facts.md", "register"),
+            ("museum-05-guardrails.md", "keep"),
+        ):
+            rendered = museum_tokens(render_language_markdown(WORKSHOP / lesson_name, language))
+            require(
+                any(
+                    re.search(pattern, rendered)
+                    for pattern in MUSEUM_TOOL_REGISTRATION[language]
+                ),
+                f"workshop/{lesson_name} ({language}) must {lesson_label} the approved_fact_lookup "
+                "implementation in the session tool list",
+            )
+            require(
+                any(
+                    re.search(pattern, rendered)
+                    for pattern in MUSEUM_ONE_TOOL_ALLOWLIST[language]
+                ),
+                f"workshop/{lesson_name} ({language}) must {lesson_label} approved_fact_lookup as "
+                "the single entry in the session tool allowlist",
+            )
+
+    museum_preflight = read(WORKSHOP / "museum-00-preflight.md")
+    for clone_step in (
+        "git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git",
+        'test "$(git rev-parse --show-toplevel)" = "$PWD"',
+    ):
+        require(
+            clone_step in museum_preflight,
+            f"Museum preflight is missing clone guidance: {clone_step}",
+        )
+    require(
+        "rm -rf " not in museum_preflight,
+        "Museum preflight must fail safely instead of deleting learner work",
+    )
+    for language in LANGUAGES:
+        require(
+            f"cd start-museum/{language}" in museum_preflight,
+            f"Museum preflight must change into the {language} starter directory",
+        )
+    require(
+        "git checkout -- ." in museum_preflight,
+        "Museum preflight must explain how to restore a clean starter",
+    )
+    require(
+        "git status" in museum_preflight,
+        "Museum preflight must tell learners their in-place edits appear in git status",
+    )
+    require(
+        "cp finished/" not in museum_preflight
+        and "mkdir -p tests" not in museum_preflight,
+        "Museum preflight must not reconstruct projects or create test directories",
+    )
+    require(
+        "Museum Exhibit Studio starter" in museum_preflight,
+        "Museum preflight must state the starter identity output learners should see",
     )
 
 
@@ -1330,10 +1792,11 @@ for lesson in LESSONS:
             if lesson not in {"00-preflight.md", "museum-00-preflight.md"}:
                 require(section in read(lesson_path), f"{lesson} is missing required section: {section}")
 validate_layout()
+validate_museum_projects()
 validate_python_dependencies()
 validate_security_invariants()
 validate_playwright_output_configuration()
-validate_checkpoint_progression()
+validate_project_behavior()
 validate_site_behavior()
 validate_documentation()
 validate_workflows()
@@ -1347,6 +1810,5 @@ if errors:
 print(
     f"Workshop content validation passed: {len(LANGUAGES)} languages, "
     f"{len(SDLC_LESSONS)} SDLC lessons, {len(MUSEUM_LESSONS)} museum lessons, "
-    f"{len(CHECKPOINTS)} checkpoints per language, "
-    "and local site assets."
+    "all repository projects, and local site assets."
 )

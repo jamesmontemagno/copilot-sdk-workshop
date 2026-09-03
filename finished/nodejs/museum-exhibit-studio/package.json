@@ -1,0 +1,22 @@
+{
+  "name": "copilot-sdk-workshop-museum-exhibit-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "start": "tsx src/index.ts"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@github/copilot": "1.0.80",
+    "@github/copilot-sdk": "1.0.11"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.12",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

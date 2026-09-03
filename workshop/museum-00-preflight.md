@@ -8,121 +8,159 @@
 Museum Exhibit Studio turns educator-approved facts into visitor-ready exhibit copy:
 
 ```text
-approved facts -> bounded prompt -> curator session -> structural validation -> human review
+approved facts -> bounded prompt -> curator session -> structural checks -> human review
 ```
 
-You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal at the
-repository root. Start with dependencies and empty source directories, not the finished app.
-The completed project under `samples/<language>/museum-exhibit-studio` is optional reference
-material only.
+You build one growing console application in place, inside `start-museum/<language>`. Each
+step adds one idea and ends with a real run, so the curator comes together in front of you:
 
-## Clone a clean workshop repository
+| Step | You add | You see |
+|---|---|---|
+| 1 | A client, a session, one prompt | Museum copy in your terminal |
+| 2 | The pre-built streaming printer | Text arriving live |
+| 3 | The curator system message | A different voice and shape |
+| 4 | The approved-fact prompt builder | Copy that tracks your facts |
+| 5 | One session runner with the guardrails | Refused tools and friendly failures |
+| 6 | The pre-built validator | A PASS/FAIL structural report |
+| 7 | A scoped Wikipedia research session | Cited background, kept out of the exhibit |
+| 8 | An optional interactive page | `exhibit.html` in your browser |
 
-Start from a parent directory where `copilot-sdk-workshop` does not already exist:
+The starter already ships the plumbing you should never have to write: the approved fact sets and
+their bounds, a streaming printer, deterministic exhibit validation, the scoped Wikipedia MCP server
+with its deny-by-default permission handler, the single-file `exhibit.html` write permission, and
+small terminal prompts. **You never edit the helper module.** You write the session setup, the two
+system messages, the prompt builders, one session runner, and `main`.
+
+You need an authenticated GitHub Copilot CLI, your language runtime, and a terminal. You work
+directly in the minimal project under `start-museum/<language>`, not the finished app. The completed
+project under `finished/<language>/museum-exhibit-studio` is optional reference material only.
+
+## Clone the workshop repository
 
 ```bash
 git clone https://github.com/jamesmontemagno/copilot-sdk-workshop.git
 cd copilot-sdk-workshop
 ```
 
-Confirm that the terminal is at the repository root, the clone has no local changes, and no learner
-project exists yet:
+Confirm the terminal is at the repository root before you change into a starter:
 
 ```bash
 test "$(git rev-parse --show-toplevel)" = "$PWD"
-test -z "$(git status --short)"
-test ! -e museum-workshop-app
 ```
 
-All three commands must exit successfully without output. If one fails, stop and use a fresh clone
-instead of deleting or overwriting an existing project. Keep this terminal at the repository root
-for every command in the museum workshop.
+The command must exit successfully without output.
+
+You build the museum application **in place**, inside the starter directory for your language.
+There is no copy step. That means you are editing tracked repository files, so your work shows up in
+`git status` as modified files. That is expected and correct. If you want to start over from a clean
+starter, run `git checkout -- .` from the repository root to discard your edits.
+
+Change into your language's starter directory now and stay there for every command in the museum
+workshop.
 
 :::language dotnet
-Create the learner project with the two project manifests and a temporary entrypoint, then restore
-SDK 1.0.11 and the test packages:
+Change into the .NET starter, then restore, build, and run its local entrypoint:
 
 ```bash
-mkdir -p museum-workshop-app/tests
-cp samples/dotnet/museum-exhibit-studio/museum-exhibit-studio.csproj museum-workshop-app/
-cp samples/dotnet/museum-exhibit-studio/tests/museum-exhibit-studio.Tests.csproj museum-workshop-app/tests/
-printf 'Console.WriteLine("Museum Exhibit Studio starter");\n' > museum-workshop-app/Program.cs
-dotnet restore museum-workshop-app/tests/museum-exhibit-studio.Tests.csproj
+cd start-museum/dotnet
+dotnet restore
+dotnet build --no-restore
+dotnet run --no-build
 ```
 
-Pass condition: restore completes without changing either project file. Lesson 6 replaces the
-temporary entrypoint with the finished CLI.
+Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in Helpers/.`
+
+Your helper module is `Helpers/Curator*.cs` in the `MuseumExhibitStudio.Helpers` namespace. You
+will write every lesson change in `Program.cs`.
 :::
 
 :::language nodejs
-Copy only the package and TypeScript configuration files. The lockfile preserves SDK 1.0.11 and
+Change into the Node.js starter. Its lockfile preserves SDK 1.0.11 and
 the compatible `@github/copilot` 1.0.80 platform package:
 
 ```bash
-mkdir -p museum-workshop-app/src museum-workshop-app/tests
-cp samples/nodejs/museum-exhibit-studio/package.json museum-workshop-app/
-cp samples/nodejs/museum-exhibit-studio/package-lock.json museum-workshop-app/
-cp samples/nodejs/museum-exhibit-studio/tsconfig.json museum-workshop-app/
-npm --prefix museum-workshop-app ci --ignore-scripts --no-audit --fund=false
+cd start-museum/nodejs
+npm ci --ignore-scripts --no-audit --fund=false
+npm run build
+npm start
 ```
 
-Pass condition: `npm` exits successfully and `museum-workshop-app/src` remains empty.
+Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in src/curator.ts.`
+
+Your helper module is `src/curator.ts`. You will write every lesson change in `src/index.ts`.
 :::
 
 :::language python
-Copy only Python dependency metadata, create an isolated virtual environment, and install SDK
-1.0.11:
+Change into the Python starter, create an isolated virtual environment, and install SDK 1.0.11:
 
 ```bash
-mkdir -p museum-workshop-app/tests
-cp samples/python/museum-exhibit-studio/pyproject.toml museum-workshop-app/
-cp samples/python/museum-exhibit-studio/requirements.txt museum-workshop-app/
-python3 -m venv museum-workshop-app/.venv
-museum-workshop-app/.venv/bin/python -m pip install -r museum-workshop-app/requirements.txt
+cd start-museum/python
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m py_compile *.py
+.venv/bin/python main.py
 ```
 
-Pass condition: pip reports `github-copilot-sdk==1.0.11` installed inside
-`museum-workshop-app/.venv`.
+On Windows, the interpreter lives at `.venv/Scripts/python.exe`.
+
+Pass condition: the source compiles and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in curator.py.`
+
+Your helper module is `curator.py`. You will write every lesson change in `main.py`.
 :::
 
 :::language go
-Copy only module metadata and download the locked SDK 1.0.11 dependency:
+Change into the Go starter, download the locked SDK 1.0.11 dependency, and build it:
 
 ```bash
-mkdir -p museum-workshop-app
-cp samples/go/museum-exhibit-studio/go.mod museum-workshop-app/
-cp samples/go/museum-exhibit-studio/go.sum museum-workshop-app/
-go -C museum-workshop-app mod download
+cd start-museum/go
+go mod download
+go build -mod=readonly ./...
+go run .
 ```
 
-Pass condition: `go mod download` exits successfully and no `.go` file exists yet.
+Pass condition: the build succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in curator.go.`
+
+Your helper module is `curator.go`, in the same `main` package. You will write every lesson
+change in `main.go`.
 :::
 
 :::language rust
-Copy only Cargo metadata, create an empty source directory, and fetch locked dependencies:
+Change into the Rust starter, fetch locked dependencies, and check it:
 
 ```bash
-mkdir -p museum-workshop-app/src museum-workshop-app/tests
-cp samples/rust/museum-exhibit-studio/Cargo.toml museum-workshop-app/
-cp samples/rust/museum-exhibit-studio/Cargo.lock museum-workshop-app/
-touch museum-workshop-app/src/lib.rs
-cargo fetch --manifest-path museum-workshop-app/Cargo.toml --locked
+cd start-museum/rust
+cargo fetch --locked
+cargo check --locked
+cargo run --locked
 ```
 
-Pass condition: Cargo fetches `github-copilot-sdk` 1.0.11 without modifying `Cargo.lock`. Lesson 1
-replaces the empty library target with curator code.
+Pass condition: Cargo leaves `Cargo.lock` unchanged and the program prints
+`=== Museum Exhibit Studio starter ===` followed by
+`Pre-built curator helpers are ready in src/lib.rs.`
+
+Your helper module is the `museum_exhibit_studio` library crate in `src/lib.rs`. You will write
+every lesson change in `src/main.rs`.
 :::
 
 :::language java
-Copy only Maven metadata, create empty source trees, and resolve SDK 1.0.11 plus test dependencies:
+Change into the Maven starter, resolve SDK 1.0.11, compile, and run it:
 
 ```bash
-mkdir -p museum-workshop-app/src/main/java/workshop museum-workshop-app/src/test/java/workshop
-cp samples/java/museum-exhibit-studio/pom.xml museum-workshop-app/
-mvn -f museum-workshop-app/pom.xml dependency:go-offline
+cd start-museum/java
+mvn dependency:go-offline
+mvn compile
+mvn exec:java
 ```
 
-Pass condition: Maven ends with `BUILD SUCCESS`.
+Pass condition: Maven succeeds and the program prints `=== Museum Exhibit Studio starter ===`
+followed by `Pre-built curator helpers are ready in src/main/java/workshop/.`
+
+Your helper module is `src/main/java/workshop/Curator*.java`. You will write every lesson change
+in `src/main/java/workshop/MuseumExhibitStudio.java`.
 :::
 
 ## Establish the trust boundary
@@ -130,9 +168,13 @@ Pass condition: Maven ends with `BUILD SUCCESS`.
 | Control | What it can do |
 |---|---|
 | System message | Guide role, tone, scope, and output shape |
-| Empty tool allowlist | Prevent tool invocation |
-| Application code | Enforce limits, timeout, validation, and cleanup |
+| Tool allowlist | Decide exactly which tools exist for a session |
+| Application code | Own the data behind a tool, and enforce limits, timeout, validation, and cleanup |
 | Human review | Decide whether every historical claim is supported |
 
-The supplied facts are the only approved source. Model memory is not verified museum knowledge.
-Continue to [Define the curator contract](museum-01-curator-role.md).
+The educator's approved facts are the only approved source, and the curator reaches them through
+one application-owned tool. Model memory is not verified museum knowledge, and prompt guidance is
+not an authorization boundary: only the allowlist and the permission handler decide what the
+session may actually do.
+
+Continue to [Your first curator session](museum-01-first-curator-session.md).

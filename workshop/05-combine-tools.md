@@ -85,7 +85,7 @@ catalog lookups to the agent.
 :::language nodejs
 ### 1. Keep the combined session
 
-In `workshop-app/src/index.ts`, keep the Step 4 helpers and the combined session that registers both
+In `src/index.ts`, keep the Step 4 helpers and the combined session that registers both
 local tools plus Playwright MCP:
 
 ```typescript
@@ -126,7 +126,7 @@ Replace the final send call so the agent must navigate, read the snapshot, and c
 :::language python
 ### 1. Keep the combined session
 
-In `workshop-app/main.py`, keep the Step 4 helpers and the combined session that registers both
+In `main.py`, keep the Step 4 helpers and the combined session that registers both
 local tools plus Playwright MCP:
 
 ```python
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 :::language go
 ### 1. Keep the combined session
 
-In `workshop-app/main.go`, keep the three-tool session from Step 4: local lookup, snapshot reader,
+In `main.go`, keep the three-tool session from Step 4: local lookup, snapshot reader,
 Playwright MCP, allowlist, and exact-target permission handler:
 
 ```go
@@ -253,7 +253,7 @@ Replace the final prompt so the agent must navigate, read the snapshot, and call
 :::language rust
 ### 1. Keep the combined session
 
-In `workshop-app/src/main.rs`, keep the three-tool session from Step 4: local lookup, snapshot
+In `src/main.rs`, keep the three-tool session from Step 4: local lookup, snapshot
 reader, Playwright MCP, allowlist, and exact-target permission handler:
 
 ```rust
@@ -332,7 +332,7 @@ fn combined_tools_prompt(target: &Url) -> String {
 :::language java
 ### 1. Keep the combined session
 
-In `workshop-app/src/main/java/workshop/AccessibilityReport.java`, keep the three-tool session from
+In `src/main/java/workshop/AccessibilityReport.java`, keep the three-tool session from
 Step 4: local lookup, snapshot reader, Playwright MCP, allowlist, and exact-target permission
 handler. Keep its default fail-closed policy and its optional `--allow-local-demo-mcp` fallback for
 the controlled workshop target while [github/copilot-sdk#2273](https://github.com/github/copilot-sdk/issues/2273)
@@ -418,7 +418,7 @@ Add or replace the prompt helper, then send it:
 
 :::language dotnet
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 
 Paste this URL when prompted:
@@ -429,27 +429,27 @@ Paste this URL when prompted:
 :::
 :::language nodejs
 ```bash
-npm --prefix workshop-app start -- "{{TARGET_APP_URL}}"
+npm start -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language python
 ```bash
-python workshop-app/main.py "{{TARGET_APP_URL}}"
+python main.py "{{TARGET_APP_URL}}"
 ```
 :::
 :::language go
 ```bash
-go -C workshop-app run . "{{TARGET_APP_URL}}"
+go run . "{{TARGET_APP_URL}}"
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml -- "{{TARGET_APP_URL}}"
+cargo run -- "{{TARGET_APP_URL}}"
 ```
 :::
 :::language java
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
+mvn compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
 ```
 :::
 
@@ -497,10 +497,9 @@ source-of-truth criterion and remediation.
 
 :::language dotnet
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/dotnet/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```csharp
 using GitHub.Copilot;
@@ -581,10 +580,9 @@ await ResponseStreamer.SendAndPrintAsync(
 
 :::language nodejs
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/nodejs/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -618,10 +616,9 @@ try {
 
 :::language python
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/python/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```python
 import asyncio
@@ -685,10 +682,9 @@ if __name__ == "__main__":
 
 :::language go
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/go/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```go
 package main
@@ -879,10 +875,9 @@ func main() {
 
 :::language rust
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/rust/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```rust
 use std::collections::HashSet;
@@ -1308,10 +1303,9 @@ bounded source of truth.
 ### 2. Combine browser evidence with catalog guidance
 
 <details>
-<summary>Complete Step 5 checkpoint</summary>
+<summary>Complete Step 5 implementation</summary>
 
-A complete Step 5 project is available at
-[`checkpoints/java/05-combine-tools`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/05-combine-tools).
+Compare your work with this complete Step 5 implementation.
 
 ```java
 package workshop;

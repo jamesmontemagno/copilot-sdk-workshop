@@ -30,7 +30,7 @@ external MCP process in the next step will use a permission boundary instead.
 
 ### 1. Add the catalog lookup tool
 
-At the top of `workshop-app/Helpers/AccessibilityRuleCatalog.cs`, insert:
+At the top of `Helpers/AccessibilityRuleCatalog.cs`, insert:
 
 ```csharp
 using System.ComponentModel;
@@ -70,7 +70,7 @@ public static AccessibilityRule Lookup(string query)
 
 ### 2. Show tool activity
 
-In `workshop-app/Helpers/ResponseStreamer.cs`, insert these cases before `SessionIdleEvent`:
+In `Helpers/ResponseStreamer.cs`, insert these cases before `SessionIdleEvent`:
 
 ```csharp
 case ToolExecutionStartEvent tool:
@@ -83,7 +83,7 @@ case ToolExecutionCompleteEvent tool:
 
 ### 3. Register and request the tool
 
-Replace the session configuration and send call in `workshop-app/Program.cs`:
+Replace the session configuration and send call in `Program.cs`:
 
 ```csharp
 await using var session = await client.CreateSessionAsync(new SessionConfig
@@ -102,7 +102,7 @@ await ResponseStreamer.SendAndPrintAsync(
 ## Run it
 
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 
 Look for the tool name and its mapping to 4.1.2:
@@ -119,17 +119,16 @@ WCAG 4.1.2 Name, Role, Value ...
 
 | Symptom | Fix |
 |---|---|
-| No tool event appears | Keep the explicit `Use accessibility_rule_lookup` instruction in this learning checkpoint. |
+| No tool event appears | Keep the explicit `Use accessibility_rule_lookup` instruction in this learning step. |
 | The compiler cannot find `AIFunction` | Add `using Microsoft.Extensions.AI;` to the catalog file. |
 | The result says no exact match | Confirm the prompt contains `accessible name`, a keyword in the starter data. |
 
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/dotnet/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `Program.cs`:
 
@@ -169,8 +168,7 @@ printing live in `Helpers/ResponseStreamer.cs`.
 
 ### 1. Inspect the prebuilt typed tool
 
-Open `workshop-app/src/workshop.ts`. The starter already imports the catalog and defines this local
-tool:
+Open `src/workshop.ts`. The starter already imports the catalog and defines this local tool:
 
 ```typescript
 export const accessibilityRuleLookup = defineTool("accessibility_rule_lookup", {
@@ -201,7 +199,7 @@ Keep those branches so you can see when the model calls the local tool.
 
 ### 3. Register and request the tool
 
-In `workshop-app/src/index.ts`, import the tool with the streaming helper:
+In `src/index.ts`, import the tool with the streaming helper:
 
 ```typescript
 import { accessibilityRuleLookup, streamResponse } from "./workshop.js";
@@ -230,7 +228,7 @@ try {
 ## Run it
 
 ```bash
-npm --prefix workshop-app start
+npm start
 ```
 
 Look for the tool name and guidance for WCAG 4.1.2:
@@ -247,7 +245,7 @@ WCAG 4.1.2 Name, Role, Value ...
 
 | Symptom | Fix |
 |---|---|
-| TypeScript cannot resolve `zod` | Run `npm install` in `workshop-app`. |
+| TypeScript cannot resolve `zod` | Run `npm install` in the starter directory. |
 | No tool event appears | Keep the tool name in both `tools` and `availableTools`, and keep the explicit instruction in the prompt. |
 | The lookup returns no match | Ask about `4.1.2` or `accessible name`, both represented in the catalog. |
 | Tool events never print | Confirm `streamResponse` still handles `tool.execution_start` and `tool.execution_complete`. |
@@ -255,10 +253,9 @@ WCAG 4.1.2 Name, Role, Value ...
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/nodejs/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `src/index.ts`:
 
@@ -294,7 +291,7 @@ The typed tool definition and tool-activity printing live in `src/workshop.ts`.
 
 ### 1. Inspect the prebuilt typed tool
 
-Open `workshop-app/workshop.py`. The starter already defines the parameter model and local tool:
+Open `workshop.py`. The starter already defines the parameter model and local tool:
 
 ```python
 class LookupParams(BaseModel):
@@ -316,7 +313,7 @@ because this tool only returns application-owned read-only data.
 
 ### 2. Register and request the tool
 
-In `workshop-app/main.py`, import the tool:
+In `main.py`, import the tool:
 
 ```python
 from workshop import accessibility_rule_lookup
@@ -362,7 +359,7 @@ async with await client.create_session(
 ## Run it
 
 ```bash
-python workshop-app/main.py
+python main.py
 ```
 
 The response should use the catalog's WCAG 4.1.2 title and recommendation:
@@ -385,10 +382,9 @@ Associate a visible <label> with the input ...
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/python/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `main.py`:
 
@@ -447,8 +443,7 @@ The typed tool definition lives in `workshop.py`.
 
 ### 1. Add the typed lookup
 
-Add `strings` to the imports in `workshop-app/main.go`, then add these declarations before
-`streamResponse`:
+Add `strings` to the imports in `main.go`, then add these declarations before `streamResponse`:
 
 ```go
 type lookupParams struct {
@@ -512,7 +507,7 @@ data.
 ## Run it
 
 ```bash
-go -C workshop-app run .
+go run .
 ```
 
 The streamed response should use the lookup result for WCAG 4.1.2:
@@ -535,10 +530,9 @@ Associate each input with a visible label.
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/go/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `main.go`:
 
@@ -629,7 +623,7 @@ func main() {
 
 ### 1. Add the typed handler
 
-Add these imports near the top of `workshop-app/src/main.rs`:
+Add these imports near the top of `src/main.rs`:
 
 ```rust
 use std::sync::Arc;
@@ -698,7 +692,7 @@ read-only data.
 ## Run it
 
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml
+cargo run
 ```
 
 The streamed response should use the lookup result for WCAG 4.1.2:
@@ -721,10 +715,9 @@ Associate each input with a visible label.
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/rust/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `src/main.rs`:
 
@@ -838,8 +831,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### 1. Add the typed lookup
 
-Add these imports to
-`workshop-app/src/main/java/workshop/AccessibilityReport.java`:
+Add these imports to `src/main/java/workshop/AccessibilityReport.java`:
 
 ```java
 import com.github.copilot.rpc.ToolDefinition;
@@ -895,13 +887,13 @@ System.out.println(response.getData().content());
 `setTools` registers the implementation. `setAvailableTools` is the allowlist the model may call.
 `skipPermission(true)` is intentional because this tool only returns application-owned read-only
 data. Keep the Step 1 permission handler until Step 4 replaces it with the scoped Playwright
-handler. The Java checkpoint uses a streaming-enabled session with `sendAndWait`, so it prints the
+handler. The Java implementation uses a streaming-enabled session with `sendAndWait`, so it prints the
 completed response when the turn finishes.
 
 ## Run it
 
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 
 The response should use the lookup result for WCAG 4.1.2:
@@ -924,10 +916,9 @@ Associate each input with a visible label.
 </details>
 
 <details>
-<summary>Complete Step 3 checkpoint</summary>
+<summary>Complete Step 3 implementation</summary>
 
-Compare your version with
-[`checkpoints/java/03-local-tool`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/03-local-tool).
+Compare your version with this complete Step 3 implementation.
 
 `AccessibilityReport.java`:
 

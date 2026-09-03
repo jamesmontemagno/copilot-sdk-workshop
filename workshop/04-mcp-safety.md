@@ -59,14 +59,14 @@ if (args.Length is not 1 ||
     !Uri.TryCreate(args[0], UriKind.Absolute, out var targetUri) ||
     targetUri.Scheme is not ("http" or "https"))
 {
-    Console.Error.WriteLine("Usage: dotnet run --project workshop-app -- <http-or-https-url>");
+    Console.Error.WriteLine("Usage: dotnet run -- <http-or-https-url>");
     return;
 }
 ```
 
 ### 2. Inspect the prebuilt permission handler
 
-Open `workshop-app/Helpers/WorkshopPermissionHandler.cs`. The prebuilt handler returns a one-time
+Open `Helpers/WorkshopPermissionHandler.cs`. The prebuilt handler returns a one-time
 approval only for exact-target navigation. Every other external request is rejected.
 
 ```csharp
@@ -102,7 +102,7 @@ The .NET SDK currently prefixes MCP permission tool names with the server name (
 
 ### 3. Inspect the prebuilt snapshot-reader boundary
 
-Open `workshop-app/Helpers/PlaywrightSnapshotReader.cs`. The reader captures existing snapshots when
+Open `Helpers/PlaywrightSnapshotReader.cs`. The reader captures existing snapshots when
 the tool is created, accepts no model-supplied arguments, selects only a new direct child named
 `page-*.yml`, rejects symbolic links and oversized files, then returns the text.
 
@@ -185,7 +185,7 @@ await ResponseStreamer.SendAndPrintAsync(
 ## Run it
 
 ```bash
-dotnet run --project workshop-app -- "{{TARGET_APP_URL}}"
+dotnet run -- "{{TARGET_APP_URL}}"
 ```
 
 The first run may take longer while `npx` starts Playwright.
@@ -215,10 +215,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/dotnet/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 ```csharp
 using GitHub.Copilot;
@@ -228,7 +227,7 @@ if (args.Length is not 1 ||
     !Uri.TryCreate(args[0], UriKind.Absolute, out var targetUri) ||
     targetUri.Scheme is not ("http" or "https"))
 {
-    Console.Error.WriteLine("Usage: dotnet run --project workshop-app -- <http-or-https-url>");
+    Console.Error.WriteLine("Usage: dotnet run -- <http-or-https-url>");
     return;
 }
 
@@ -287,7 +286,7 @@ await ResponseStreamer.SendAndPrintAsync(
 
 ### 1. Accept one controlled target
 
-At the top of `workshop-app/src/index.ts`, replace the entrypoint setup with:
+At the top of `src/index.ts`, replace the entrypoint setup with:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -308,8 +307,7 @@ if (!["http:", "https:"].includes(target.protocol)) {
 
 ### 2. Inspect the prebuilt permission handler
 
-Open `workshop-app/src/workshop.ts`. The prebuilt handler approves only exact-target Playwright
-navigation:
+Open `src/workshop.ts`. The prebuilt handler approves only exact-target Playwright navigation:
 
 ```typescript
 export function permissionForTarget(target: URL): PermissionHandler {
@@ -351,7 +349,7 @@ server name on permission requests.
 
 ### 3. Inspect the prebuilt snapshot-reader boundary
 
-Still in `workshop-app/src/workshop.ts`, the snapshot reader captures existing files at creation
+Still in `src/workshop.ts`, the snapshot reader captures existing files at creation
 time and accepts no model-supplied path:
 
 ```typescript
@@ -397,7 +395,7 @@ export function createSnapshotReader(workingDirectory: string) {
 
 ### 4. Add Playwright MCP and scoped permissions
 
-In `workshop-app/src/index.ts`, create the session with the three-tool allowlist and Playwright MCP:
+In `src/index.ts`, create the session with the three-tool allowlist and Playwright MCP:
 
 ```typescript
 const client = new CopilotClient();
@@ -440,7 +438,7 @@ server config still lists bare `browser_navigate`.
 ## Run it
 
 ```bash
-npm --prefix workshop-app start -- "{{TARGET_APP_URL}}"
+npm start -- "{{TARGET_APP_URL}}"
 ```
 
 The first run may take longer while `npx` starts Playwright.
@@ -465,15 +463,14 @@ Page title: Blazor Accessibility Target
 | Playwright cannot find a browser | Install Edge or Chrome, or configure an installed browser as described by Playwright MCP. |
 | A permission is rejected | Use the exact target URL above. The handler intentionally denies other URLs and tools. |
 | No current-run snapshot is available | Keep the prompt order: call `browser_navigate` before `read_latest_accessibility_snapshot`. |
-| TypeScript cannot resolve helpers | Confirm the import path ends with `.js` and run `npm install` in `workshop-app`. |
+| TypeScript cannot resolve helpers | Confirm the import path ends with `.js` and run `npm install` in the starter directory. |
 
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/nodejs/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 `src/index.ts`:
 
@@ -513,7 +510,7 @@ try {
 
 ### 1. Accept one controlled target
 
-At the top of `workshop-app/main.py`, validate the startup URL:
+At the top of `main.py`, validate the startup URL:
 
 ```python
 import asyncio
@@ -545,8 +542,7 @@ async def main() -> None:
 
 ### 2. Inspect the prebuilt permission handler
 
-Open `workshop-app/workshop.py`. The prebuilt handler approves only exact-target Playwright
-navigation:
+Open `workshop.py`. The prebuilt handler approves only exact-target Playwright navigation:
 
 ```python
 def permission_for_target(target: str):
@@ -595,7 +591,7 @@ def _same_url(requested: str, allowed: str) -> bool:
 
 ### 3. Inspect the prebuilt snapshot-reader boundary
 
-Still in `workshop-app/workshop.py`, the snapshot reader captures existing files at creation time
+Still in `workshop.py`, the snapshot reader captures existing files at creation time
 and accepts no model-supplied path:
 
 ```python
@@ -692,7 +688,7 @@ server config still lists bare `browser_navigate`.
 ## Run it
 
 ```bash
-python workshop-app/main.py "{{TARGET_APP_URL}}"
+python main.py "{{TARGET_APP_URL}}"
 ```
 
 The first run may take longer while `npx` starts Playwright.
@@ -717,10 +713,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/python/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 `main.py`:
 
@@ -786,7 +781,7 @@ if __name__ == "__main__":
 
 ### 1. Accept one controlled target
 
-At the start of `main` in `workshop-app/main.go`, validate the startup URL:
+At the start of `main` in `main.go`, validate the startup URL:
 
 ```go
 if len(os.Args) != 2 {
@@ -945,7 +940,7 @@ Add the imports used by the new helpers: `encoding/json`, `net/url`, `path/filep
 ## Run it
 
 ```bash
-go -C workshop-app run . "{{TARGET_APP_URL}}"
+go run . "{{TARGET_APP_URL}}"
 ```
 
 The first run may take longer while `npx` starts Playwright.
@@ -970,10 +965,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/go/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 `main.go` session wiring:
 
@@ -1023,7 +1017,7 @@ if err := streamResponse(session, fmt.Sprintf("Use browser_navigate to open %s, 
 
 ### 1. Accept one controlled target
 
-At the start of `main` in `workshop-app/src/main.rs`, validate the startup URL:
+At the start of `main` in `src/main.rs`, validate the startup URL:
 
 ```rust
 let argument = std::env::args()
@@ -1259,7 +1253,7 @@ Add the imports used by the new helpers, including
 ## Run it
 
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml -- "{{TARGET_APP_URL}}"
+cargo run -- "{{TARGET_APP_URL}}"
 ```
 
 The first run may take longer while `npx` starts Playwright.
@@ -1284,10 +1278,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/rust/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 Session wiring from `src/main.rs`:
 
@@ -1336,7 +1329,7 @@ stream_response!(session, mcp_safety_prompt(&target));
 ### 1. Accept one controlled target
 
 At the start of `main` in
-`workshop-app/src/main/java/workshop/AccessibilityReport.java`, validate the startup URL:
+`src/main/java/workshop/AccessibilityReport.java`, validate the startup URL:
 
 ```java
 RunOptions options = parseRunOptions(args);
@@ -1616,7 +1609,7 @@ import com.github.copilot.rpc.PermissionRequestResult;
 ## Run it
 
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
+mvn compile exec:java -Dexec.args="--allow-local-demo-mcp {{TARGET_APP_URL}}"
 ```
 
 The first run may take longer while `npx` starts Playwright. This command intentionally opts into
@@ -1642,10 +1635,9 @@ Page title: Blazor Accessibility Target
 </details>
 
 <details>
-<summary>Complete Step 4 checkpoint</summary>
+<summary>Complete Step 4 implementation</summary>
 
-The Step 4 checkpoint contains the complete project:
-[`checkpoints/java/04-mcp-safety`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/04-mcp-safety).
+Compare your work with this complete Step 4 implementation.
 
 Session wiring from `AccessibilityReport.java`:
 

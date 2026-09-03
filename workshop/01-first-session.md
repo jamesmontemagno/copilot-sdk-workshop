@@ -124,7 +124,7 @@ At this point, the console app is simply `CopilotClient -> session -> model resp
 ## Fire up your first Copilot session
 
 :::language dotnet
-Open `workshop-app/Program.cs` and **replace the entire file**:
+Open `Program.cs` and **replace the entire file**:
 
 ```csharp
 using GitHub.Copilot;
@@ -158,7 +158,7 @@ becomes idle, so it works well when you only need the finished answer.
 :::
 
 :::language nodejs
-Open `workshop-app/src/index.ts` and **replace the entire file**:
+Open `src/index.ts` and **replace the entire file**:
 
 ```typescript
 import { approveAll, CopilotClient } from "@github/copilot-sdk";
@@ -183,7 +183,7 @@ answer. Always stop the session and client in `finally` blocks so the runtime sh
 :::
 
 :::language python
-Open `workshop-app/main.py` and **replace the entire file**:
+Open `main.py` and **replace the entire file**:
 
 ```python
 import asyncio
@@ -227,7 +227,7 @@ assistant message, treat session errors as failures, and wait for the idle event
 :::
 
 :::language go
-Open `workshop-app/main.go` and **replace the entire file**:
+Open `main.go` and **replace the entire file**:
 
 ```go
 package main
@@ -273,7 +273,7 @@ answer. `defer` disconnects the session and stops the client on the way out.
 :::
 
 :::language rust
-Open `workshop-app/src/main.rs` and **replace the entire file**:
+Open `src/main.rs` and **replace the entire file**:
 
 ```rust
 use github_copilot_sdk::permission;
@@ -309,7 +309,7 @@ finished answer. Disconnect the session and stop the client before returning.
 :::
 
 :::language java
-Open `workshop-app/src/main/java/workshop/AccessibilityReport.java` and **replace the entire file**:
+Open `src/main/java/workshop/AccessibilityReport.java` and **replace the entire file**:
 
 ```java
 package workshop;
@@ -348,32 +348,32 @@ answer. The try-with-resources block closes the client when `main` exits.
 
 :::language dotnet
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-python workshop-app/main.py
+python main.py
 ```
 :::
 :::language go
 ```bash
-go -C workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 
@@ -509,11 +509,9 @@ the messages and tool context for one conversation.
 
 :::language dotnet
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/dotnet/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/dotnet/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```csharp
 using GitHub.Copilot;
@@ -542,11 +540,9 @@ Console.WriteLine($"\nCopilot: {response.Data.Content}");
 
 :::language nodejs
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/nodejs/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/nodejs/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -570,11 +566,9 @@ try {
 
 :::language python
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/python/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/python/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```python
 import asyncio
@@ -615,11 +609,9 @@ if __name__ == "__main__":
 
 :::language go
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/go/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/go/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```go
 package main
@@ -662,11 +654,9 @@ func main() {
 
 :::language rust
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/rust/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/rust/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```rust
 use github_copilot_sdk::types::{MessageOptions, SessionConfig};
@@ -698,11 +688,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 :::language java
 <details>
-<summary>Complete Step 1 checkpoint</summary>
+<summary>Complete Step 1 implementation</summary>
 
-To compare your work with a complete project, open the
-[`checkpoints/java/01-first-session`](https://github.com/jamesmontemagno/copilot-sdk-workshop/tree/main/checkpoints/java/01-first-session)
-checkpoint.
+Compare your work with this complete Step 1 implementation.
 
 ```java
 package workshop;

@@ -36,8 +36,9 @@ bash scripts/validate-workshop.sh
 ```
 
 That command validates the shared six-language registry, strict directives and lesson coverage,
-local assets and language propagation tests, all starters, six checkpoints per language, two
-samples per language, and the Blazor target. It uses deterministic noninteractive commands only.
+local assets and language propagation tests, both starter tracks, all finished projects, and the
+Blazor target. Museum projects are restored and compiled without running application test harnesses.
+It uses deterministic noninteractive commands only.
 Do not authenticate, send Copilot prompts, launch a browser, or report a failure caused only by
 credentials, browser runtime, external services, or an organization package proxy.
 
