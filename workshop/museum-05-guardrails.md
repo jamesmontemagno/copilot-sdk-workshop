@@ -150,6 +150,10 @@ Keep `BuildExhibitPrompt` exactly as you wrote it in Step 4 at the end of the fi
 `AvailableTools = [CuratorFacts.ApprovedFactLookupName]` is the one-tool allowlist: that name is
 callable, and nothing else is. `await using var session` disposes inside the `try`, so the client
 always stops afterwards in the `finally`.
+
+**Look inside:** the timeout you pass is `CuratorStreamer.GenerationTimeout` from
+`Helpers/CuratorStreamer.cs` (120 seconds), and the empty-list and size limits behind
+`CuratorFacts.BoundFacts` are in `Helpers/CuratorFacts.cs`.
 :::
 
 :::language nodejs
@@ -241,6 +245,9 @@ async function main(): Promise<void> {
 `availableTools: [approvedFactLookupName]` is the one-tool allowlist: that name is callable, and
 nothing else is. The nested `finally` blocks disconnect the session and stop the client even when
 the stream throws.
+
+**Look inside:** the timeout you pass is `generationTimeoutMs` from `src/curator.ts` (120,000 ms),
+and the empty-list and size limits behind `boundFacts` are in the same file.
 :::
 
 :::language python
@@ -326,6 +333,9 @@ if __name__ == "__main__":
 `"available_tools": [APPROVED_FACT_LOOKUP_NAME]` is the one-tool allowlist: that name is callable,
 and nothing else is. The two `finally` blocks disconnect the session and stop the client even when
 the stream raises.
+
+**Look inside:** the timeout you pass is `GENERATION_TIMEOUT_SECONDS` from `curator.py` (120), and
+the empty-list and size limits behind `bound_facts` are in the same file.
 :::
 
 :::language go
@@ -452,6 +462,9 @@ func run() error {
 `AvailableTools: []string{ApprovedFactLookupName}` is the one-tool allowlist — one explicit name,
 not a wildcard and not a missing field. The two `defer` calls disconnect the session and stop the
 client on every return path.
+
+**Look inside:** the timeout you pass is the `GenerationTimeout` constant from `curator.go` (120
+seconds), and the empty-list and size limits behind `BoundFacts` are in the same file.
 :::
 
 :::language rust
@@ -598,6 +611,9 @@ async fn run() -> Result<(), RuntimeError> {
 `config.available_tools = Some(vec![APPROVED_FACT_LOOKUP_NAME.to_owned()])` is the one-tool
 allowlist — one explicit name, not `None` and not a wildcard. `run_session` disconnects the session
 and stops the client before propagating any error, so no path leaks a live process.
+
+**Look inside:** the timeout you pass is the `GENERATION_TIMEOUT` constant from `src/lib.rs` (120
+seconds), and the empty-list and size limits behind `bound_facts` are in the same file.
 :::
 
 :::language java
@@ -728,6 +744,10 @@ Replace `main`:
 `setAvailableTools(List.of(CuratorFacts.APPROVED_FACT_LOOKUP_NAME))` is the one-tool allowlist: that
 name is callable, and nothing else is. The nested `finally` blocks close the session and stop the
 client on every path, and the outer `finally` always closes the terminal reader.
+
+**Look inside:** the timeout you pass is `CuratorStreamer.GENERATION_TIMEOUT` from
+`CuratorStreamer.java` (120 seconds), and the empty-list and size limits behind
+`CuratorFacts.boundFacts` are in `CuratorFacts.java`.
 :::
 
 ## Run it

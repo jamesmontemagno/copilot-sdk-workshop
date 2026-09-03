@@ -33,6 +33,10 @@ and attack surface.
 educator just approved on screen. The external Wikipedia process in Step 7 gets a permission
 boundary instead.
 
+This is the museum equivalent of `accessibility_rule_lookup` in the accessibility track: one
+zero-argument, application-owned local tool that hands the model curated data it cannot otherwise
+reach.
+
 ## Two lists, two different jobs
 
 Registering a tool takes two settings, and confusing them is the most common mistake in this
@@ -145,6 +149,14 @@ static string BuildExhibitPrompt()
 Local functions come after the top-level statements. `BuildExhibitPrompt` takes no facts at all now
 — it names the tool instead. `CreateApprovedFactLookup` calls `BoundFacts` internally, so the bound
 holds no matter who builds the tool.
+
+**Look inside:** `Helpers/CuratorFacts.cs` holds all of this, and it is worth reading because it is
+a real tool definition rather than plumbing. `CreateApprovedFactLookup` closes over the bounded
+list the educator just approved and registers it through `CopilotTool.DefineTool` under the name
+`approved_fact_lookup`. The handler takes no parameters, so the model cannot steer what comes back
+— it asks, and it receives exactly that list. `SkipPermission = true` is set right there because
+the data is application-owned. The three fact sets and the `MaximumFactCount` (20) and
+`MaximumFactLength` (500) bounds enforced by `BoundFacts` are in the same file.
 :::
 
 :::language nodejs
@@ -238,6 +250,14 @@ async function main(): Promise<void> {
 `buildExhibitPrompt` takes no facts at all now — it names the tool instead.
 `createApprovedFactLookup` calls `boundFacts` internally, so the bound holds no matter who builds
 the tool.
+
+**Look inside:** `src/curator.ts` holds all of this, and it is worth reading because it is a real
+`defineTool` definition rather than plumbing. `createApprovedFactLookup` closes over the bounded
+list the educator just approved and defines `approved_fact_lookup` with
+`parameters: { type: "object", properties: {}, additionalProperties: false }`, so the model cannot
+steer what comes back — it asks, and it receives exactly that list. `skipPermission: true` is set
+right there because the data is application-owned. The three fact sets and the `maximumFactCount`
+(20) and `maximumFactLength` (500) bounds enforced by `boundFacts` are in the same file.
 :::
 
 :::language python
@@ -316,6 +336,14 @@ async def main() -> None:
 `build_exhibit_prompt` takes no facts at all now — it names the tool instead.
 `create_approved_fact_lookup` calls `bound_facts` internally, so the bound holds no matter who
 builds the tool.
+
+**Look inside:** `curator.py` holds all of this, and it is worth reading because it is a real
+`@define_tool` definition rather than plumbing. `create_approved_fact_lookup` closes over the
+bounded list the educator just approved and decorates a nested `approved_fact_lookup()` that takes
+no arguments, so the model cannot steer what comes back — it asks, and it receives exactly that
+list. `skip_permission=True` is set right there because the data is application-owned. The three
+fact sets and the `MAXIMUM_FACT_COUNT` (20) and `MAXIMUM_FACT_LENGTH` (500) bounds enforced by
+`bound_facts` are in the same file.
 :::
 
 :::language go
@@ -412,6 +440,14 @@ func main() {
 
 `buildExhibitPrompt` takes no facts at all now — it names the tool instead. `ApprovedFactLookup`
 calls `BoundFacts` internally, so the bound holds no matter who builds the tool.
+
+**Look inside:** `curator.go` holds all of this, and it is worth reading because it is a real
+`copilot.DefineTool` definition rather than plumbing. `ApprovedFactLookup` closes over the bounded
+list the educator just approved and defines a handler whose argument type is `struct{}`, so the
+model cannot steer what comes back — it asks, and it receives exactly that list.
+`lookup.SkipPermission = true` is set right there because the data is application-owned. The three
+fact sets and the `MaximumFactCount` (20) and `MaximumFactLength` (500) bounds enforced by
+`BoundFacts` are in the same file.
 :::
 
 :::language rust
@@ -511,6 +547,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 `build_exhibit_prompt` takes no facts at all now — it names the tool instead.
 `approved_fact_lookup` calls `bound_facts` internally, so the bound holds no matter who builds the
 tool.
+
+**Look inside:** `src/lib.rs` holds all of this, and it is worth reading because it is a real tool
+definition rather than plumbing. `approved_fact_lookup` closes over the bounded list the educator
+just approved and builds a `Tool` whose parameter schema is
+`{"type": "object", "properties": {}, "additionalProperties": false}`, so the model cannot steer
+what comes back — it asks, and it receives exactly that list. `.with_skip_permission(true)` is set
+right there because the data is application-owned. The three fact sets and the
+`MAXIMUM_FACT_COUNT` (20) and `MAXIMUM_FACT_LENGTH` (500) bounds enforced by `bound_facts` are in
+the same file.
 :::
 
 :::language java
@@ -604,6 +649,14 @@ Replace `main`:
 
 `buildExhibitPrompt` takes no facts at all now — it names the tool instead. `approvedFactLookup`
 calls `boundFacts` internally, so the bound holds no matter who builds the tool.
+
+**Look inside:** `CuratorFacts.java` holds all of this, and it is worth reading because it is a
+real `ToolDefinition` rather than plumbing. `approvedFactLookup` builds a private
+`ApprovedFactReader` over the bounded list the educator just approved and binds its no-argument
+`read` method, so the model cannot steer what comes back — it asks, and it receives exactly that
+list. `.skipPermission(true)` is set right there because the data is application-owned. The three
+fact sets and the `MAXIMUM_FACT_COUNT` (20) and `MAXIMUM_FACT_LENGTH` (500) bounds enforced by
+`boundFacts` are in the same file.
 :::
 
 ## Run it

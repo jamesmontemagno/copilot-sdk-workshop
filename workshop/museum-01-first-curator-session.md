@@ -53,6 +53,10 @@ await client.StopAsync();
 
 `SendAndWaitAsync` blocks until the session goes idle, so you get the finished answer in one call.
 `await using` disposes the session and the client on the way out.
+
+The pre-built helpers you start calling in Step 2 live in `Helpers/CuratorFacts.cs`,
+`Helpers/CuratorStreamer.cs`, `Helpers/CuratorValidation.cs`, `Helpers/CuratorSafety.cs`, and
+`Helpers/CuratorTerminal.cs`. You never edit those files — you read them.
 :::
 
 :::language nodejs
@@ -82,6 +86,9 @@ void main();
 ```
 
 `sendAndWait` blocks until the session goes idle, so you get the finished answer in one call.
+
+`src/curator.ts` beside this file is the pre-built helper module you start calling in Step 2. You
+never edit it — you read it.
 :::
 
 :::language python
@@ -130,6 +137,9 @@ if __name__ == "__main__":
 Python listens for session events rather than calling one blocking helper. Print the assistant
 message, treat a session error as a failure, and wait for idle before exiting. Step 2 replaces this
 whole listener with one helper call.
+
+`curator.py` beside this file is the pre-built helper module that owns that replacement. You never
+edit it — you read it.
 :::
 
 :::language go
@@ -262,6 +272,10 @@ public final class MuseumExhibitStudio {
 
 `sendAndWait` blocks until the session goes idle. The try-with-resources block closes the client
 when `main` exits.
+
+The pre-built helpers you start calling in Step 2 sit beside your file in
+`src/main/java/workshop/`: `CuratorFacts.java`, `CuratorStreamer.java`, `CuratorValidation.java`,
+`CuratorSafety.java`, and `CuratorTerminal.java`. You never edit those files — you read them.
 :::
 
 ## Run it

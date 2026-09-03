@@ -50,6 +50,13 @@ Open `Program.cs`. Capture the returned exhibit and print the report:
 
 `CuratorValidation` is already in the `MuseumExhibitStudio.Helpers` namespace you imported in
 Step 2, so there is nothing new to add at the top of the file.
+
+**Look inside:** `Helpers/CuratorValidation.cs` is the concrete answer to "the application proves
+this, not the model". `ValidateExhibit` splits the text into lines, counts `TitlePattern` matches,
+locates the `## Narrative` and `## Visitor questions` headings, counts narrative words with
+`WordPattern`, collects numbered items with `QuestionPattern`, and scans the whole text for the
+five terms in `ProhibitedVocabulary`. Each failed rule appends a plain sentence to `Errors`, and
+`FormatValidation` renders those into the report you print. No model is involved at any point.
 :::
 
 :::language nodejs
@@ -67,6 +74,13 @@ import, then capture the returned exhibit and print the report:
     console.log();
     console.log(formatValidation(validateExhibit(exhibit)));
 ```
+
+**Look inside:** `src/curator.ts` is the concrete answer to "the application proves this, not the
+model". `validateExhibit` splits the text into lines, counts `titlePattern` matches, locates the
+`## Narrative` and `## Visitor questions` headings, counts narrative words with `wordPattern`,
+collects numbered items with `questionPattern`, and scans the whole text for the five terms in
+`prohibitedVocabulary`. Each failed rule appends a plain sentence to `errors`, and
+`formatValidation` renders those into the report you print. No model is involved at any point.
 :::
 
 :::language python
@@ -86,6 +100,13 @@ import, then capture the returned exhibit and print the report:
         print(format_validation(validate_exhibit(exhibit)))
         return 0
 ```
+
+**Look inside:** `curator.py` is the concrete answer to "the application proves this, not the
+model". `validate_exhibit` splits the text into lines, counts `_TITLE_PATTERN` matches, locates the
+`## Narrative` and `## Visitor questions` headings, counts narrative words with `_WORD_PATTERN`,
+collects numbered items with `_QUESTION_PATTERN`, and scans the whole text for the five terms in
+`PROHIBITED_VOCABULARY`. Each failed rule appends a plain sentence to `errors`, and
+`format_validation` renders those into the report you print. No model is involved at any point.
 :::
 
 :::language go
@@ -105,6 +126,13 @@ Open `main.go`. Capture the returned exhibit and print the report:
 
 `FormatValidation` and `ValidateExhibit` live in `curator.go` in the same package, so there is no
 import to add.
+
+**Look inside:** `curator.go` is the concrete answer to "the application proves this, not the
+model". `ValidateExhibit` splits the text into lines, counts title-pattern matches, locates the
+`## Narrative` and `## Visitor questions` headings, counts narrative words, collects numbered
+items, and scans the lowercased text for the five terms in `prohibitedVocabulary`. Each failed rule
+appends a plain sentence to `validation.Errors`, and `FormatValidation` renders those into the
+report you print. No model is involved at any point.
 :::
 
 :::language rust
@@ -125,6 +153,13 @@ import, then capture the returned exhibit and print the report:
 
     Ok(())
 ```
+
+**Look inside:** `src/lib.rs` is the concrete answer to "the application proves this, not the
+model". `validate_exhibit` splits the text into lines, counts title-pattern matches, locates the
+`## Narrative` and `## Visitor questions` headings, counts narrative words, collects numbered
+items, and scans the lowercased text for the five terms in `PROHIBITED_VOCABULARY`. Each failed
+rule pushes a plain sentence onto `errors`, and `format_validation` renders those into the report
+you print. No model is involved at any point.
 :::
 
 :::language java
@@ -143,6 +178,13 @@ exhibit and print the report:
 ```
 
 `CuratorValidation` sits in the same `workshop` package, so there is no import to add.
+
+**Look inside:** `CuratorValidation.java` is the concrete answer to "the application proves this,
+not the model". `validateExhibit` splits the text into lines, counts `TITLE_PATTERN` matches,
+locates the `## Narrative` and `## Visitor questions` headings, counts narrative words with
+`WORD_PATTERN`, collects numbered items with `QUESTION_PATTERN`, and scans the lowercased text for
+the five terms in `PROHIBITED_VOCABULARY`. Each failed rule adds a plain sentence to `errors`, and
+`formatValidation` renders those into the report you print. No model is involved at any point.
 :::
 
 ## Run it

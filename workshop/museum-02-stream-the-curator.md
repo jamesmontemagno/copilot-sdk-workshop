@@ -53,6 +53,14 @@ await client.StopAsync();
 Two changes: `Streaming = true` on the session config, and `CuratorStreamer.StreamExhibitAsync`
 in place of `SendAndWaitAsync`. The helper lives in `Helpers/CuratorStreamer.cs` and you never
 edit it.
+
+**Look inside:** open `Helpers/CuratorStreamer.cs` and read `StreamExhibitAsync` once. It is the
+SDK event loop, and this is the clearest place in the workshop to see how streaming actually works.
+It subscribes with `session.On<SessionEvent>`, appends and writes each `AssistantMessageDeltaEvent`
+chunk the moment it arrives, prints a `[tool:start]` line for every `ToolExecutionStartEvent` and a
+`[tool:done]` line for every `ToolExecutionCompleteEvent`, completes on `SessionIdleEvent`, and
+faults on `SessionErrorEvent`. A `Task.Delay` race turns the timeout into a `TimeoutException`, and
+the subscription is disposed on every path.
 :::
 
 :::language nodejs
@@ -87,6 +95,14 @@ void main();
 
 Two changes: `streaming: true` on the session config, and `streamExhibit` in place of
 `sendAndWait`. The helper lives in `src/curator.ts` and you never edit it.
+
+**Look inside:** open `src/curator.ts` and read `streamExhibit` once. It is the SDK event loop, and
+this is the clearest place in the workshop to see how streaming actually works. It subscribes with
+`session.on`, writes each `assistant.message_delta` chunk to standard output the moment it arrives,
+prints a `[tool:start]` line for every `tool.execution_start` event and a `[tool:done]` line for
+every `tool.execution_complete` event, resolves its promise on `session.idle`, and rejects on
+`session.error`. A `setTimeout` rejects if neither ever arrives, and `finish` unsubscribes on every
+path.
 :::
 
 :::language python
@@ -122,6 +138,14 @@ if __name__ == "__main__":
 The whole event listener from Step 1 collapses into one call. `stream_exhibit` lives in
 `curator.py`, already does the matching on `AssistantMessageDeltaData`, `SessionErrorData`, and
 `SessionIdleData`, and you never edit it.
+
+**Look inside:** open `curator.py` and read `stream_exhibit` once. It is the SDK event loop, and
+this is the clearest place in the workshop to see how streaming actually works. It subscribes with
+`session.on`, prints each `AssistantMessageDeltaData` chunk the moment it arrives, prints a
+`[tool:start]` line for every `ToolExecutionStartData` and a `[tool:done]` line for every
+`ToolExecutionCompleteData`, sets its `done` event on `SessionIdleData`, and re-raises
+`SessionErrorData` as a `RuntimeError`. `asyncio.wait_for` applies the timeout, and a `finally`
+block unsubscribes on every path.
 :::
 
 :::language go
@@ -170,6 +194,14 @@ func main() {
 Two changes: `Streaming: copilot.Bool(true)` on the session config, and `StreamExhibit` in place of
 `SendAndWait`. `StreamExhibit` and `GenerationTimeout` come from `curator.go` in the same package,
 and you never edit that file.
+
+**Look inside:** open `curator.go` and read `StreamExhibit` once. It is the SDK event loop, and
+this is the clearest place in the workshop to see how streaming actually works. It subscribes with
+`session.On`, prints each `AssistantMessageDeltaData` chunk the moment it arrives, prints a
+`[tool:start]` line for every `ToolExecutionStartData` and a `[tool:done]` line for every
+`ToolExecutionCompleteData`, and records any `SessionErrorData` to return as an error. It then
+waits on `session.SendAndWait` inside a `context.WithTimeout` built from the timeout you pass, and
+a deferred `unsubscribe` runs on every path.
 :::
 
 :::language rust
@@ -207,6 +239,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 Two changes: `config.streaming = Some(true)`, and `stream_exhibit` in place of `send_and_wait`.
 Both `stream_exhibit` and `GENERATION_TIMEOUT` come from the `museum_exhibit_studio` crate in
 `src/lib.rs`, and you never edit it.
+
+**Look inside:** open `src/lib.rs` and read `stream_exhibit` once. It is the SDK event loop, and
+this is the clearest place in the workshop to see how streaming actually works. It subscribes with
+`session.subscribe`, prints and flushes each `assistant.message_delta` chunk the moment it arrives,
+prints a `[tool:start]` line for every `tool.execution_start` event and a `[tool:done]` line for
+every `tool.execution_complete` event, finishes on `session.idle`, and returns an error on
+`session.error`. It polls the send future, the event stream, and a deadline together, so the
+timeout you pass holds even if no event ever arrives.
 :::
 
 :::language java
@@ -246,6 +286,14 @@ public final class MuseumExhibitStudio {
 Two changes: `setStreaming(true)` on the session config, and `CuratorStreamer.streamExhibit` in
 place of `sendAndWait`. The helper lives in `CuratorStreamer.java` beside your file, and you never
 edit it.
+
+**Look inside:** open `CuratorStreamer.java` and read `streamExhibit` once. It is the SDK event
+loop, and this is the clearest place in the workshop to see how streaming actually works. It
+registers one listener per event type: `AssistantMessageDeltaEvent` prints and accumulates each
+chunk as it arrives, `ToolExecutionStartEvent` and `ToolExecutionCompleteEvent` print the
+`[tool:start]` and `[tool:done]` lines, `SessionIdleEvent` ends the line, and `SessionErrorEvent`
+is captured and rethrown. The timeout you pass goes to `session.sendAndWait` in milliseconds, and
+every subscription is closed in a `finally` block.
 :::
 
 ## Run it
