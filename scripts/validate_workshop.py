@@ -992,6 +992,14 @@ MUSEUM_HELPER_SYMBOLS = (
     "askyesno",
     "readfacts",
 )
+MUSEUM_HELPER_LESSON_REFERENCES = {
+    "dotnet": re.compile(r"Helpers/Curator[A-Za-z]+\.cs"),
+    "nodejs": re.compile(r"src/curator\.ts"),
+    "python": re.compile(r"(?<![\w/])curator\.py"),
+    "go": re.compile(r"(?<![\w/])curator\.go"),
+    "rust": re.compile(r"src/lib\.rs"),
+    "java": re.compile(r"(?<![\w/])Curator[A-Za-z]+\.java"),
+}
 MUSEUM_ABSTRACTION_MARKERS = (
     "icuratorclient",
     "icuratorsession",
@@ -1639,6 +1647,15 @@ def validate_documentation() -> None:
                 MUSEUM_ENTRYPOINTS[language] in rendered,
                 f"{name} ({language}) must grow the single in-place museum project through "
                 f"{MUSEUM_ENTRYPOINTS[language]}",
+            )
+            # Learners call a large pre-built helper module in every step. Each lesson has to
+            # point at the file that holds it, in that reader's own language, so the "look
+            # inside" notes cannot quietly disappear.
+            require(
+                MUSEUM_HELPER_LESSON_REFERENCES[language].search(rendered) is not None,
+                f"{name} ({language}) must tell the learner which pre-built curator helper file "
+                f"to open (expected a reference matching "
+                f"{MUSEUM_HELPER_LESSON_REFERENCES[language].pattern})",
             )
 
     # The museum curator reaches its approved facts through one application-owned local tool.

@@ -148,6 +148,15 @@ Print the sources after the validation report:
 ```
 
 The research call reuses `RunSessionAsync` unchanged. Only the configuration differs.
+
+**Look inside:** `Helpers/CuratorSafety.cs` is the security core of this step, and it is short
+enough to read in full. `WikipediaPermissionHandler` approves a request only when it is a
+`PermissionRequestMcp` with `ServerName: "wikipedia"` and a tool name in
+`AllowedWikipediaToolNames`; every other request falls through to `PermissionDecision.Reject` with
+feedback. That is deny-by-default: the rejection is the default branch, not a special case.
+`ExtractSources` in the same file finds the last `## Sources` heading, keeps everything before it
+as the body, and accepts only lines shaped `- <title>: https://…`; a missing or malformed sources
+section yields an empty list rather than an error.
 :::
 
 :::language nodejs
@@ -228,6 +237,15 @@ Print the sources after the validation report:
 ```
 
 The research call reuses `runSession` unchanged. Only the configuration differs.
+
+**Look inside:** `src/curator.ts` is the security core of this step. `wikipediaPermissionHandler`
+approves a request only when `request.kind === "mcp"`, `request.serverName === "wikipedia"`, and
+the tool name is in its `allowedTools` set; every other request falls through to a
+`{ kind: "reject" }` decision with feedback. That is deny-by-default: the rejection is the default
+branch, not a special case. `extractSources` in the same file finds the last `## Sources` heading,
+keeps everything before it as the body, and accepts only lines shaped `- <title>: https://…`; the
+whole parse is wrapped in a `try`/`catch` that returns the content unchanged, so it never throws
+into your run.
 :::
 
 :::language python
@@ -310,6 +328,15 @@ Print the sources after the validation report:
 ```
 
 The research call reuses `run_session` unchanged. Only the configuration differs.
+
+**Look inside:** `curator.py` is the security core of this step. `wikipedia_permission_handler`
+approves a request only when its `kind` is `"mcp"`, its server name is `"wikipedia"`, and the tool
+name is in the `allowed_tools` set; every other request falls through to `PermissionDecisionReject`
+with feedback. That is deny-by-default: the rejection is the default branch, not a special case.
+`extract_sources` in the same file finds the last `## Sources` heading with
+`_SOURCE_HEADING_PATTERN`, keeps everything before it as the body, and accepts only lines matching
+`_SOURCE_LINE_PATTERN` (`- <title>: https://…`); a missing or malformed sources section yields an
+empty tuple rather than an error.
 :::
 
 :::language go
@@ -404,6 +431,14 @@ Print the sources after the validation report:
 ```
 
 The research call reuses `runSession` unchanged. Only the configuration differs.
+
+**Look inside:** `curator.go` is the security core of this step. `WikipediaPermissionHandler`
+approves a request only when `mcpPermissionDetails` reports an MCP request for the `wikipedia`
+server with a tool name present in `wikipediaAllowedTools`; every other request falls through to
+`rpc.PermissionDecisionReject` with feedback. That is deny-by-default: the rejection is the default
+branch, not a special case. `ExtractSources` in the same file finds the last `## Sources` heading,
+keeps everything before it as the body, and accepts only `-` list lines that carry an `https://`
+URL; a missing or malformed sources section yields an empty slice rather than an error.
 :::
 
 :::language rust
@@ -513,6 +548,16 @@ Print the sources after the validation report:
 ```
 
 The research call reuses `run_session` unchanged. Only the configuration differs.
+
+**Look inside:** `src/lib.rs` is the security core of this step. The `PermissionHandler`
+implementation behind `wikipedia_permission_handler` approves a request only when the request kind
+is MCP, the server name is `wikipedia`, and the tool name is one of `search`, `readArticle`,
+`wikipedia-search`, or `wikipedia-readArticle`; every other request takes the
+`PermissionResult::reject` branch with feedback. That is deny-by-default: the rejection is the
+default branch, not a special case. `extract_sources` in the same file finds the last `## Sources`
+heading with `rposition`, keeps everything before it as the body, and lets `parse_source_line`
+return `None` for anything that is not a `- <title>: http…` bullet, so a missing or malformed
+sources section yields an empty `Vec` rather than an error.
 :::
 
 :::language java
@@ -602,6 +647,16 @@ Print the sources after the validation report:
 ```
 
 The research call reuses `runSession` unchanged. Only the configuration differs.
+
+**Look inside:** `CuratorSafety.java` is the security core of this step.
+`wikipediaPermissionHandler` delegates to `isAllowedWikipediaRequest`, which returns true only for
+an `"mcp"` request whose `serverName` is `"wikipedia"` and whose `toolName` is in
+`WIKIPEDIA_TOOL_NAMES`; everything else becomes `PermissionRequestResult.reject` with feedback.
+That is deny-by-default: a missing field or an unrecognized tool is refused rather than allowed.
+`extractSources` in the same file finds the last `## Sources` heading with `SOURCES_HEADING`, keeps
+everything before it as the body, and accepts only lines matching `SOURCE_LINE`
+(`- <title>: https://…`); blank content or a missing section yields an empty list rather than an
+error.
 :::
 
 ## Run it

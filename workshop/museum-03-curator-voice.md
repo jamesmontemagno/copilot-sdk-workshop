@@ -74,6 +74,9 @@ await CuratorStreamer.StreamExhibitAsync(
 
 await client.StopAsync();
 ```
+
+**Look inside:** the streaming call and its 120-second default both come from
+`Helpers/CuratorStreamer.cs`, where `GenerationTimeout` and `ResearchTimeout` are declared.
 :::
 
 :::language nodejs
@@ -120,6 +123,9 @@ async function main(): Promise<void> {
 
 void main();
 ```
+
+**Look inside:** `streamExhibit` and its 120-second default, `generationTimeoutMs`, are both
+declared in `src/curator.ts`, alongside the 90-second `researchTimeoutMs` that Step 7 uses.
 :::
 
 :::language python
@@ -166,6 +172,9 @@ async def main() -> None:
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+**Look inside:** `stream_exhibit` and its 120-second default, `GENERATION_TIMEOUT_SECONDS`, are
+both declared in `curator.py`, alongside the 90-second `RESEARCH_TIMEOUT_SECONDS` that Step 7 uses.
 :::
 
 :::language go
@@ -228,6 +237,9 @@ func main() {
 	}
 }
 ```
+
+**Look inside:** `GenerationTimeout` is the 120-second constant declared beside `StreamExhibit` in
+`curator.go`, alongside the 90-second `ResearchTimeout` that Step 7 uses.
 :::
 
 :::language rust
@@ -280,6 +292,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
+
+**Look inside:** `GENERATION_TIMEOUT` is the 120-second constant declared beside `stream_exhibit`
+in `src/lib.rs`, alongside the 90-second `RESEARCH_TIMEOUT` that Step 7 uses.
 :::
 
 :::language java
@@ -336,6 +351,10 @@ public final class MuseumExhibitStudio {
     }
 }
 ```
+
+**Look inside:** the two-argument `CuratorStreamer.streamExhibit` you are calling applies
+`GENERATION_TIMEOUT`, the 120-second constant declared in `CuratorStreamer.java` alongside the
+90-second `RESEARCH_TIMEOUT` that Step 7 uses.
 :::
 
 ## Run it

@@ -83,6 +83,13 @@ Offer the page at the end of the run, after the sources:
 
     return 0;
 ```
+
+**Look inside:** `Helpers/CuratorSafety.cs` holds `ExhibitWritePermission`, and it is the only
+thing standing between the model and your file system in this step. It precomputes
+`Path.GetFullPath` of `<workingDirectory>/exhibit.html`, then approves a request only when it is a
+`PermissionRequestWrite` whose resolved file name equals that one path. Everything else — another
+file name, a traversal like `../../etc/hosts`, a shell request, an MCP request — takes the
+`PermissionDecision.Reject` branch with feedback.
 :::
 
 :::language nodejs
@@ -133,6 +140,13 @@ Offer the page at the end of the run, after the sources:
       console.log("Wrote exhibit.html. Open it in a browser to review the exhibit.");
     }
 ```
+
+**Look inside:** `src/curator.ts` holds `exhibitWritePermission`, and it is the only thing standing
+between the model and your file system in this step. It precomputes `resolve(root, "exhibit.html")`
+once, then approves a request only when `request.kind === "write"` and the requested file name
+resolves against `root` to exactly that path. Everything else — another file name, a traversal like
+`../../etc/hosts`, a shell request, an MCP request — takes the `{ kind: "reject" }` branch with
+feedback.
 :::
 
 :::language python
@@ -185,6 +199,13 @@ Offer the page at the end of the run, after the sources:
             print("Wrote exhibit.html. Open it in a browser to review the exhibit.")
         return 0
 ```
+
+**Look inside:** `curator.py` holds `exhibit_write_permission`, and it is the only thing standing
+between the model and your file system in this step. It precomputes the resolved
+`<working_directory>/exhibit.html` path once, then approves a request only when its `kind` is
+`"write"` and the resolved requested path equals that one path. Everything else — another file
+name, a traversal like `../../etc/hosts`, a shell request, an MCP request — falls through to
+`PermissionDecisionReject` with feedback.
 :::
 
 :::language go
@@ -235,6 +256,13 @@ Offer the page at the end of `run`, after the sources:
 	}
 	return nil
 ```
+
+**Look inside:** `curator.go` holds `ExhibitWritePermission`, and it is the only thing standing
+between the model and your file system in this step. It precomputes
+`filepath.Clean(filepath.Join(workingDirectory, ExhibitFileName))` once, then approves a request
+only when `writePermissionFileName` reports a write request whose cleaned path equals that one
+path. Everything else — another file name, a traversal like `../../etc/hosts`, a shell request, an
+MCP request — falls through to `rpc.PermissionDecisionReject` with feedback.
 :::
 
 :::language rust
@@ -290,6 +318,13 @@ Offer the page at the end of `run`, after the sources:
 
     Ok(())
 ```
+
+**Look inside:** `src/lib.rs` holds `exhibit_write_permission` and the `ExhibitWritePermissions`
+handler behind it, and that handler is the only thing standing between the model and your file
+system in this step. It stores the normalized `<working_directory>/exhibit.html` path once, then
+approves a request only when the request kind is write and the normalized requested path equals
+that one path. Everything else — another file name, a traversal like `../../etc/hosts`, a shell
+request, an MCP request — takes the `PermissionResult::reject` branch with feedback.
 :::
 
 :::language java
@@ -378,6 +413,12 @@ Read the flag at the top of `main`, warn loudly when it is on, and offer the pag
                 System.out.println("Wrote exhibit.html. Open it in a browser to review the exhibit.");
             }
 ```
+
+**Look inside:** `CuratorSafety.java` holds `exhibitWritePermission`, the strict handler your
+`exhibitPermission` wraps. It normalizes `<workingDirectory>/exhibit.html` once, then approves a
+request only when the kind is `"write"` and `isExhibitWrite` resolves the requested `fileName` to
+exactly that path. A missing `fileName` field stays denied rather than defaulting to allowed, which
+is why the opt-in demo flag above exists and why it is off unless you ask for it.
 :::
 
 ## Run it
