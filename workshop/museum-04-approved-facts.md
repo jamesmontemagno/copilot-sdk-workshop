@@ -18,10 +18,11 @@ You could paste the fact list into the prompt text. Many applications do. But th
 just more words in a request the model is free to read loosely, and every run carries the whole
 catalog whether the model needs it or not.
 
-A **local tool** is different. It runs inside your process, your code decides what it returns, and
-the transcript records the moment the model asked for it. `approved_fact_lookup` is that tool. It
-takes no arguments and returns the bounded approved fact list, so two runs on the same fact set ask
-the same question and get the same answer — grounding stays deterministic.
+A [**local tool**](https://github.com/github/copilot-sdk/blob/main/docs/getting-started.md#how-tools-work)
+is different. It runs inside your process, your code decides what it returns, and the transcript
+records the moment the model asked for it. `approved_fact_lookup` is that tool. It takes no
+arguments and returns the bounded approved fact list, so two runs on the same fact set ask the same
+question and get the same answer — grounding stays deterministic.
 
 The helpers already own the tool and the bounds. `boundFacts` trims every fact, drops blanks, and
 rejects the batch when it is empty, longer than 20 facts, or contains a fact over 500 characters.
@@ -756,5 +757,14 @@ message.
   would you lose if it took a free-text query argument instead?
 - The output structure is requested in the prompt. What has actually verified that the model
   followed it so far?
+
+## Learn more
+
+- [Working with hooks](https://github.com/github/copilot-sdk/blob/main/docs/features/hooks.md):
+  callbacks the runtime invokes around each tool call, for auditing or policy your code owns.
+- [Post-tool-use hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/post-tool-use.md):
+  inspecting or rewriting what a tool returned before the model reads it.
+- [Context clearing and terminal tools](https://github.com/github/copilot-sdk/blob/main/docs/features/context-management.md):
+  what a tool can do to the conversation itself, and why most tools should not.
 
 Continue to [Set the guardrails](museum-05-guardrails.md).

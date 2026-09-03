@@ -7,9 +7,11 @@
 The same prompt, but the answer appears word by word instead of arriving after a silent pause.
 
 You will not write an event loop. The starter already ships a streaming printer in the pre-built
-curator helpers: it subscribes to session events, writes each delta to standard output, reports tool
-activity, fails on session errors, enforces a timeout, unsubscribes on every path, and returns the
-full text it accumulated. Your job is to turn streaming on and call it.
+curator helpers: it subscribes to
+[session events](https://github.com/github/copilot-sdk/blob/main/docs/features/streaming-events.md),
+writes each delta to standard output, reports tool activity, fails on session errors, enforces a
+timeout, unsubscribes on every path, and returns the full text it accumulated. Your job is to turn
+streaming on and call it.
 
 ## Why streaming matters for a curator
 
@@ -358,5 +360,14 @@ the streaming flag on the session config.
 - The helper returns the full response text even though it also printed it. Why will that return
   value matter in Step 6?
 - If the model never becomes idle, what stops your program from waiting forever?
+
+## Learn more
+
+- [Steering and queueing](https://github.com/github/copilot-sdk/blob/main/docs/features/steering-and-queueing.md):
+  sending another message while a turn is still streaming, instead of waiting for it to finish.
+- [Usage and billing metrics](https://github.com/github/copilot-sdk/blob/main/docs/features/usage-and-billing.md):
+  reading token counts and cost from the same events the printer is already subscribed to.
+- [Context clearing](https://github.com/github/copilot-sdk/blob/main/docs/features/context-management.md):
+  replacing a conversation inside a session that you want to keep using.
 
 Continue to [Give the curator a voice](museum-03-curator-voice.md).

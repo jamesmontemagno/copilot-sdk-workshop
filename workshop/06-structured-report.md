@@ -1186,4 +1186,13 @@ private static String reportPrompt(URI target) {
 </details>
 :::
 
+## Learn more
+
+- [User prompt submitted hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/user-prompt-submitted.md):
+  modifying or rejecting a prompt in code before the runtime sends it.
+- [User prompt transformed hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/user-prompt-transformed.md):
+  inspecting the model-facing prompt the runtime actually built from your text.
+- [Citations](https://github.com/github/copilot-sdk/blob/main/docs/features/citations.md):
+  an experimental way to tie spans of a response back to the material that supports them.
+
 Continue to [Step 7: Run and explain the application](07-run-explain.md).

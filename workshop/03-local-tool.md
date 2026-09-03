@@ -9,7 +9,8 @@ application-owned Web Content Accessibility Guidelines (WCAG) catalog.
 
 ## Give Copilot a tool your app owns
 
-**Tool calling** lets the model request a capability while it works on an answer. A **local tool**
+**Tool calling** lets the model request a capability while it works on an answer. A
+[**local tool**](https://github.com/github/copilot-sdk/blob/main/docs/getting-started.md#how-tools-work)
 runs inside your application process. The model decides when to request it, but your code still owns
 the data, validation, execution, and result.
 
@@ -991,5 +992,14 @@ Usually a local tool. The application owns the line items and the deterministic 
 in-process function is easier to test and does not cross a process boundary.
 
 </details>
+
+## Learn more
+
+- [Working with hooks](https://github.com/github/copilot-sdk/blob/main/docs/features/hooks.md):
+  callbacks the runtime invokes around each tool call, for auditing or policy you own.
+- [Post-tool-use hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/post-tool-use.md):
+  inspecting or rewriting a tool result before the model sees it.
+- [Custom skills](https://github.com/github/copilot-sdk/blob/main/docs/features/skills.md):
+  packaging reusable instructions that load beside the tools a session registers.
 
 Continue to [Step 4: Connect an external tool safely](04-mcp-safety.md).

@@ -272,4 +272,14 @@ not your intent.
 - The validator is deterministic. Why does that matter more for a museum than a slightly smarter
   model-based reviewer would?
 
+## Learn more
+
+- [User prompt submitted hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/user-prompt-submitted.md):
+  checking or rejecting a prompt in code before the runtime sends it.
+- [User prompt transformed hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/user-prompt-transformed.md):
+  reading the model-facing prompt the runtime actually built.
+- [Hooks overview](https://github.com/github/copilot-sdk/blob/main/docs/hooks/hooks-overview.md):
+  where each hook sits in a turn, if you want a check the runtime enforces rather than one you run
+  afterwards.
+
 Continue to [Research with Wikipedia MCP](museum-07-wikipedia-research.md).

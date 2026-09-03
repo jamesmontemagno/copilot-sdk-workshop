@@ -9,13 +9,15 @@ its accessibility tree, and report the page title.
 
 ## Meet MCP and its trust boundary
 
-The **Model Context Protocol (MCP)** is a standard way to connect an agent to reusable capabilities
-implemented outside your application. In this workshop, the SDK starts the Playwright MCP server
-as a separate `npx` process. Playwright handles browser automation, while your application
-configures the connection.
+The [**Model Context Protocol (MCP)**](https://github.com/github/copilot-sdk/blob/main/docs/features/mcp.md)
+is a standard way to connect an agent to reusable capabilities implemented outside your
+application. In this workshop, the SDK starts the Playwright MCP server as a separate `npx`
+process. Playwright handles browser automation, while your application configures the connection.
 
-The process boundary is also a **trust boundary**. A permission handler decides whether each
-requested external action may run.
+The process boundary is also a **trust boundary**. A
+[permission handler](https://github.com/github/copilot-sdk/blob/main/docs/hooks/pre-tool-use.md) is
+a callback the runtime invokes before a requested action runs, and it decides whether each external
+action may proceed.
 
 | Question | Local WCAG tool | Playwright MCP |
 |---|---|---|
@@ -1690,5 +1692,16 @@ connects it without moving browser logic into the application's domain code, and
 protect the process boundary.
 
 </details>
+
+## Learn more
+
+- [Model Context Protocol](https://modelcontextprotocol.io/): the open standard the Playwright
+  server implements, and the vocabulary its tool names come from.
+- [MCP debugging](https://github.com/github/copilot-sdk/blob/main/docs/troubleshooting/mcp-debugging.md):
+  diagnosing a server that will not start or that exposes different tools than you expected.
+- [Hook error handling](https://github.com/github/copilot-sdk/blob/main/docs/hooks/error-handling.md):
+  deciding what a session does when a tool call or a handler fails.
+- [Plugin directories](https://github.com/github/copilot-sdk/blob/main/docs/features/plugin-directories.md):
+  bundling MCP servers, skills, and hooks so a session loads them as one unit.
 
 Continue to [Step 5: Combine local and MCP tools](05-combine-tools.md).

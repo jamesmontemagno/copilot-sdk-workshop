@@ -1952,6 +1952,32 @@ def validate_museum_rust_error_types() -> None:
                 )
 
 
+def validate_learn_more_sections() -> None:
+    # Every lesson ends with a "Learn more" section so a learner can go deeper into the official
+    # SDK documentation for that step. Assert the section and at least one link in every
+    # per-language render, so the links cannot quietly end up inside a single language block and
+    # leave the other five tracks with a heading and nothing under it. This checks structure only;
+    # link targets are checked by validate_markdown_links.
+    documentation_link = re.compile(r"\[[^\]]+\]\(https?://[^)]+\)")
+    for lesson_name in LESSONS:
+        lesson_path = WORKSHOP / lesson_name
+        if not lesson_path.exists():
+            continue
+        require(
+            "## Learn more" in read(lesson_path),
+            f"workshop/{lesson_name} is missing its required '## Learn more' section",
+        )
+        for language in LANGUAGES:
+            section = markdown_section(
+                render_language_markdown(lesson_path, language), "## Learn more"
+            )
+            require(
+                documentation_link.search(section) is not None,
+                f"workshop/{lesson_name} ({language}) has no documentation link in its "
+                "'## Learn more' section",
+            )
+
+
 def validate_workflows() -> None:
     required_setup = (
         ("actions/setup-dotnet@v6", "dotnet-version: 10.0.x"),
@@ -2012,6 +2038,7 @@ validate_documentation()
 validate_editor_open_guidance()
 validate_museum_permission_handlers()
 validate_museum_rust_error_types()
+validate_learn_more_sections()
 validate_workflows()
 
 if errors:

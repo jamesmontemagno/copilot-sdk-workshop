@@ -5,7 +5,9 @@
 ## What you'll build
 
 The same prompt, the same streaming call — but the answer now sounds like a museum instead of a
-chatbot. You write one system message and switch the session into replace mode.
+chatbot. You write one
+[system message](https://github.com/github/copilot-sdk/blob/main/docs/getting-started.md#customize-the-system-message)
+and switch the session into replace mode.
 
 This is the first piece of **application-owned policy**. The prompt is task data that changes every
 run. The system message is a durable statement of who this agent is, what it may talk about, and
@@ -420,5 +422,14 @@ anything. Keep that distinction in mind for Step 5, then set the prompt back.
 - The system message says "use only facts supplied by this application", but the application has
   not supplied any facts yet and there is no tool to fetch them. Where is the model getting Apollo
   11 details right now, and why is that a problem for a museum?
+
+## Learn more
+
+- [SDK and CLI compatibility](https://github.com/github/copilot-sdk/blob/main/docs/troubleshooting/compatibility.md):
+  confirms that `systemMessage` supports both append and replace, and what else each SDK exposes.
+- [Custom agents](https://github.com/github/copilot-sdk/blob/main/docs/features/custom-agents.md):
+  giving a named agent its own system prompt and its own scoped tools.
+- [Custom skills](https://github.com/github/copilot-sdk/blob/main/docs/features/skills.md):
+  packaging durable instructions as reusable modules instead of one long message.
 
 Continue to [Ground it in approved facts](museum-04-approved-facts.md).

@@ -494,3 +494,12 @@ You have finished Museum Exhibit Studio. Your starter project now matches
 `finished/<language>/museum-exhibit-studio`: an educator picks approved facts, optionally researches
 them under a narrow allowlist, and gets grounded, structurally checked exhibit copy plus a
 publishable page — with every capability decided by your code rather than by a prompt.
+
+## Learn more
+
+- [Pre-tool-use hook](https://github.com/github/copilot-sdk/blob/main/docs/hooks/pre-tool-use.md):
+  approving, denying, or rewriting a tool call in code, which is what the write handler does here.
+- [Hooks reference](https://github.com/github/copilot-sdk/blob/main/docs/hooks/README.md):
+  every hook the SDK exposes, and the input each one receives.
+- [Local CLI setup](https://github.com/github/copilot-sdk/blob/main/docs/setup/local-cli.md):
+  controlling which CLI the SDK starts, which is what decides where a written file lands.
