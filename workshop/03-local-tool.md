@@ -30,7 +30,7 @@ external MCP process in the next step will use a permission boundary instead.
 
 ### 1. Add the catalog lookup tool
 
-At the top of `workshop-app/Helpers/AccessibilityRuleCatalog.cs`, insert:
+At the top of `Helpers/AccessibilityRuleCatalog.cs`, insert:
 
 ```csharp
 using System.ComponentModel;
@@ -70,7 +70,7 @@ public static AccessibilityRule Lookup(string query)
 
 ### 2. Show tool activity
 
-In `workshop-app/Helpers/ResponseStreamer.cs`, insert these cases before `SessionIdleEvent`:
+In `Helpers/ResponseStreamer.cs`, insert these cases before `SessionIdleEvent`:
 
 ```csharp
 case ToolExecutionStartEvent tool:
@@ -83,7 +83,7 @@ case ToolExecutionCompleteEvent tool:
 
 ### 3. Register and request the tool
 
-Replace the session configuration and send call in `workshop-app/Program.cs`:
+Replace the session configuration and send call in `Program.cs`:
 
 ```csharp
 await using var session = await client.CreateSessionAsync(new SessionConfig
@@ -102,7 +102,7 @@ await ResponseStreamer.SendAndPrintAsync(
 ## Run it
 
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 
 Look for the tool name and its mapping to 4.1.2:
@@ -168,8 +168,7 @@ printing live in `Helpers/ResponseStreamer.cs`.
 
 ### 1. Inspect the prebuilt typed tool
 
-Open `workshop-app/src/workshop.ts`. The starter already imports the catalog and defines this local
-tool:
+Open `src/workshop.ts`. The starter already imports the catalog and defines this local tool:
 
 ```typescript
 export const accessibilityRuleLookup = defineTool("accessibility_rule_lookup", {
@@ -200,7 +199,7 @@ Keep those branches so you can see when the model calls the local tool.
 
 ### 3. Register and request the tool
 
-In `workshop-app/src/index.ts`, import the tool with the streaming helper:
+In `src/index.ts`, import the tool with the streaming helper:
 
 ```typescript
 import { accessibilityRuleLookup, streamResponse } from "./workshop.js";
@@ -229,7 +228,7 @@ try {
 ## Run it
 
 ```bash
-npm --prefix workshop-app start
+npm start
 ```
 
 Look for the tool name and guidance for WCAG 4.1.2:
@@ -246,7 +245,7 @@ WCAG 4.1.2 Name, Role, Value ...
 
 | Symptom | Fix |
 |---|---|
-| TypeScript cannot resolve `zod` | Run `npm install` in `workshop-app`. |
+| TypeScript cannot resolve `zod` | Run `npm install` in the starter directory. |
 | No tool event appears | Keep the tool name in both `tools` and `availableTools`, and keep the explicit instruction in the prompt. |
 | The lookup returns no match | Ask about `4.1.2` or `accessible name`, both represented in the catalog. |
 | Tool events never print | Confirm `streamResponse` still handles `tool.execution_start` and `tool.execution_complete`. |
@@ -292,7 +291,7 @@ The typed tool definition and tool-activity printing live in `src/workshop.ts`.
 
 ### 1. Inspect the prebuilt typed tool
 
-Open `workshop-app/workshop.py`. The starter already defines the parameter model and local tool:
+Open `workshop.py`. The starter already defines the parameter model and local tool:
 
 ```python
 class LookupParams(BaseModel):
@@ -314,7 +313,7 @@ because this tool only returns application-owned read-only data.
 
 ### 2. Register and request the tool
 
-In `workshop-app/main.py`, import the tool:
+In `main.py`, import the tool:
 
 ```python
 from workshop import accessibility_rule_lookup
@@ -360,7 +359,7 @@ async with await client.create_session(
 ## Run it
 
 ```bash
-python workshop-app/main.py
+python main.py
 ```
 
 The response should use the catalog's WCAG 4.1.2 title and recommendation:
@@ -444,8 +443,7 @@ The typed tool definition lives in `workshop.py`.
 
 ### 1. Add the typed lookup
 
-Add `strings` to the imports in `workshop-app/main.go`, then add these declarations before
-`streamResponse`:
+Add `strings` to the imports in `main.go`, then add these declarations before `streamResponse`:
 
 ```go
 type lookupParams struct {
@@ -509,7 +507,7 @@ data.
 ## Run it
 
 ```bash
-go -C workshop-app run .
+go run .
 ```
 
 The streamed response should use the lookup result for WCAG 4.1.2:
@@ -625,7 +623,7 @@ func main() {
 
 ### 1. Add the typed handler
 
-Add these imports near the top of `workshop-app/src/main.rs`:
+Add these imports near the top of `src/main.rs`:
 
 ```rust
 use std::sync::Arc;
@@ -694,7 +692,7 @@ read-only data.
 ## Run it
 
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml
+cargo run
 ```
 
 The streamed response should use the lookup result for WCAG 4.1.2:
@@ -833,8 +831,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### 1. Add the typed lookup
 
-Add these imports to
-`workshop-app/src/main/java/workshop/AccessibilityReport.java`:
+Add these imports to `src/main/java/workshop/AccessibilityReport.java`:
 
 ```java
 import com.github.copilot.rpc.ToolDefinition;
@@ -896,7 +893,7 @@ completed response when the turn finishes.
 ## Run it
 
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 
 The response should use the lookup result for WCAG 4.1.2:

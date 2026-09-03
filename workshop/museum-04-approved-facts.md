@@ -53,7 +53,7 @@ you can see it.
 ## Register the tool and build the prompt
 
 :::language dotnet
-Open `museum-workshop-app/Program.cs`. Widen nothing at the top — you already have
+Open `Program.cs`. Widen nothing at the top — you already have
 `using MuseumExhibitStudio.Helpers;`. Replace everything from the first `Console.WriteLine` to the
 end of the file:
 
@@ -148,7 +148,7 @@ holds no matter who builds the tool.
 :::
 
 :::language nodejs
-Open `museum-workshop-app/src/index.ts` and widen the helper import:
+Open `src/index.ts` and widen the helper import:
 
 ```typescript
 import {
@@ -241,7 +241,7 @@ the tool.
 :::
 
 :::language python
-Open `museum-workshop-app/main.py` and widen the helper import:
+Open `main.py` and widen the helper import:
 
 ```python
 from curator import (
@@ -319,7 +319,7 @@ builds the tool.
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Add `"strconv"` to the import block, then add the prompt builder
+Open `main.go`. Add `"strconv"` to the import block, then add the prompt builder
 below the system message:
 
 ```go
@@ -415,7 +415,7 @@ calls `BoundFacts` internally, so the bound holds no matter who builds the tool.
 :::
 
 :::language rust
-Open `museum-workshop-app/src/main.rs` and widen the crate import:
+Open `src/main.rs` and widen the crate import:
 
 ```rust
 use museum_exhibit_studio::{
@@ -514,7 +514,7 @@ tool.
 :::
 
 :::language java
-Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Add
+Open `src/main/java/workshop/MuseumExhibitStudio.java`. Add
 `import java.util.List;` to the imports, then add the prompt builder to the class:
 
 ```java
@@ -610,32 +610,32 @@ calls `boundFacts` internally, so the bound holds no matter who builds the tool.
 
 :::language dotnet
 ```bash
-dotnet run --project museum-workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 

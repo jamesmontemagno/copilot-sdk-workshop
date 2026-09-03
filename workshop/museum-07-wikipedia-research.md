@@ -52,7 +52,7 @@ write or shell access.
 ## Add the research session
 
 :::language dotnet
-Open `museum-workshop-app/Program.cs`. Add the research system message beside the curator one:
+Open `Program.cs`. Add the research system message beside the curator one:
 
 ```csharp
 const string ResearchSystemMessage = """
@@ -151,7 +151,7 @@ The research call reuses `RunSessionAsync` unchanged. Only the configuration dif
 :::
 
 :::language nodejs
-Open `museum-workshop-app/src/index.ts`. Add to the helper import: `extractSources`,
+Open `src/index.ts`. Add to the helper import: `extractSources`,
 `researchTimeoutMs`, `wikipediaPermissionHandler`, `wikipediaServer`, `wikipediaTools`, and
 `type WikipediaSource`.
 
@@ -231,7 +231,7 @@ The research call reuses `runSession` unchanged. Only the configuration differs.
 :::
 
 :::language python
-Open `museum-workshop-app/main.py`. Add to the helper import: `RESEARCH_TIMEOUT_SECONDS`,
+Open `main.py`. Add to the helper import: `RESEARCH_TIMEOUT_SECONDS`,
 `WIKIPEDIA_TOOLS`, `extract_sources`, `wikipedia_permission_handler`, and `wikipedia_server`.
 
 Add the research system message beside the curator one:
@@ -313,7 +313,7 @@ The research call reuses `run_session` unchanged. Only the configuration differs
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Add the research system message beside the curator one:
+Open `main.go`. Add the research system message beside the curator one:
 
 ```go
 const researchSystemMessage = `You are a museum research assistant.
@@ -407,7 +407,7 @@ The research call reuses `runSession` unchanged. Only the configuration differs.
 :::
 
 :::language rust
-Open `museum-workshop-app/src/main.rs`. Add to the crate import: `RESEARCH_TIMEOUT`,
+Open `src/main.rs`. Add to the crate import: `RESEARCH_TIMEOUT`,
 `WIKIPEDIA_TOOLS`, `extract_sources`, `wikipedia_permission_handler`, and `wikipedia_server`. Add
 `use std::sync::Arc;` and extend the SDK import with `IndexMap`:
 
@@ -516,7 +516,7 @@ The research call reuses `run_session` unchanged. Only the configuration differs
 :::
 
 :::language java
-Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Add
+Open `src/main/java/workshop/MuseumExhibitStudio.java`. Add
 `import java.util.ArrayList;` and `import java.util.Map;`, then add the research system message
 beside the curator one:
 
@@ -611,32 +611,32 @@ network access and takes a little longer to start.
 
 :::language dotnet
 ```bash
-dotnet run --project museum-workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 

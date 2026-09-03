@@ -33,7 +33,7 @@ what it does not cover — is the lesson.
 ## Wire the validator
 
 :::language dotnet
-Open `museum-workshop-app/Program.cs`. Capture the returned exhibit and print the report:
+Open `Program.cs`. Capture the returned exhibit and print the report:
 
 ```csharp
     Console.WriteLine();
@@ -53,7 +53,7 @@ Step 2, so there is nothing new to add at the top of the file.
 :::
 
 :::language nodejs
-Open `museum-workshop-app/src/index.ts`. Add `formatValidation` and `validateExhibit` to the helper
+Open `src/index.ts`. Add `formatValidation` and `validateExhibit` to the helper
 import, then capture the returned exhibit and print the report:
 
 ```typescript
@@ -70,7 +70,7 @@ import, then capture the returned exhibit and print the report:
 :::
 
 :::language python
-Open `museum-workshop-app/main.py`. Add `format_validation` and `validate_exhibit` to the helper
+Open `main.py`. Add `format_validation` and `validate_exhibit` to the helper
 import, then capture the returned exhibit and print the report:
 
 ```python
@@ -89,7 +89,7 @@ import, then capture the returned exhibit and print the report:
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Capture the returned exhibit and print the report:
+Open `main.go`. Capture the returned exhibit and print the report:
 
 ```go
 	fmt.Println()
@@ -108,7 +108,7 @@ import to add.
 :::
 
 :::language rust
-Open `museum-workshop-app/src/main.rs`. Add `format_validation` and `validate_exhibit` to the crate
+Open `src/main.rs`. Add `format_validation` and `validate_exhibit` to the crate
 import, then capture the returned exhibit and print the report:
 
 ```rust
@@ -128,7 +128,7 @@ import, then capture the returned exhibit and print the report:
 :::
 
 :::language java
-Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Capture the returned
+Open `src/main/java/workshop/MuseumExhibitStudio.java`. Capture the returned
 exhibit and print the report:
 
 ```java
@@ -149,32 +149,32 @@ exhibit and print the report:
 
 :::language dotnet
 ```bash
-dotnet run --project museum-workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 

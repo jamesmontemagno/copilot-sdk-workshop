@@ -1,6 +1,6 @@
 # Museum Exhibit Studio starters
 
-Choose the directory for your workshop language, then copy it to `museum-workshop-app`.
+Choose the directory for your workshop language and work directly inside it.
 These starters contain pinned dependencies, a minimal executable, and one pre-built curator
 helper module. The helpers hold the plumbing you never have to write: the approved fact sets and
 their bounds, the pre-built `approved_fact_lookup` local tool that hands those facts to the
@@ -15,17 +15,18 @@ session runner that owns the guardrails, the validation report, scoped Wikipedia
 optional `exhibit.html` page. Each starter entrypoint carries comments marking exactly where each
 step's code goes. Start at [`workshop/museum-00-preflight.md`](../workshop/museum-00-preflight.md).
 
-| Language | Helper module | Copy, build, and run |
+| Language | Helper module | Change directory, build, and run |
 |---|---|---|
-| .NET | `Helpers/Curator*.cs` | `cp -R start-museum/dotnet museum-workshop-app && dotnet build museum-workshop-app && dotnet run --project museum-workshop-app` |
-| Node.js | `src/curator.ts` | `cp -R start-museum/nodejs museum-workshop-app && npm --prefix museum-workshop-app ci && npm --prefix museum-workshop-app run build && npm --prefix museum-workshop-app start` |
-| Python | `curator.py` | `cp -R start-museum/python museum-workshop-app && python -m venv museum-workshop-app/.venv && museum-workshop-app/.venv/bin/python -m pip install -r museum-workshop-app/requirements.txt && museum-workshop-app/.venv/bin/python museum-workshop-app/main.py` |
-| Go | `curator.go` | `cp -R start-museum/go museum-workshop-app && go -C museum-workshop-app build -mod=readonly ./... && go -C museum-workshop-app run .` |
-| Rust | `src/lib.rs` | `cp -R start-museum/rust museum-workshop-app && cargo check --locked --manifest-path museum-workshop-app/Cargo.toml && cargo run --locked --manifest-path museum-workshop-app/Cargo.toml` |
-| Java | `src/main/java/workshop/Curator*.java` | `cp -R start-museum/java museum-workshop-app && mvn -f museum-workshop-app/pom.xml compile && mvn -f museum-workshop-app/pom.xml exec:java` |
+| .NET | `Helpers/Curator*.cs` | `cd start-museum/dotnet && dotnet build && dotnet run` |
+| Node.js | `src/curator.ts` | `cd start-museum/nodejs && npm ci && npm run build && npm start` |
+| Python | `curator.py` | `cd start-museum/python && python -m venv .venv && .venv/bin/python -m pip install -r requirements.txt && .venv/bin/python main.py` |
+| Go | `curator.go` | `cd start-museum/go && go build -mod=readonly ./... && go run .` |
+| Rust | `src/lib.rs` | `cd start-museum/rust && cargo check --locked && cargo run --locked` |
+| Java | `src/main/java/workshop/Curator*.java` | `cd start-museum/java && mvn compile && mvn exec:java` |
 
-On Windows, replace `cp -R` with `Copy-Item -Recurse`. Running the starter prints its identity and
-does not start Copilot or require authentication.
+Running the starter prints its identity and does not start Copilot or require authentication.
+Because you edit these files in place, your work shows up in `git status`. That is expected. Run
+`git checkout -- .` from the repository root to restore a clean starter.
 
 Every starter already pins the dependencies the finished application needs, so you never edit a
 project manifest during the workshop. The Rust starter builds the `museum_exhibit_studio` library

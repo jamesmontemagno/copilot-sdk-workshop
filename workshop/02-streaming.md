@@ -31,7 +31,7 @@ The session flow is now `response deltas -> final message -> idle`.
 
 ### 1. Add the streaming helper
 
-Create `workshop-app/Helpers/ResponseStreamer.cs`:
+Create `Helpers/ResponseStreamer.cs`:
 
 ```csharp
 using GitHub.Copilot;
@@ -77,7 +77,7 @@ the task with an exception instead of looking like a successful turn.
 
 ### 2. Use the helper
 
-In `workshop-app/Program.cs`, add `using HelloCopilotSDK.Helpers;`, then replace the session and
+In `Program.cs`, add `using HelloCopilotSDK.Helpers;`, then replace the session and
 response code with:
 
 ```csharp
@@ -95,7 +95,7 @@ await ResponseStreamer.SendAndPrintAsync(
 ## Run it
 
 ```bash
-dotnet run --project workshop-app
+dotnet run
 ```
 
 The bullets should start appearing progressively before the process exits:
@@ -128,7 +128,7 @@ Copilot:
 
 Compare your work with this complete Step 2 implementation.
 
-`workshop-app/Helpers/ResponseStreamer.cs`:
+`Helpers/ResponseStreamer.cs`:
 
 ```csharp
 using GitHub.Copilot;
@@ -169,7 +169,7 @@ public static class ResponseStreamer
 }
 ```
 
-`workshop-app/Program.cs`:
+`Program.cs`:
 
 ```csharp
 using GitHub.Copilot;
@@ -202,7 +202,7 @@ await ResponseStreamer.SendAndPrintAsync(
 
 ### 1. Inspect the streaming helper
 
-Open `workshop-app/src/workshop.ts`. The starter already exports `streamResponse`, which subscribes
+Open `src/workshop.ts`. The starter already exports `streamResponse`, which subscribes
 with `session.on`, prints assistant deltas, keeps a final-message fallback, rejects session errors,
 and resolves on idle:
 
@@ -238,7 +238,7 @@ tools later.
 
 ### 2. Wire the helper into the entrypoint
 
-Replace `workshop-app/src/index.ts` with:
+Replace `src/index.ts` with:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -264,7 +264,7 @@ try {
 ## Run it
 
 ```bash
-npm --prefix workshop-app start
+npm start
 ```
 
 The one-sentence response should start appearing progressively through the event callback:
@@ -293,7 +293,7 @@ Streaming shows partial answers as soon as tokens arrive, so the assistant feels
 
 Compare your work with this complete Step 2 implementation.
 
-`workshop-app/src/workshop.ts` (`streamResponse`):
+`src/workshop.ts` (`streamResponse`):
 
 ```typescript
 export async function streamResponse(session: CopilotSession, prompt: string): Promise<void> {
@@ -322,7 +322,7 @@ export async function streamResponse(session: CopilotSession, prompt: string): P
 }
 ```
 
-`workshop-app/src/index.ts`:
+`src/index.ts`:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -353,7 +353,7 @@ try {
 
 ### 1. Subscribe to session events
 
-Replace `workshop-app/main.py` with an async entrypoint that enables streaming, handles
+Replace `main.py` with an async entrypoint that enables streaming, handles
 `AssistantMessageDeltaData`, keeps an `AssistantMessageData` fallback, surfaces
 `SessionErrorData`, and waits for `SessionIdleData`:
 
@@ -409,7 +409,7 @@ The final-message case handles a runtime that completes without deltas. A sessio
 ## Run it
 
 ```bash
-python workshop-app/main.py
+python main.py
 ```
 
 The bullets should start appearing progressively through the event callback:
@@ -440,7 +440,7 @@ The bullets should start appearing progressively through the event callback:
 
 Compare your work with this complete Step 2 implementation.
 
-`workshop-app/main.py`:
+`main.py`:
 
 ```python
 import asyncio
@@ -489,7 +489,7 @@ if __name__ == "__main__":
 
 ### 1. Add the streaming helper
 
-In `workshop-app/main.go`, replace the package contents with a `streamResponse` helper that
+In `main.go`, replace the package contents with a `streamResponse` helper that
 subscribes with `session.On`, prints `AssistantMessageDeltaData`, keeps an `AssistantMessageData`
 fallback after `SendAndWait`, and returns send errors:
 
@@ -553,7 +553,7 @@ func main() {
 ## Run it
 
 ```bash
-go -C workshop-app run .
+go run .
 ```
 
 The bullets should start appearing progressively through the event callback:
@@ -584,7 +584,7 @@ The bullets should start appearing progressively through the event callback:
 
 Compare your work with this complete Step 2 implementation.
 
-`workshop-app/main.go`:
+`main.go`:
 
 ```go
 package main
@@ -645,7 +645,7 @@ func main() {
 
 ### 1. Add the streaming helper macro
 
-Replace `workshop-app/src/main.rs` with a `stream_response!` macro that calls
+Replace `src/main.rs` with a `stream_response!` macro that calls
 `session.subscribe()`, prints assistant deltas with `tokio::select!`, keeps a final-message
 fallback, and waits until both send completion and `session.idle` have happened:
 
@@ -727,7 +727,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ## Run it
 
 ```bash
-cargo run --manifest-path workshop-app/Cargo.toml
+cargo run
 ```
 
 The bullets should start appearing progressively through the event subscription:
@@ -758,7 +758,7 @@ The bullets should start appearing progressively through the event subscription:
 
 Compare your work with this complete Step 2 implementation.
 
-`workshop-app/src/main.rs`:
+`src/main.rs`:
 
 ```rust
 use std::io::{self, Write};
@@ -838,8 +838,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### 1. Enable streaming on the session
 
 The Java SDK implementation uses a streaming-enabled `SessionConfig` and `sendAndWait`, then prints the
-completed assistant message. Replace `workshop-app/src/main/java/workshop/AccessibilityReport.java`
-with:
+completed assistant message. Replace `src/main/java/workshop/AccessibilityReport.java` with:
 
 ```java
 package workshop;
@@ -878,7 +877,7 @@ finishes.
 ## Run it
 
 ```bash
-mvn -f workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 
 The completed response should print before the process exits:
@@ -896,7 +895,7 @@ The completed response should print before the process exits:
 |---|---|
 | No response is printed | Confirm `setStreaming(true)` is on `SessionConfig` and you call `sendAndWait`. |
 | The process fails with a null response | Keep the `response == null` guard and throw when the turn completes without a message. |
-| Maven cannot find the main class | Run from the workshop app with `mvn -f workshop-app/pom.xml compile exec:java`. |
+| Maven cannot find the main class | Run from the starter directory with `mvn compile exec:java`. |
 
 </details>
 
@@ -908,7 +907,7 @@ The completed response should print before the process exits:
 
 Compare your work with this complete Step 2 implementation.
 
-`workshop-app/src/main/java/workshop/AccessibilityReport.java`:
+`src/main/java/workshop/AccessibilityReport.java`:
 
 ```java
 package workshop;

@@ -22,7 +22,7 @@ Right now the application is simply `client -> session -> printed response`.
 ## Write the session
 
 :::language dotnet
-Open `museum-workshop-app/Program.cs` and **replace the entire file**:
+Open `Program.cs` and **replace the entire file**:
 
 ```csharp
 using GitHub.Copilot;
@@ -56,7 +56,7 @@ await client.StopAsync();
 :::
 
 :::language nodejs
-Open `museum-workshop-app/src/index.ts` and **replace the entire file**:
+Open `src/index.ts` and **replace the entire file**:
 
 ```typescript
 import { CopilotClient } from "@github/copilot-sdk";
@@ -85,7 +85,7 @@ void main();
 :::
 
 :::language python
-Open `museum-workshop-app/main.py` and **replace the entire file**:
+Open `main.py` and **replace the entire file**:
 
 ```python
 import asyncio
@@ -133,7 +133,7 @@ whole listener with one helper call.
 :::
 
 :::language go
-Open `museum-workshop-app/main.go` and **replace the entire file**:
+Open `main.go` and **replace the entire file**:
 
 ```go
 package main
@@ -184,7 +184,7 @@ need them. `SendAndWait` blocks until the session goes idle.
 :::
 
 :::language rust
-Open `museum-workshop-app/src/main.rs` and **replace the entire file**:
+Open `src/main.rs` and **replace the entire file**:
 
 ```rust
 use github_copilot_sdk::types::{MessageOptions, SessionConfig};
@@ -223,8 +223,7 @@ not need it yet, and you never edit it.
 :::
 
 :::language java
-Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java` and **replace the entire
-file**:
+Open `src/main/java/workshop/MuseumExhibitStudio.java` and **replace the entire file**:
 
 ```java
 package workshop;
@@ -269,32 +268,32 @@ when `main` exits.
 
 :::language dotnet
 ```bash
-dotnet run --project museum-workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 

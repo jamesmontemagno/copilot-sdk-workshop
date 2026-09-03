@@ -102,7 +102,7 @@ that learners never edit: approved fact sets and their bounds, a streaming print
 exhibit validation, the scoped Wikipedia MCP server with its deny-by-default permission handler, the
 single-file `exhibit.html` write permission, and small terminal prompts.
 
-Learners copy their starter once to `museum-workshop-app` and grow that one project across the
+Learners work directly in `start-museum/<language>` and grow that one project across the
 lessons, running it at every step. They write only the session setup, the curator and research
 system messages, the prompt builders, one session runner that owns the lifecycle and guardrails, and
 `main`. The finished sample is what a learner ends up with, not a separate reference architecture.

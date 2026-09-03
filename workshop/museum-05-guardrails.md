@@ -39,8 +39,7 @@ prompt begging the model to behave.
 ## Own the session lifecycle
 
 :::language dotnet
-Open `museum-workshop-app/Program.cs`. Replace everything from the first `Console.WriteLine` to the
-end of the file:
+Open `Program.cs`. Replace everything from the first `Console.WriteLine` to the end of the file:
 
 ```csharp
 try
@@ -154,7 +153,7 @@ always stops afterwards in the `finally`.
 :::
 
 :::language nodejs
-Open `museum-workshop-app/src/index.ts`. Add `generationTimeoutMs` to the helper import and the
+Open `src/index.ts`. Add `generationTimeoutMs` to the helper import and the
 session config type to the SDK import:
 
 ```typescript
@@ -245,7 +244,7 @@ the stream throws.
 :::
 
 :::language python
-Open `museum-workshop-app/main.py`. Add `GENERATION_TIMEOUT_SECONDS` to the helper import, and add
+Open `main.py`. Add `GENERATION_TIMEOUT_SECONDS` to the helper import, and add
 `import os`, `import sys`, `from collections.abc import Iterable`, and `from typing import Any` at
 the top.
 
@@ -330,7 +329,7 @@ the stream raises.
 :::
 
 :::language go
-Open `museum-workshop-app/main.go`. Add `"errors"`, `"os"`, `"strings"`, and `"time"` to the import
+Open `main.go`. Add `"errors"`, `"os"`, `"strings"`, and `"time"` to the import
 block, then add the configuration builder, the session runner, and the error helpers:
 
 ```go
@@ -456,7 +455,7 @@ client on every return path.
 :::
 
 :::language rust
-Open `museum-workshop-app/src/main.rs`. Update the imports:
+Open `src/main.rs`. Update the imports:
 
 ```rust
 use std::error::Error;
@@ -602,7 +601,7 @@ and stops the client before propagating any error, so no path leaks a live proce
 :::
 
 :::language java
-Open `museum-workshop-app/src/main/java/workshop/MuseumExhibitStudio.java`. Add these imports:
+Open `src/main/java/workshop/MuseumExhibitStudio.java`. Add these imports:
 
 ```java
 import com.github.copilot.CopilotSession;
@@ -735,32 +734,32 @@ client on every path, and the outer `finally` always closes the terminal reader.
 
 :::language dotnet
 ```bash
-dotnet run --project museum-workshop-app
+dotnet run
 ```
 :::
 :::language nodejs
 ```bash
-npm --prefix museum-workshop-app start
+npm start
 ```
 :::
 :::language python
 ```bash
-museum-workshop-app/.venv/bin/python museum-workshop-app/main.py
+.venv/bin/python main.py
 ```
 :::
 :::language go
 ```bash
-go -C museum-workshop-app run .
+go run .
 ```
 :::
 :::language rust
 ```bash
-cargo run --manifest-path museum-workshop-app/Cargo.toml
+cargo run
 ```
 :::
 :::language java
 ```bash
-mvn -f museum-workshop-app/pom.xml compile exec:java
+mvn compile exec:java
 ```
 :::
 
