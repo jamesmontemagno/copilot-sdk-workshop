@@ -49,6 +49,15 @@ files, and snapshots larger than 1 MB. Navigation is approved only when the comp
 matches the target supplied at startup. Scheme and host use URL-standard case-insensitive
 comparison. Path, query, and fragment must match case-sensitively.
 
+The handler returns exactly one decision per request, and this one needs two of the available
+kinds. `approve-once` allows this single request. `reject` denies it and can forward a feedback
+message to the model, so a refused call comes back with a reason instead of as a silent failure.
+Two more kinds exist for situations this workshop does not reach: `user-not-available` denies
+because no user is present to confirm, and `no-result` declines to respond at all so another
+connected client can answer the request instead. Wider approval scopes — `approve-for-session`,
+`approve-for-location`, and `approve-permanently` — remember a decision beyond this one call. Each
+SDK spells all of these with its own naming convention.
+
 :::language dotnet
 ## Wire up scoped Playwright access in C#
 
