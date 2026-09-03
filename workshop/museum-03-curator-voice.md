@@ -33,6 +33,7 @@ Replace the entire contents of `Program.cs`:
 
 ```csharp
 using GitHub.Copilot;
+using GitHub.Copilot.Rpc;
 using MuseumExhibitStudio.Helpers;
 
 const string SystemMessage = """
@@ -60,6 +61,7 @@ await client.StartAsync();
 await using var session = await client.CreateSessionAsync(new SessionConfig
 {
     ClientName = "museum-exhibit-studio",
+    OnPermissionRequest = PermissionHandler.ApproveAll,
     Streaming = true,
     SystemMessage = new SystemMessageConfig
     {
@@ -83,7 +85,7 @@ await client.StopAsync();
 Replace the entire contents of `src/index.ts`:
 
 ```typescript
-import { CopilotClient } from "@github/copilot-sdk";
+import { approveAll, CopilotClient } from "@github/copilot-sdk";
 import { streamExhibit } from "./curator.js";
 
 const systemMessage = `You are an interpretive museum exhibit curator.
@@ -108,6 +110,7 @@ async function main(): Promise<void> {
   await client.start();
   const session = await client.createSession({
     clientName: "museum-exhibit-studio",
+    onPermissionRequest: approveAll,
     streaming: true,
     systemMessage: { mode: "replace", content: systemMessage },
   });
@@ -134,7 +137,7 @@ Replace the entire contents of `main.py`:
 ```python
 import asyncio
 
-from copilot import CopilotClient
+from copilot import CopilotClient, PermissionHandler
 
 from curator import stream_exhibit
 
@@ -160,6 +163,7 @@ async def main() -> None:
     async with CopilotClient() as client:
         async with await client.create_session(
             client_name="museum-exhibit-studio",
+            on_permission_request=PermissionHandler.approve_all,
             streaming=True,
             system_message={"mode": "replace", "content": SYSTEM_MESSAGE},
         ) as session:
@@ -216,8 +220,9 @@ func main() {
 	defer func() { _ = client.Stop() }()
 
 	session, err := client.CreateSession(ctx, &copilot.SessionConfig{
-		ClientName: "museum-exhibit-studio",
-		Streaming:  copilot.Bool(true),
+		ClientName:          "museum-exhibit-studio",
+		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
+		Streaming:           copilot.Bool(true),
 		SystemMessage: &copilot.SystemMessageConfig{
 			Mode:    "replace",
 			Content: systemMessage,
@@ -246,6 +251,7 @@ func main() {
 Replace the entire contents of `src/main.rs`:
 
 ```rust
+use github_copilot_sdk::permission;
 use github_copilot_sdk::types::{SessionConfig, SystemMessageConfig};
 use github_copilot_sdk::{Client, ClientOptions};
 use museum_exhibit_studio::{GENERATION_TIMEOUT, stream_exhibit};
@@ -270,7 +276,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let client = Client::start(ClientOptions::default()).await?;
-    let mut config = SessionConfig::default();
+    let mut config = SessionConfig::default().with_permission_handler(permission::approve_all());
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.streaming = Some(true);
     config.system_message = Some(
@@ -305,6 +311,7 @@ package workshop;
 
 import com.github.copilot.CopilotClient;
 import com.github.copilot.SystemMessageMode;
+import com.github.copilot.rpc.PermissionHandler;
 import com.github.copilot.rpc.SessionConfig;
 import com.github.copilot.rpc.SystemMessageConfig;
 
@@ -336,6 +343,7 @@ public final class MuseumExhibitStudio {
             client.start().get();
             var session = client.createSession(new SessionConfig()
                     .setClientName("museum-exhibit-studio")
+                    .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
                     .setStreaming(true)
                     .setSystemMessage(new SystemMessageConfig()
                             .setMode(SystemMessageMode.REPLACE)

@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 from typing import Any
 
-from copilot import CopilotClient
+from copilot import CopilotClient, PermissionHandler
 
 from curator import (
     APPROVED_FACT_LOOKUP_NAME,
@@ -114,6 +114,7 @@ def selected_model() -> str | None:
 def generation_config(approved_facts: Iterable[str]) -> dict[str, Any]:
     config: dict[str, Any] = {
         "client_name": "museum-exhibit-studio",
+        "on_permission_request": PermissionHandler.approve_all,
         "tools": [create_approved_fact_lookup(approved_facts)],
         "available_tools": [APPROVED_FACT_LOOKUP_NAME],
         "streaming": True,

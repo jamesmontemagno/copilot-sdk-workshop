@@ -19,6 +19,17 @@ messages and tool results that make up context.
 Keep one client alive for a piece of work, then create a session for each independent conversation.
 Right now the application is simply `client -> session -> printed response`.
 
+## Answer permission requests before you send
+
+The runtime does not decide on its own whether a tool call may run. It asks the application, and the
+session's permission handler is what answers. When a session is created without one, the request is
+not denied — it is emitted as an event and left pending for manual resolution, so the run stops and
+waits for an answer that never arrives.
+
+Give this first session an approve-all handler so every request has an answer. It approves requests
+when managed settings are disabled, and it is a default rather than a safety measure: Step 5 shows
+what actually constrains this session, and Steps 7 and 8 replace it with narrow, scoped handlers.
+
 ## Write the session
 
 :::language dotnet
@@ -26,6 +37,7 @@ Open `Program.cs` and **replace the entire file**:
 
 ```csharp
 using GitHub.Copilot;
+using GitHub.Copilot.Rpc;
 
 Console.WriteLine("=== Museum Exhibit Studio ===");
 Console.WriteLine();
@@ -35,7 +47,8 @@ await client.StartAsync();
 
 await using var session = await client.CreateSessionAsync(new SessionConfig
 {
-    ClientName = "museum-exhibit-studio"
+    ClientName = "museum-exhibit-studio",
+    OnPermissionRequest = PermissionHandler.ApproveAll
 });
 
 var response = await session.SendAndWaitAsync(
@@ -52,7 +65,8 @@ await client.StopAsync();
 ```
 
 `SendAndWaitAsync` blocks until the session goes idle, so you get the finished answer in one call.
-`await using` disposes the session and the client on the way out.
+`await using` disposes the session and the client on the way out. `PermissionHandler.ApproveAll`
+comes from `GitHub.Copilot.Rpc`, which is why the second `using` is there.
 
 The pre-built helpers you start calling in Step 2 live in `Helpers/CuratorFacts.cs`,
 `Helpers/CuratorStreamer.cs`, `Helpers/CuratorValidation.cs`, `Helpers/CuratorSafety.cs`, and
@@ -63,7 +77,7 @@ The pre-built helpers you start calling in Step 2 live in `Helpers/CuratorFacts.
 Open `src/index.ts` and **replace the entire file**:
 
 ```typescript
-import { CopilotClient } from "@github/copilot-sdk";
+import { approveAll, CopilotClient } from "@github/copilot-sdk";
 
 async function main(): Promise<void> {
   console.log("=== Museum Exhibit Studio ===");
@@ -71,7 +85,10 @@ async function main(): Promise<void> {
 
   const client = new CopilotClient();
   await client.start();
-  const session = await client.createSession({ clientName: "museum-exhibit-studio" });
+  const session = await client.createSession({
+    clientName: "museum-exhibit-studio",
+    onPermissionRequest: approveAll,
+  });
 
   const response = await session.sendAndWait({
     prompt: "Write two sentences of museum wall text about the Apollo 11 Moon landing.",
@@ -86,6 +103,7 @@ void main();
 ```
 
 `sendAndWait` blocks until the session goes idle, so you get the finished answer in one call.
+`approveAll` is imported from the SDK alongside `CopilotClient`.
 
 `src/curator.ts` beside this file is the pre-built helper module you start calling in Step 2. You
 never edit it — you read it.
@@ -97,7 +115,7 @@ Open `main.py` and **replace the entire file**:
 ```python
 import asyncio
 
-from copilot import CopilotClient
+from copilot import CopilotClient, PermissionHandler
 from copilot.session_events import AssistantMessageData, SessionErrorData, SessionIdleData
 
 
@@ -106,7 +124,10 @@ async def main() -> None:
     print()
 
     async with CopilotClient() as client:
-        async with await client.create_session(client_name="museum-exhibit-studio") as session:
+        async with await client.create_session(
+            client_name="museum-exhibit-studio",
+            on_permission_request=PermissionHandler.approve_all,
+        ) as session:
             done = asyncio.Event()
             error: RuntimeError | None = None
 
@@ -167,7 +188,8 @@ func main() {
 	defer func() { _ = client.Stop() }()
 
 	session, err := client.CreateSession(ctx, &copilot.SessionConfig{
-		ClientName: "museum-exhibit-studio",
+		ClientName:          "museum-exhibit-studio",
+		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
 	})
 	if err != nil {
 		panic(err)
@@ -197,6 +219,7 @@ need them. `SendAndWait` blocks until the session goes idle.
 Open `src/main.rs` and **replace the entire file**:
 
 ```rust
+use github_copilot_sdk::permission;
 use github_copilot_sdk::types::{MessageOptions, SessionConfig};
 use github_copilot_sdk::{Client, ClientOptions};
 
@@ -206,7 +229,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let client = Client::start(ClientOptions::default()).await?;
-    let mut config = SessionConfig::default();
+    let mut config = SessionConfig::default().with_permission_handler(permission::approve_all());
     config.client_name = Some("museum-exhibit-studio".to_owned());
     let session = client.create_session(config).await?;
 
@@ -229,7 +252,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 `src/lib.rs` is the `museum_exhibit_studio` library crate that ships the pre-built helpers. You do
-not need it yet, and you never edit it.
+not need it yet, and you never edit it. `with_permission_handler` returns the updated config, so
+keep the remaining fields set on the value it hands back.
 :::
 
 :::language java
@@ -240,6 +264,7 @@ package workshop;
 
 import com.github.copilot.CopilotClient;
 import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
 import com.github.copilot.rpc.SessionConfig;
 
 public final class MuseumExhibitStudio {
@@ -252,8 +277,9 @@ public final class MuseumExhibitStudio {
 
         try (var client = new CopilotClient()) {
             client.start().get();
-            var session = client.createSession(
-                    new SessionConfig().setClientName("museum-exhibit-studio")).get();
+            var session = client.createSession(new SessionConfig()
+                    .setClientName("museum-exhibit-studio")
+                    .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)).get();
             try {
                 var response = session.sendAndWait(new MessageOptions().setPrompt(
                         "Write two sentences of museum wall text about the Apollo 11 Moon landing.")).get();
@@ -271,7 +297,7 @@ public final class MuseumExhibitStudio {
 ```
 
 `sendAndWait` blocks until the session goes idle. The try-with-resources block closes the client
-when `main` exits.
+when `main` exits. `PermissionHandler.APPROVE_ALL` comes from `com.github.copilot.rpc`.
 
 The pre-built helpers you start calling in Step 2 sit beside your file in
 `src/main/java/workshop/`: `CuratorFacts.java`, `CuratorStreamer.java`, `CuratorValidation.java`,
@@ -328,6 +354,8 @@ the next three steps.
 
 - What does the session hold that the client does not?
 - The response arrived all at once after a pause. Which part of the current code causes that?
+- The session answered every permission request instead of leaving it pending. Did that make the
+  session safer, or only make it able to finish?
 - Nothing in this step restricts what the model may claim about Apollo 11. What is the only thing
   keeping the answer roughly on topic right now?
 

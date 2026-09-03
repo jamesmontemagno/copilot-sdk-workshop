@@ -36,6 +36,12 @@ the authorization boundary. Notice that the boundary did not get looser when you
 got *specific*. An allowlist naming one application-owned tool is a far stronger statement than a
 prompt begging the model to behave.
 
+The approve-all handler you carried in from Step 1 is not what makes this session safe. It only
+guarantees that a permission request gets an answer instead of sitting pending, and
+`approved_fact_lookup` is application-owned and skips permission, so in a normal run nothing asks.
+The allowlist is the constraint here: it decides what can raise a request at all. Steps 7 and 8 add
+sessions that really do reach outside the application, and those get narrow handlers to match.
+
 ## Own the session lifecycle
 
 :::language dotnet
@@ -101,6 +107,7 @@ SessionConfig GenerationConfig(IEnumerable<string?> approvedFacts) => new()
 {
     ClientName = "museum-exhibit-studio",
     Model = SelectedModel(),
+    OnPermissionRequest = PermissionHandler.ApproveAll,
     Tools = [CuratorFacts.CreateApprovedFactLookup(approvedFacts)],
     AvailableTools = [CuratorFacts.ApprovedFactLookupName],
     Streaming = true,
@@ -161,7 +168,7 @@ Open `src/index.ts`. Add `generationTimeoutMs` to the helper import and the
 session config type to the SDK import:
 
 ```typescript
-import { CopilotClient, type SessionConfig } from "@github/copilot-sdk";
+import { approveAll, CopilotClient, type SessionConfig } from "@github/copilot-sdk";
 ```
 
 Add the configuration builder and the session runner above `main`:
@@ -171,6 +178,7 @@ function generationConfig(approvedFacts: Iterable<string>): SessionConfig {
   return {
     clientName: "museum-exhibit-studio",
     model: process.env.COPILOT_MODEL?.trim() || undefined,
+    onPermissionRequest: approveAll,
     tools: [createApprovedFactLookup(approvedFacts)],
     availableTools: [approvedFactLookupName],
     streaming: true,
@@ -261,6 +269,7 @@ Add the configuration builder and the session runner above `main`:
 def generation_config(approved_facts: Iterable[str]) -> dict[str, Any]:
     config: dict[str, Any] = {
         "client_name": "museum-exhibit-studio",
+        "on_permission_request": PermissionHandler.approve_all,
         "tools": [create_approved_fact_lookup(approved_facts)],
         "available_tools": [APPROVED_FACT_LOOKUP_NAME],
         "streaming": True,
@@ -350,11 +359,12 @@ func generationConfig(workingDirectory string, approvedFacts []string) (*copilot
 	}
 
 	return &copilot.SessionConfig{
-		ClientName:     "museum-exhibit-studio",
-		Model:          strings.TrimSpace(os.Getenv("COPILOT_MODEL")),
-		Tools:          []copilot.Tool{lookup},
-		AvailableTools: []string{ApprovedFactLookupName},
-		Streaming:      copilot.Bool(true),
+		ClientName:          "museum-exhibit-studio",
+		Model:               strings.TrimSpace(os.Getenv("COPILOT_MODEL")),
+		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
+		Tools:               []copilot.Tool{lookup},
+		AvailableTools:      []string{ApprovedFactLookupName},
+		Streaming:           copilot.Bool(true),
 		SystemMessage: &copilot.SystemMessageConfig{
 			Mode:    "replace",
 			Content: systemMessage,
@@ -474,6 +484,7 @@ Open `src/main.rs`. Update the imports:
 use std::error::Error;
 use std::time::Duration;
 
+use github_copilot_sdk::permission;
 use github_copilot_sdk::types::{SessionConfig, SystemMessageConfig};
 use github_copilot_sdk::{Client, ClientOptions};
 use museum_exhibit_studio::{
@@ -493,7 +504,7 @@ fn selected_model() -> Option<String> {
 }
 
 fn generation_config(approved_facts: &[String]) -> Result<SessionConfig, FactBoundsError> {
-    let mut config = SessionConfig::default();
+    let mut config = SessionConfig::default().with_permission_handler(permission::approve_all());
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.model = selected_model();
     config.tools = Some(vec![approved_fact_lookup(approved_facts)?]);
@@ -632,6 +643,7 @@ Add the configuration builder, the session runner, and the error helpers to the 
     private static SessionConfig generationConfig(Iterable<String> approvedFacts) {
         SessionConfig config = new SessionConfig()
                 .setClientName("museum-exhibit-studio")
+                .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
                 .setTools(List.of(CuratorFacts.approvedFactLookup(approvedFacts)))
                 .setAvailableTools(List.of(CuratorFacts.APPROVED_FACT_LOOKUP_NAME))
                 .setStreaming(true)

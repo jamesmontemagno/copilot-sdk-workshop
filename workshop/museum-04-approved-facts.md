@@ -94,6 +94,7 @@ await client.StartAsync();
 await using var session = await client.CreateSessionAsync(new SessionConfig
 {
     ClientName = "museum-exhibit-studio",
+    OnPermissionRequest = PermissionHandler.ApproveAll,
     Streaming = true,
     Tools = [CuratorFacts.CreateApprovedFactLookup(approvedFacts)],
     AvailableTools = [CuratorFacts.ApprovedFactLookupName],
@@ -233,6 +234,7 @@ async function main(): Promise<void> {
   await client.start();
   const session = await client.createSession({
     clientName: "museum-exhibit-studio",
+    onPermissionRequest: approveAll,
     streaming: true,
     tools: [createApprovedFactLookup(approvedFacts)],
     availableTools: [approvedFactLookupName],
@@ -325,6 +327,7 @@ async def main() -> None:
     async with CopilotClient() as client:
         async with await client.create_session(
             client_name="museum-exhibit-studio",
+            on_permission_request=PermissionHandler.approve_all,
             streaming=True,
             tools=[create_approved_fact_lookup(facts)],
             available_tools=[APPROVED_FACT_LOOKUP_NAME],
@@ -418,10 +421,11 @@ func main() {
 	defer func() { _ = client.Stop() }()
 
 	session, err := client.CreateSession(ctx, &copilot.SessionConfig{
-		ClientName:     "museum-exhibit-studio",
-		Streaming:      copilot.Bool(true),
-		Tools:          []copilot.Tool{lookup},
-		AvailableTools: []string{ApprovedFactLookupName},
+		ClientName:          "museum-exhibit-studio",
+		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
+		Streaming:           copilot.Bool(true),
+		Tools:               []copilot.Tool{lookup},
+		AvailableTools:      []string{ApprovedFactLookupName},
 		SystemMessage: &copilot.SystemMessageConfig{
 			Mode:    "replace",
 			Content: systemMessage,
@@ -524,7 +528,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!();
     let client = Client::start(ClientOptions::default()).await?;
-    let mut config = SessionConfig::default();
+    let mut config = SessionConfig::default().with_permission_handler(permission::approve_all());
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.streaming = Some(true);
     config.tools = Some(vec![approved_fact_lookup(&facts)?]);
@@ -629,6 +633,7 @@ Replace `main`:
             client.start().get();
             var session = client.createSession(new SessionConfig()
                     .setClientName("museum-exhibit-studio")
+                    .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
                     .setStreaming(true)
                     .setTools(List.of(CuratorFacts.approvedFactLookup(facts)))
                     .setAvailableTools(List.of(CuratorFacts.APPROVED_FACT_LOOKUP_NAME))

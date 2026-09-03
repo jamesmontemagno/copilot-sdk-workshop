@@ -29,6 +29,7 @@ Replace the entire contents of `Program.cs`:
 
 ```csharp
 using GitHub.Copilot;
+using GitHub.Copilot.Rpc;
 using MuseumExhibitStudio.Helpers;
 
 Console.WriteLine("=== Museum Exhibit Studio ===");
@@ -40,6 +41,7 @@ await client.StartAsync();
 await using var session = await client.CreateSessionAsync(new SessionConfig
 {
     ClientName = "museum-exhibit-studio",
+    OnPermissionRequest = PermissionHandler.ApproveAll,
     Streaming = true
 });
 
@@ -51,8 +53,8 @@ await client.StopAsync();
 ```
 
 Two changes: `Streaming = true` on the session config, and `CuratorStreamer.StreamExhibitAsync`
-in place of `SendAndWaitAsync`. The helper lives in `Helpers/CuratorStreamer.cs` and you never
-edit it.
+in place of `SendAndWaitAsync`. The Step 1 permission handler stays exactly where it was. The
+helper lives in `Helpers/CuratorStreamer.cs` and you never edit it.
 
 **Look inside:** open `Helpers/CuratorStreamer.cs` and read `StreamExhibitAsync` once. It is the
 SDK event loop, and this is the clearest place in the workshop to see how streaming actually works.
@@ -67,7 +69,7 @@ the subscription is disposed on every path.
 Replace the entire contents of `src/index.ts`:
 
 ```typescript
-import { CopilotClient } from "@github/copilot-sdk";
+import { approveAll, CopilotClient } from "@github/copilot-sdk";
 import { streamExhibit } from "./curator.js";
 
 async function main(): Promise<void> {
@@ -78,6 +80,7 @@ async function main(): Promise<void> {
   await client.start();
   const session = await client.createSession({
     clientName: "museum-exhibit-studio",
+    onPermissionRequest: approveAll,
     streaming: true,
   });
 
@@ -94,7 +97,8 @@ void main();
 ```
 
 Two changes: `streaming: true` on the session config, and `streamExhibit` in place of
-`sendAndWait`. The helper lives in `src/curator.ts` and you never edit it.
+`sendAndWait`. The Step 1 permission handler stays exactly where it was. The helper lives in
+`src/curator.ts` and you never edit it.
 
 **Look inside:** open `src/curator.ts` and read `streamExhibit` once. It is the SDK event loop, and
 this is the clearest place in the workshop to see how streaming actually works. It subscribes with
@@ -111,7 +115,7 @@ Replace the entire contents of `main.py`:
 ```python
 import asyncio
 
-from copilot import CopilotClient
+from copilot import CopilotClient, PermissionHandler
 
 from curator import stream_exhibit
 
@@ -123,6 +127,7 @@ async def main() -> None:
     async with CopilotClient() as client:
         async with await client.create_session(
             client_name="museum-exhibit-studio",
+            on_permission_request=PermissionHandler.approve_all,
             streaming=True,
         ) as session:
             await stream_exhibit(
@@ -173,8 +178,9 @@ func main() {
 	defer func() { _ = client.Stop() }()
 
 	session, err := client.CreateSession(ctx, &copilot.SessionConfig{
-		ClientName: "museum-exhibit-studio",
-		Streaming:  copilot.Bool(true),
+		ClientName:          "museum-exhibit-studio",
+		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
+		Streaming:           copilot.Bool(true),
 	})
 	if err != nil {
 		panic(err)
@@ -192,8 +198,8 @@ func main() {
 ```
 
 Two changes: `Streaming: copilot.Bool(true)` on the session config, and `StreamExhibit` in place of
-`SendAndWait`. `StreamExhibit` and `GenerationTimeout` come from `curator.go` in the same package,
-and you never edit that file.
+`SendAndWait`. The Step 1 permission handler stays exactly where it was. `StreamExhibit` and
+`GenerationTimeout` come from `curator.go` in the same package, and you never edit that file.
 
 **Look inside:** open `curator.go` and read `StreamExhibit` once. It is the SDK event loop, and
 this is the clearest place in the workshop to see how streaming actually works. It subscribes with
@@ -208,6 +214,7 @@ a deferred `unsubscribe` runs on every path.
 Replace the entire contents of `src/main.rs`:
 
 ```rust
+use github_copilot_sdk::permission;
 use github_copilot_sdk::types::SessionConfig;
 use github_copilot_sdk::{Client, ClientOptions};
 use museum_exhibit_studio::{GENERATION_TIMEOUT, stream_exhibit};
@@ -218,7 +225,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let client = Client::start(ClientOptions::default()).await?;
-    let mut config = SessionConfig::default();
+    let mut config = SessionConfig::default().with_permission_handler(permission::approve_all());
     config.client_name = Some("museum-exhibit-studio".to_owned());
     config.streaming = Some(true);
     let session = client.create_session(config).await?;
@@ -236,9 +243,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Two changes: `config.streaming = Some(true)`, and `stream_exhibit` in place of `send_and_wait`.
-Both `stream_exhibit` and `GENERATION_TIMEOUT` come from the `museum_exhibit_studio` crate in
-`src/lib.rs`, and you never edit it.
+Two changes: `config.streaming = Some(true)`, and `stream_exhibit` in place of `send_and_wait`. The
+Step 1 permission handler stays exactly where it was. Both `stream_exhibit` and
+`GENERATION_TIMEOUT` come from the `museum_exhibit_studio` crate in `src/lib.rs`, and you never
+edit it.
 
 **Look inside:** open `src/lib.rs` and read `stream_exhibit` once. It is the SDK event loop, and
 this is the clearest place in the workshop to see how streaming actually works. It subscribes with
@@ -256,6 +264,7 @@ Replace the entire contents of `src/main/java/workshop/MuseumExhibitStudio.java`
 package workshop;
 
 import com.github.copilot.CopilotClient;
+import com.github.copilot.rpc.PermissionHandler;
 import com.github.copilot.rpc.SessionConfig;
 
 public final class MuseumExhibitStudio {
@@ -270,6 +279,7 @@ public final class MuseumExhibitStudio {
             client.start().get();
             var session = client.createSession(new SessionConfig()
                     .setClientName("museum-exhibit-studio")
+                    .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
                     .setStreaming(true)).get();
             try {
                 CuratorStreamer.streamExhibit(session,
@@ -284,8 +294,8 @@ public final class MuseumExhibitStudio {
 ```
 
 Two changes: `setStreaming(true)` on the session config, and `CuratorStreamer.streamExhibit` in
-place of `sendAndWait`. The helper lives in `CuratorStreamer.java` beside your file, and you never
-edit it.
+place of `sendAndWait`. The Step 1 permission handler stays exactly where it was. The helper lives
+in `CuratorStreamer.java` beside your file, and you never edit it.
 
 **Look inside:** open `CuratorStreamer.java` and read `streamExhibit` once. It is the SDK event
 loop, and this is the clearest place in the workshop to see how streaming actually works. It

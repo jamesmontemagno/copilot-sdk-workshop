@@ -1041,6 +1041,42 @@ MUSEUM_TOOL_REGISTRATION = {
     "rust": (r"tools=some\(vec!\[approvedfactlookup\(",),
     "java": (r"settools\(list\.of\(curatorfacts\.approvedfactlookup\(",),
 }
+# A session created without a permission handler does not deny requests: the runtime emits them as
+# events and leaves them pending for manual resolution, so the run stalls. Repository validation
+# never authenticates the Copilot CLI or sends a prompt, so nothing else here can catch that.
+MUSEUM_SESSION_CONFIGURATION_LESSONS = (
+    "museum-01-first-curator-session.md",
+    "museum-02-stream-the-curator.md",
+    "museum-03-curator-voice.md",
+    "museum-04-approved-facts.md",
+    "museum-05-guardrails.md",
+    "museum-07-wikipedia-research.md",
+    "museum-08-interactive-exhibit-page.md",
+)
+MUSEUM_ANY_PERMISSION_HANDLER = {
+    "dotnet": r"onpermissionrequest=",
+    "nodejs": r"onpermissionrequest:",
+    "python": r"[\"']?onpermissionrequest[\"']?[=:]",
+    "go": r"onpermissionrequest:",
+    "rust": r"withpermissionhandler\(",
+    "java": r"setonpermissionrequest\(",
+}
+MUSEUM_APPROVE_ALL_PERMISSION_HANDLER = {
+    "dotnet": r"onpermissionrequest=permissionhandler\.approveall",
+    "nodejs": r"onpermissionrequest:approveall",
+    "python": r"[\"']?onpermissionrequest[\"']?[=:]permissionhandler\.approveall",
+    "go": r"onpermissionrequest:copilot\.permissionhandler\.approveall",
+    "rust": r"withpermissionhandler\(permission::approveall\(\)\)",
+    "java": r"setonpermissionrequest\(permissionhandler\.approveall\)",
+}
+MUSEUM_SESSION_CREATION = {
+    "dotnet": r"createsessionasync\(",
+    "nodejs": r"createsession\(",
+    "python": r"createsession\(",
+    "go": r"createsession\(",
+    "rust": r"createsession\(",
+    "java": r"createsession\(",
+}
 
 
 def museum_symbols(text: str) -> str:
@@ -1795,6 +1831,46 @@ def validate_editor_open_guidance() -> None:
         )
 
 
+def validate_museum_permission_handlers() -> None:
+    # Every museum session configuration has to answer permission requests. Without a handler the
+    # runtime leaves each request pending instead of denying it, so a learner's Step 1 run stalls
+    # and never prints an exhibit. Assert the per-language SDK member rather than any prose.
+    for lesson_name in MUSEUM_SESSION_CONFIGURATION_LESSONS:
+        for language in LANGUAGES:
+            rendered = museum_tokens(render_language_markdown(WORKSHOP / lesson_name, language))
+            require(
+                re.search(MUSEUM_ANY_PERMISSION_HANDLER[language], rendered) is not None,
+                f"workshop/{lesson_name} ({language}) builds a session without a permission "
+                "handler; the runtime leaves permission requests pending and the run stalls",
+            )
+
+    # Any other museum lesson that starts creating sessions has to join the list above rather than
+    # quietly shipping a handler-less session.
+    for lesson_name in MUSEUM_LESSONS:
+        if lesson_name in MUSEUM_SESSION_CONFIGURATION_LESSONS or lesson_name.endswith(
+            "00-preflight.md"
+        ):
+            continue
+        for language in LANGUAGES:
+            rendered = museum_tokens(render_language_markdown(WORKSHOP / lesson_name, language))
+            require(
+                re.search(MUSEUM_SESSION_CREATION[language], rendered) is None,
+                f"workshop/{lesson_name} ({language}) creates a session but is not listed in "
+                "MUSEUM_SESSION_CONFIGURATION_LESSONS, so its permission handler is unchecked",
+            )
+
+    # The finished apps run the same generation session the lessons build, so they need the same
+    # approve-all handler. The scoped research and HTML handlers are checked elsewhere.
+    for language in LANGUAGES:
+        finished = ROOT / "finished" / language / "museum-exhibit-studio"
+        entrypoint = museum_tokens(read(finished / MUSEUM_ENTRYPOINTS[language]))
+        require(
+            re.search(MUSEUM_APPROVE_ALL_PERMISSION_HANDLER[language], entrypoint) is not None,
+            f"{finished.relative_to(ROOT)} does not set the approve-all permission handler on the "
+            "exhibit generation session, so the finished app stalls on the first request",
+        )
+
+
 def validate_workflows() -> None:
     required_setup = (
         ("actions/setup-dotnet@v6", "dotnet-version: 10.0.x"),
@@ -1853,6 +1929,7 @@ validate_project_behavior()
 validate_site_behavior()
 validate_documentation()
 validate_editor_open_guidance()
+validate_museum_permission_handlers()
 validate_workflows()
 
 if errors:

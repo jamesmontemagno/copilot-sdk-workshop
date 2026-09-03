@@ -1,4 +1,5 @@
 using GitHub.Copilot;
+using GitHub.Copilot.Rpc;
 using MuseumExhibitStudio.Helpers;
 
 const string SystemMessage = """
@@ -125,6 +126,7 @@ SessionConfig GenerationConfig(IEnumerable<string?> approvedFacts) => new()
 {
     ClientName = "museum-exhibit-studio",
     Model = SelectedModel(),
+    OnPermissionRequest = PermissionHandler.ApproveAll,
     Tools = [CuratorFacts.CreateApprovedFactLookup(approvedFacts)],
     AvailableTools = [CuratorFacts.ApprovedFactLookupName],
     Streaming = true,
